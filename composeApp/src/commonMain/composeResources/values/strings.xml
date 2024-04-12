@@ -1,0 +1,5 @@
+<resources>
+    <string name="please_sign_in">Please Sign In</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+</resources>
