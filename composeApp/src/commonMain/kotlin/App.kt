@@ -8,16 +8,19 @@ import moe.tlaster.precompose.navigation.transition.NavTransition
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import scene.HomeScene
 import scene.LoginScene
+import store.AppStore
 
 @Composable
 @Preview
 fun App() {
     PreComposeApp {
         val navigator = rememberNavigator()
+        val isLogin = AppStore.loginToken.isNotBlank()
+
         NavHost(
             navigator = navigator,
             navTransition = NavTransition(),
-            initialRoute = RouteConstants.ROUTE_HOME
+            initialRoute = if (isLogin) RouteConstants.ROUTE_HOME else RouteConstants.ROUTE_LOGIN
         ) {
             scene(
                 route = RouteConstants.ROUTE_LOGIN,

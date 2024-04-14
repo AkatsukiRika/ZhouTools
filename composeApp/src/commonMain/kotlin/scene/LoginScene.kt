@@ -37,6 +37,7 @@ import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
+import store.AppStore
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.login
 import zhoutools.composeapp.generated.resources.login_error_empty
@@ -72,7 +73,13 @@ fun LoginScene(navigator: Navigator) {
                     snackbarHostState.showSnackbar(getString(Res.string.unknown_error))
                 }
             } else {
-                navigator.navigate(RouteConstants.ROUTE_HOME)
+                val token = response.second
+                if (token != null) {
+                    AppStore.loginToken = token
+                    navigator.navigate(RouteConstants.ROUTE_HOME)
+                } else {
+                    snackbarHostState.showSnackbar(getString(Res.string.unknown_error))
+                }
             }
         }
     }
