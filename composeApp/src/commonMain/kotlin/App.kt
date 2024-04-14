@@ -36,7 +36,7 @@ fun App() {
                 navTransition = NavTransition()
             ) {
                 AppTheme {
-                    HomeScene()
+                    HomeScene(navigator)
                 }
             }
         }

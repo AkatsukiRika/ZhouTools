@@ -17,10 +17,11 @@ import fragment.SettingsFragment
 import fragment.TimeCardFragment
 import global.AppColors
 import moe.tlaster.precompose.navigation.BackHandler
+import moe.tlaster.precompose.navigation.Navigator
 import widget.BottomBar
 
 @Composable
-fun HomeScene() {
+fun HomeScene(navigator: Navigator) {
     Scaffold(modifier = Modifier
         .imePadding()
         .fillMaxSize()
@@ -37,9 +38,11 @@ fun HomeScene() {
                     )
                 }
                 TabConstants.TAB_SETTINGS -> {
-                    SettingsFragment(modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                    SettingsFragment(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        navigator = navigator
                     )
                 }
             }
