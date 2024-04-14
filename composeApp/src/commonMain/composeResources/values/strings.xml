@@ -2,4 +2,7 @@
     <string name="please_sign_in">Please Sign In</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="login_error_empty">Username &amp; password must not be empty!</string>
+    <string name="unknown_error">Unknown error occurred!</string>
 </resources>
