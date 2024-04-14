@@ -5,4 +5,6 @@
     <string name="login">Login</string>
     <string name="login_error_empty">Username &amp; password must not be empty!</string>
     <string name="unknown_error">Unknown error occurred!</string>
+    <string name="time_card">Time Card</string>
+    <string name="settings">Settings</string>
 </resources>

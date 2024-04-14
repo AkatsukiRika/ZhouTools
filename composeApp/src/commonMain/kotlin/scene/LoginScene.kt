@@ -30,8 +30,10 @@ import androidx.compose.ui.unit.sp
 import api.NetworkApi
 import extension.firstCharToCapital
 import global.AppColors
+import constant.RouteConstants
 import kotlinx.coroutines.launch
 import model.LoginRequest
+import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
@@ -45,7 +47,7 @@ import zhoutools.composeapp.generated.resources.username
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun LoginScene() {
+fun LoginScene(navigator: Navigator) {
     var inputUsername by remember { mutableStateOf("") }
     var inputPassword by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -70,9 +72,8 @@ fun LoginScene() {
                     snackbarHostState.showSnackbar(getString(Res.string.unknown_error))
                 }
             } else {
-                println("login success")
+                navigator.navigate(RouteConstants.ROUTE_HOME)
             }
-            println("[xuanTest] first=${response.first}, second=${response.second}")
         }
     }
 

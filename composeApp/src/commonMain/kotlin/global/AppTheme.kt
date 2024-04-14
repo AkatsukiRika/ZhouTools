@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 fun AppTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colors = MaterialTheme.colors.copy(
-            primary = AppColors.Primary,
+            primary = AppColors.Theme,
             background = AppColors.Background
         )
     ) {
