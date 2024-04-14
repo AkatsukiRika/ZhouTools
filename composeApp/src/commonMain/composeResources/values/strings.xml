@@ -8,4 +8,9 @@
     <string name="time_card">Time Card</string>
     <string name="settings">Settings</string>
     <string name="logout">Log Out</string>
+    <string name="press_time_card">Press\nTime Card</string>
+    <string name="working_time">Working Time</string>
+    <string name="run_now">Run Now</string>
+    <string name="ot_run">Overtime Run</string>
+    <string name="try_again">Please try again.</string>
 </resources>

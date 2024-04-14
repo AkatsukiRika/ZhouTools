@@ -49,6 +49,8 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             // DataStore
             implementation(libs.androidx.datastore.core)
+            // DateTime
+            implementation(libs.kotlinx.datetime)
         }
     }
 }

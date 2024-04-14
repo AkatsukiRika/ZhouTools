@@ -31,6 +31,8 @@ import api.NetworkApi
 import extension.firstCharToCapital
 import global.AppColors
 import constant.RouteConstants
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import model.LoginRequest
 import moe.tlaster.precompose.navigation.Navigator
@@ -56,7 +58,7 @@ fun LoginScene(navigator: Navigator) {
     val networkApi = remember { NetworkApi() }
 
     fun login() {
-        scope.launch {
+        scope.launch(Dispatchers.IO) {
             if (inputUsername.isEmpty() || inputPassword.isEmpty()) {
                 snackbarHostState.showSnackbar(message = getString(Res.string.login_error_empty))
                 return@launch
@@ -76,7 +78,9 @@ fun LoginScene(navigator: Navigator) {
                 val token = response.second
                 if (token != null) {
                     AppStore.loginToken = token
-                    navigator.navigate(RouteConstants.ROUTE_HOME)
+                    scope.launch(Dispatchers.Main) {
+                        navigator.navigate(RouteConstants.ROUTE_HOME)
+                    }
                 } else {
                     snackbarHostState.showSnackbar(getString(Res.string.unknown_error))
                 }
