@@ -15,7 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import constant.RouteConstants
+import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
+import moe.tlaster.precompose.navigation.PopUpTo
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -29,7 +32,13 @@ import zhoutools.composeapp.generated.resources.logout
 fun SettingsFragment(modifier: Modifier = Modifier, navigator: Navigator) {
     fun logout() {
         AppStore.loginToken = ""
-        navigator.popBackStack()
+        navigator.navigate(
+            route = RouteConstants.ROUTE_LOGIN,
+            options = NavOptions(
+                launchSingleTop = true,
+                popUpTo = PopUpTo.First()
+            )
+        )
     }
 
     Column(
