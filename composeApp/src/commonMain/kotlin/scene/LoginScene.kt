@@ -78,6 +78,7 @@ fun LoginScene(navigator: Navigator) {
                 val token = response.second
                 if (token != null) {
                     AppStore.loginToken = token
+                    AppStore.loginUsername = inputUsername
                     scope.launch(Dispatchers.Main) {
                         navigator.navigate(RouteConstants.ROUTE_HOME)
                     }

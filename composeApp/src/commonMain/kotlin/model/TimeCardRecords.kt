@@ -3,7 +3,9 @@ package model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TimeCardRecords(val days: MutableList<TimeCardDay>)
+data class TimeCardRecords(
+    val days: MutableList<TimeCardDay>
+)
 
 @Serializable
 data class TimeCardDay(

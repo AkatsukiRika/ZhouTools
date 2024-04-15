@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
+import store.LongStore
 import store.StringStore
 import kotlin.properties.ReadWriteProperty
 
@@ -22,4 +23,10 @@ abstract class KotStoreModel(
         default: String = "",
         syncSave: Boolean = syncSaveAllProperties
     ): ReadWriteProperty<KotStoreModel, String> = StringStore(key, default, syncSave)
+
+    protected fun longStore(
+        key: String,
+        default: Long = 0L,
+        syncSave: Boolean = syncSaveAllProperties
+    ): ReadWriteProperty<KotStoreModel, Long> = LongStore(key, default, syncSave)
 }

@@ -13,4 +13,9 @@
     <string name="run_now">Run Now</string>
     <string name="ot_run">Overtime Run</string>
     <string name="try_again">Please try again.</string>
+    <string name="sync_data">Sync</string>
+    <string name="sync_success">Synced to server successfully.</string>
+    <string name="sync_failed">Unable to sync data.</string>
+    <string name="in_progress">In progress</string>
+    <string name="last_sync_x">Last sync: %1$s</string>
 </resources>

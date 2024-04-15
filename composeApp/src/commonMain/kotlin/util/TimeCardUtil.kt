@@ -5,6 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.TimeCardDay
 import model.TimeCardRecords
+import model.TimeCardSyncRequest
 import store.AppStore
 
 object TimeCardUtil {
@@ -112,5 +113,19 @@ object TimeCardUtil {
         val todayTimeCard = todayTimeCard() ?: return null
         val curTime = TimeUtil.currentTimeMillis()
         return curTime - todayTimeCard
+    }
+
+    fun buildSyncRequest(): TimeCardSyncRequest? {
+        return try {
+            val records: TimeCardRecords = Json.decodeFromString(AppStore.timeCards)
+            val username = AppStore.loginUsername
+            if (username.isBlank()) {
+                null
+            } else {
+                TimeCardSyncRequest(username, records)
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 }
