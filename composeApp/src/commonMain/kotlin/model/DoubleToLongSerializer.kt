@@ -16,6 +16,6 @@ object DoubleToLongSerializer : KSerializer<Long> {
     }
 
     override fun serialize(encoder: Encoder, value: Long) {
-        encoder.encodeDouble(value.toDouble())
+        encoder.encodeLong(value)
     }
 }

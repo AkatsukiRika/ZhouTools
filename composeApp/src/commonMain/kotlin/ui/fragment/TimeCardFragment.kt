@@ -24,15 +24,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import api.NetworkApi
+import extension.isBlankJson
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
 import kotlinx.coroutines.delay
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import model.TimeCardRecords
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.lighthousegames.logging.logging
 import store.AppStore
+import ui.dialog.ConfirmDialog
 import util.TimeCardUtil
 import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
@@ -41,6 +46,8 @@ import zhoutools.composeapp.generated.resources.ic_work_enough
 import zhoutools.composeapp.generated.resources.ot_run
 import zhoutools.composeapp.generated.resources.press_time_card
 import zhoutools.composeapp.generated.resources.run_now
+import zhoutools.composeapp.generated.resources.server_data_confirm_content
+import zhoutools.composeapp.generated.resources.server_data_confirm_title
 import zhoutools.composeapp.generated.resources.working_time
 
 @OptIn(ExperimentalResourceApi::class)
@@ -49,6 +56,8 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
     var curTime by remember { mutableLongStateOf(TimeUtil.currentTimeMillis()) }
     var hasTodayCard by remember { mutableStateOf(TimeCardUtil.hasTodayTimeCard()) }
     var workingTime by remember { mutableLongStateOf(TimeCardUtil.todayWorkingTime() ?: 0) }
+    var serverData by remember { mutableStateOf<TimeCardRecords?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
     val networkApi = remember { NetworkApi() }
     val logger = remember { logging("TimeCardFragment") }
 
@@ -64,8 +73,20 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
 
     LaunchedEffect(Unit) {
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-            val serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
+            serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
             logger.i { "serverData=$serverData" }
+            showDialog = serverData != null && AppStore.timeCards.isBlankJson()
+        }
+    }
+
+    fun useServerData() {
+        serverData?.let {
+            val encodeResult = Json.encodeToString(it)
+            AppStore.timeCards = encodeResult
+            logger.i { "encodeResult=$encodeResult, AppStore.timeCards=${AppStore.timeCards}" }
+            hasTodayCard = TimeCardUtil.hasTodayTimeCard()
+            workingTime = TimeCardUtil.todayWorkingTime() ?: 0
+            showDialog = false
         }
     }
 
@@ -115,6 +136,19 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
                 }
             )
         }
+    }
+
+    if (showDialog) {
+        ConfirmDialog(
+            title = stringResource(Res.string.server_data_confirm_title),
+            content = stringResource(Res.string.server_data_confirm_content),
+            onCancel = {
+                showDialog = false
+            },
+            onConfirm = {
+                useServerData()
+            }
+        )
     }
 }
 

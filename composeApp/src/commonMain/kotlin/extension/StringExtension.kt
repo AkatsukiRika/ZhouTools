@@ -6,3 +6,7 @@ fun String.firstCharToCapital(): String {
     }
     return this.first().uppercase() + this.substring(1)
 }
+
+fun String.isBlankJson(): Boolean {
+    return this == "{}"
+}
