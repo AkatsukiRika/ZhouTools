@@ -18,4 +18,8 @@
     <string name="sync_failed">Unable to sync data.</string>
     <string name="in_progress">In progress</string>
     <string name="last_sync_x">Last sync: %1$s</string>
+    <string name="server_data_confirm_title">Server Data Confirmation</string>
+    <string name="server_data_confirm_content">Server-side data detected. Download and apply?</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
 </resources>

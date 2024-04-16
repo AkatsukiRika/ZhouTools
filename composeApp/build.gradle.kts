@@ -51,6 +51,8 @@ kotlin {
             implementation(libs.androidx.datastore.core)
             // DateTime
             implementation(libs.kotlinx.datetime)
+            // Logging
+            api(libs.km.logging)
         }
     }
 }

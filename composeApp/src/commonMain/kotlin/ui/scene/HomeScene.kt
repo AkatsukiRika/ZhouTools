@@ -1,4 +1,4 @@
-package scene
+package ui.scene
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -16,13 +16,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import constant.TabConstants
-import fragment.SettingsFragment
-import fragment.TimeCardFragment
+import ui.fragment.SettingsFragment
+import ui.fragment.TimeCardFragment
 import global.AppColors
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
-import widget.BottomBar
+import ui.widget.BottomBar
 
 @Composable
 fun HomeScene(navigator: Navigator) {

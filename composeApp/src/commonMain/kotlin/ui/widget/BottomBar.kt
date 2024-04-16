@@ -1,4 +1,4 @@
-package widget
+package ui.widget
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

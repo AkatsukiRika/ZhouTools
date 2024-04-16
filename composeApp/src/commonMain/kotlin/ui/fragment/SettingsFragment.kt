@@ -1,4 +1,4 @@
-package fragment
+package ui.fragment
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

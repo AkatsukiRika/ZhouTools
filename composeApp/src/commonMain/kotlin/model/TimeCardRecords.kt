@@ -1,5 +1,6 @@
 package model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -9,7 +10,13 @@ data class TimeCardRecords(
 
 @Serializable
 data class TimeCardDay(
+    @Serializable(with = DoubleToLongSerializer::class)
+    @SerialName("day_start_time")
     val dayStartTime: Long,
+    @Serializable(with = DoubleToLongSerializer::class)
+    @SerialName("latest_time_card")
     var latestTimeCard: Long,
+    @Serializable(with = DoubleToLongSerializer::class)
+    @SerialName("latest_time_run")
     var latestTimeRun: Long? = null
 )

@@ -1,4 +1,4 @@
-package fragment
+package ui.fragment
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import api.NetworkApi
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
@@ -30,6 +31,8 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.lighthousegames.logging.logging
+import store.AppStore
 import util.TimeCardUtil
 import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
@@ -46,6 +49,8 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
     var curTime by remember { mutableLongStateOf(TimeUtil.currentTimeMillis()) }
     var hasTodayCard by remember { mutableStateOf(TimeCardUtil.hasTodayTimeCard()) }
     var workingTime by remember { mutableLongStateOf(TimeCardUtil.todayWorkingTime() ?: 0) }
+    val networkApi = remember { NetworkApi() }
+    val logger = remember { logging("TimeCardFragment") }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -54,6 +59,13 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
             TimeCardUtil.todayWorkingTime()?.let {
                 workingTime = it
             }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
+            val serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
+            logger.i { "serverData=$serverData" }
         }
     }
 

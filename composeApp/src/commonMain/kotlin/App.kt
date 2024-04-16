@@ -6,8 +6,9 @@ import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import scene.HomeScene
-import scene.LoginScene
+import org.lighthousegames.logging.logging
+import ui.scene.HomeScene
+import ui.scene.LoginScene
 import store.AppStore
 
 @Composable
@@ -16,6 +17,7 @@ fun App() {
     PreComposeApp {
         val navigator = rememberNavigator()
         val isLogin = AppStore.loginToken.isNotBlank()
+        val logger = remember { logging("App") }
 
         NavHost(
             navigator = navigator,
@@ -39,6 +41,10 @@ fun App() {
                     HomeScene(navigator)
                 }
             }
+        }
+
+        LaunchedEffect(Unit) {
+            logger.i { "Welcome to Zhou Tools!" }
         }
     }
 }
