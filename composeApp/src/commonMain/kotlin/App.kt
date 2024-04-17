@@ -1,4 +1,5 @@
 import androidx.compose.runtime.*
+import api.NetworkApi
 import global.AppTheme
 import constant.RouteConstants
 import moe.tlaster.precompose.PreComposeApp
@@ -11,13 +12,15 @@ import ui.scene.HomeScene
 import ui.scene.LoginScene
 import store.AppStore
 
+val logger = logging("App")
+val networkApi = NetworkApi()
+
 @Composable
 @Preview
 fun App() {
     PreComposeApp {
         val navigator = rememberNavigator()
         val isLogin = AppStore.loginToken.isNotBlank()
-        val logger = remember { logging("App") }
 
         NavHost(
             navigator = navigator,

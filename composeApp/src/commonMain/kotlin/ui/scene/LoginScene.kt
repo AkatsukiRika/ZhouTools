@@ -27,7 +27,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import api.NetworkApi
 import extension.firstCharToCapital
 import global.AppColors
 import constant.RouteConstants
@@ -36,6 +35,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import model.LoginRequest
 import moe.tlaster.precompose.navigation.Navigator
+import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
@@ -55,7 +55,6 @@ fun LoginScene(navigator: Navigator) {
     var inputPassword by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val networkApi = remember { NetworkApi() }
 
     fun login() {
         scope.launch(Dispatchers.IO) {

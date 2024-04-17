@@ -42,7 +42,11 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            // Molecule
+            implementation(libs.molecule.runtime)
+            // PreCompose
             implementation(libs.precompose)
+            implementation(libs.precompose.molecule)
             // Ktor
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)

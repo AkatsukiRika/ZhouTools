@@ -96,7 +96,7 @@ object TimeCardUtil {
         }
     }
 
-    private fun todayTimeCard(): Long? {
+    fun todayTimeCard(): Long? {
         if (!hasTodayTimeCard()) {
             return null
         }

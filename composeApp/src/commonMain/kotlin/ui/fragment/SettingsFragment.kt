@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import api.NetworkApi
 import constant.RouteConstants
 import extension.firstCharToCapital
 import global.AppColors
@@ -37,6 +36,7 @@ import kotlinx.datetime.Clock
 import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.PopUpTo
+import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
@@ -63,7 +63,6 @@ fun SettingsFragment(
     var inProgress by remember { mutableStateOf(false) }
     var dots by remember { mutableStateOf("...") }
     var job by remember { mutableStateOf<Job?>(null) }
-    val networkApi = remember { NetworkApi() }
 
     LaunchedEffect(inProgress) {
         if (inProgress) {
