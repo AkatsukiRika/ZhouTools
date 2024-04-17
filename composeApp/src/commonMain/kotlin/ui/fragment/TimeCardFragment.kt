@@ -50,6 +50,8 @@ import zhoutools.composeapp.generated.resources.server_data_confirm_content
 import zhoutools.composeapp.generated.resources.server_data_confirm_title
 import zhoutools.composeapp.generated.resources.working_time
 
+private var isDialogShowed = false
+
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun TimeCardFragment(modifier: Modifier = Modifier) {
@@ -59,7 +61,7 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
     var serverData by remember { mutableStateOf<TimeCardRecords?>(null) }
     var showDialog by remember { mutableStateOf(false) }
     val networkApi = remember { NetworkApi() }
-    val logger = remember { logging("TimeCardFragment") }
+    val logger = remember { logging("App") }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -75,7 +77,10 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
             serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
             logger.i { "serverData=$serverData" }
-            showDialog = serverData != null && AppStore.timeCards.isBlankJson()
+            if (AppStore.timeCards.isBlankJson() && serverData != null && !isDialogShowed) {
+                showDialog = true
+                isDialogShowed = true
+            }
         }
     }
 

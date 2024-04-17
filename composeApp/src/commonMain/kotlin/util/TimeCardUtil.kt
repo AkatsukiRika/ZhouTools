@@ -1,6 +1,7 @@
 package util
 
 import extension.dayStartTime
+import extension.isBlankJson
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.TimeCardDay
@@ -62,6 +63,9 @@ object TimeCardUtil {
     }
 
     fun hasTodayTimeCard(): Boolean {
+        if (AppStore.timeCards.isBlankJson()) {
+            return false
+        }
         val curTime = TimeUtil.currentTimeMillis()
         val dayStartTime = curTime.dayStartTime()
         return try {
@@ -76,6 +80,9 @@ object TimeCardUtil {
     }
 
     fun hasTodayRun(): Boolean {
+        if (AppStore.timeCards.isBlankJson()) {
+            return false
+        }
         val curTime = TimeUtil.currentTimeMillis()
         val dayStartTime = curTime.dayStartTime()
         return try {

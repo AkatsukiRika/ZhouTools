@@ -1,19 +1,19 @@
 package ui.scene
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import constant.TabConstants
 import ui.fragment.SettingsFragment
@@ -24,6 +24,7 @@ import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
 import ui.widget.BottomBar
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScene(navigator: Navigator) {
     val scope = rememberCoroutineScope()
@@ -44,31 +45,33 @@ fun HomeScene(navigator: Navigator) {
             .fillMaxSize()
             .background(AppColors.Background)
     ) {
-        var selectIndex by remember { mutableIntStateOf(TabConstants.TAB_TIME_CARD) }
+        val pagerState = rememberPagerState(initialPage = TabConstants.TAB_TIME_CARD, pageCount = { TabConstants.TAB_COUNT })
 
         Column(modifier = Modifier.fillMaxSize()) {
-            when (selectIndex) {
-                TabConstants.TAB_TIME_CARD -> {
-                    TimeCardFragment(modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                    )
-                }
-                TabConstants.TAB_SETTINGS -> {
-                    SettingsFragment(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
+            HorizontalPager(
+                state = pagerState,
+                userScrollEnabled = false,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                when (it) {
+                    TabConstants.TAB_TIME_CARD -> TimeCardFragment(modifier = Modifier.fillMaxSize())
+                    TabConstants.TAB_SETTINGS -> SettingsFragment(
+                        modifier = Modifier.fillMaxSize(),
                         navigator = navigator,
                         showSnackbar = ::showSnackbar
                     )
+                    else -> TimeCardFragment(modifier = Modifier.fillMaxSize())
                 }
             }
 
             BottomBar(
-                selectIndex = selectIndex,
+                selectIndex = pagerState.currentPage,
                 onSelect = {
-                    selectIndex = it
+                    scope.launch {
+                        pagerState.scrollToPage(page = it)
+                    }
                 }
             )
         }
