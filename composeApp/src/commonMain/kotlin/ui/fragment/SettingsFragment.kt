@@ -42,12 +42,15 @@ import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
+import ui.dialog.ConfirmDialog
 import util.TimeCardUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_logout
 import zhoutools.composeapp.generated.resources.ic_sync
 import zhoutools.composeapp.generated.resources.in_progress
 import zhoutools.composeapp.generated.resources.logout
+import zhoutools.composeapp.generated.resources.logout_confirm_content
+import zhoutools.composeapp.generated.resources.logout_confirm_title
 import zhoutools.composeapp.generated.resources.sync_data
 import zhoutools.composeapp.generated.resources.sync_failed
 import zhoutools.composeapp.generated.resources.sync_success
@@ -63,6 +66,7 @@ fun SettingsFragment(
     var inProgress by remember { mutableStateOf(false) }
     var dots by remember { mutableStateOf("...") }
     var job by remember { mutableStateOf<Job?>(null) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(inProgress) {
         if (inProgress) {
@@ -82,6 +86,7 @@ fun SettingsFragment(
     }
 
     fun logout() {
+        showLogoutDialog = false
         AppStore.loginToken = ""
         AppStore.loginUsername = ""
         AppStore.clearCache()
@@ -123,7 +128,7 @@ fun SettingsFragment(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    logout()
+                    showLogoutDialog = true
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -177,6 +182,19 @@ fun SettingsFragment(
         }
 
         Divider()
+    }
+
+    if (showLogoutDialog) {
+        ConfirmDialog(
+            title = stringResource(Res.string.logout_confirm_title),
+            content = stringResource(Res.string.logout_confirm_content, AppStore.loginUsername),
+            onCancel = {
+                showLogoutDialog = false
+            },
+            onConfirm = {
+                logout()
+            }
+        )
     }
 }
 

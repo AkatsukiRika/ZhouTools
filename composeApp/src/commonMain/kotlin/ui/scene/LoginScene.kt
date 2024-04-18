@@ -22,6 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -55,6 +56,7 @@ fun LoginScene(navigator: Navigator) {
     var inputPassword by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     fun login() {
         scope.launch(Dispatchers.IO) {
@@ -79,6 +81,7 @@ fun LoginScene(navigator: Navigator) {
                     AppStore.loginToken = token
                     AppStore.loginUsername = inputUsername
                     scope.launch(Dispatchers.Main) {
+                        keyboardController?.hide()
                         navigator.navigate(RouteConstants.ROUTE_HOME)
                     }
                 } else {

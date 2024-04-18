@@ -22,4 +22,6 @@
     <string name="server_data_confirm_content">Server-side data detected. Download and apply?</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
+    <string name="logout_confirm_title">Log Out Confirmation</string>
+    <string name="logout_confirm_content">Sure to log out as %1$s?</string>
 </resources>
