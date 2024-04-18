@@ -62,7 +62,7 @@ object TimeCardUtil {
         }
     }
 
-    fun hasTodayTimeCard(): Boolean {
+    private fun hasTodayTimeCard(): Boolean {
         if (AppStore.timeCards.isBlankJson()) {
             return false
         }
@@ -72,16 +72,16 @@ object TimeCardUtil {
             val records: TimeCardRecords = Json.decodeFromString(AppStore.timeCards)
             val days = records.days
             val curDay = days.find { it.dayStartTime == dayStartTime }
-            curDay != null && curDay.latestTimeRun == null
+            curDay != null
         } catch (e: Exception) {
             e.printStackTrace()
             false
         }
     }
 
-    fun hasTodayRun(): Boolean {
+    fun todayTimeRun(): Long? {
         if (AppStore.timeCards.isBlankJson()) {
-            return false
+            return null
         }
         val curTime = TimeUtil.currentTimeMillis()
         val dayStartTime = curTime.dayStartTime()
@@ -89,10 +89,10 @@ object TimeCardUtil {
             val records: TimeCardRecords = Json.decodeFromString(AppStore.timeCards)
             val days = records.days
             val curDay = days.find { it.dayStartTime == dayStartTime }
-            curDay?.latestTimeRun != null
+            curDay?.latestTimeRun
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            null
         }
     }
 
@@ -111,15 +111,6 @@ object TimeCardUtil {
             e.printStackTrace()
             null
         }
-    }
-
-    fun todayWorkingTime(): Long? {
-        if (!hasTodayTimeCard()) {
-            return null
-        }
-        val todayTimeCard = todayTimeCard() ?: return null
-        val curTime = TimeUtil.currentTimeMillis()
-        return curTime - todayTimeCard
     }
 
     fun buildSyncRequest(): TimeCardSyncRequest? {

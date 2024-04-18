@@ -65,7 +65,7 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
                     .padding(top = 32.dp)
                     .width(300.dp)
                     .height(200.dp),
-                enabled = state.hasTodayRun.not()
+                enabled = state.todayRunTime == 0L
             ) {
                 Text(
                     text = stringResource(Res.string.press_time_card).uppercase(),
@@ -78,7 +78,7 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
         } else {
             HasTodayCardLayout(
                 workingTime = state.todayWorkTime,
-                isRun = state.hasTodayRun,
+                isRun = state.todayRunTime != 0L,
                 onRun = {
                     channel.trySend(TimeCardAction.Run)
                 }
