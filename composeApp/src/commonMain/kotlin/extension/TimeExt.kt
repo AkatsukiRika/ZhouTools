@@ -1,14 +1,27 @@
 package extension
 
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 
 fun Long.dayStartTime(): Long {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     val startOfDay = localDateTime.date.atStartOfDayIn(TimeZone.currentSystemDefault())
+    return startOfDay.toEpochMilliseconds()
+}
+
+fun Long.weekStartTime(): Long {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    val localDate = localDateTime.date
+    val daysToMonday = (localDate.dayOfWeek.ordinal - DayOfWeek.MONDAY.ordinal + 7) % 7
+    val mondayDate = localDate.minus(DatePeriod(days = daysToMonday))
+    val startOfDay = mondayDate.atStartOfDayIn(TimeZone.currentSystemDefault())
     return startOfDay.toEpochMilliseconds()
 }
 

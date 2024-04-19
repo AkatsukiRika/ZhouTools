@@ -31,4 +31,6 @@
     <string name="sync_confirm_content">Pull data from server, or push local data to server?</string>
     <string name="pull">Pull</string>
     <string name="push">Push</string>
+    <string name="today">Today</string>
+    <string name="history">History</string>
 </resources>

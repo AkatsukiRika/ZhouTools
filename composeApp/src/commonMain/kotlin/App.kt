@@ -11,7 +11,7 @@ import org.lighthousegames.logging.logging
 import ui.scene.HomeScene
 import ui.scene.LoginScene
 import store.AppStore
-import ui.scene.DetailScene
+import ui.scene.detail.DetailScene
 
 val logger = logging("App")
 val networkApi = NetworkApi()
