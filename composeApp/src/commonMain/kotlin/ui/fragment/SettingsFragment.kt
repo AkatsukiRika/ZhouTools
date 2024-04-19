@@ -33,6 +33,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import logger
 import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.PopUpTo
@@ -51,6 +54,12 @@ import zhoutools.composeapp.generated.resources.in_progress
 import zhoutools.composeapp.generated.resources.logout
 import zhoutools.composeapp.generated.resources.logout_confirm_content
 import zhoutools.composeapp.generated.resources.logout_confirm_title
+import zhoutools.composeapp.generated.resources.pull
+import zhoutools.composeapp.generated.resources.pull_failed
+import zhoutools.composeapp.generated.resources.pull_success
+import zhoutools.composeapp.generated.resources.push
+import zhoutools.composeapp.generated.resources.sync_confirm_content
+import zhoutools.composeapp.generated.resources.sync_confirm_title
 import zhoutools.composeapp.generated.resources.sync_data
 import zhoutools.composeapp.generated.resources.sync_failed
 import zhoutools.composeapp.generated.resources.sync_success
@@ -67,6 +76,7 @@ fun SettingsFragment(
     var dots by remember { mutableStateOf("...") }
     var job by remember { mutableStateOf<Job?>(null) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showSyncDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(inProgress) {
         if (inProgress) {
@@ -99,24 +109,55 @@ fun SettingsFragment(
         )
     }
 
-    fun sync() {
+    fun push() {
         scope.launch(Dispatchers.IO) {
             inProgress = true
             val request = TimeCardUtil.buildSyncRequest()
             if (request == null) {
                 showSnackbar(getString(Res.string.sync_failed))
                 inProgress = false
+                showSyncDialog = false
                 return@launch
             }
             val response = networkApi.sync(AppStore.loginToken, request)
             if (!response.first) {
                 showSnackbar(response.second?.firstCharToCapital() ?: getString(Res.string.sync_failed))
                 inProgress = false
+                showSyncDialog = false
                 return@launch
             }
             AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
             showSnackbar(getString(Res.string.sync_success))
             inProgress = false
+            showSyncDialog = false
+        }
+    }
+
+    fun pull() {
+        scope.launch(Dispatchers.IO) {
+            inProgress = true
+            if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
+                val serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
+                if (serverData == null) {
+                    // failed
+                    showSnackbar(getString(Res.string.pull_failed))
+                    inProgress = false
+                    showSyncDialog = false
+                    return@launch
+                }
+                AppStore.timeCards = Json.encodeToString(serverData)
+                logger.i { "pull success: ${AppStore.timeCards}" }
+                // success
+                showSnackbar(getString(Res.string.pull_success))
+                inProgress = false
+                showSyncDialog = false
+                TimeCardEventFlow.emit(TimeCardEvent.RefreshTodayState)
+            } else {
+                // failed
+                showSnackbar(getString(Res.string.pull_failed))
+                inProgress = false
+                showSyncDialog = false
+            }
         }
     }
 
@@ -153,7 +194,7 @@ fun SettingsFragment(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    sync()
+                    showSyncDialog = true
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -193,6 +234,24 @@ fun SettingsFragment(
             },
             onConfirm = {
                 logout()
+            }
+        )
+    }
+
+    if (showSyncDialog) {
+        ConfirmDialog(
+            title = stringResource(Res.string.sync_confirm_title),
+            content = stringResource(Res.string.sync_confirm_content),
+            cancel = stringResource(Res.string.pull),
+            confirm = stringResource(Res.string.push),
+            onCancel = {
+                pull()
+            },
+            onConfirm = {
+                push()
+            },
+            onDismiss = {
+                showSyncDialog = false
             }
         )
     }

@@ -26,10 +26,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import constant.RouteConstants
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
 import moe.tlaster.precompose.molecule.rememberPresenter
+import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -49,7 +51,10 @@ import zhoutools.composeapp.generated.resources.working_time
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun TimeCardFragment(modifier: Modifier = Modifier) {
+fun TimeCardFragment(
+    modifier: Modifier = Modifier,
+    navigator: Navigator
+) {
     val (state, channel) = rememberPresenter { TimeCardPresenter(actionFlow = it) }
 
     Column(
@@ -58,7 +63,9 @@ fun TimeCardFragment(modifier: Modifier = Modifier) {
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TitleLayout(onDetailsClick = {})
+        TitleLayout(onDetailsClick = {
+            navigator.navigate(RouteConstants.ROUTE_DETAILS)
+        })
 
         Text(
             text = state.currentTime.toDateString(),

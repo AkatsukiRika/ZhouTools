@@ -56,13 +56,19 @@ fun HomeScene(navigator: Navigator) {
                     .fillMaxWidth()
             ) {
                 when (it) {
-                    TabConstants.TAB_TIME_CARD -> TimeCardFragment(modifier = Modifier.fillMaxSize())
+                    TabConstants.TAB_TIME_CARD -> TimeCardFragment(
+                        modifier = Modifier.fillMaxSize(),
+                        navigator = navigator
+                    )
                     TabConstants.TAB_SETTINGS -> SettingsFragment(
                         modifier = Modifier.fillMaxSize(),
                         navigator = navigator,
                         showSnackbar = ::showSnackbar
                     )
-                    else -> TimeCardFragment(modifier = Modifier.fillMaxSize())
+                    else -> TimeCardFragment(
+                        modifier = Modifier.fillMaxSize(),
+                        navigator = navigator
+                    )
                 }
             }
 

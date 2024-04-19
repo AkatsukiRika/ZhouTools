@@ -11,6 +11,7 @@ import org.lighthousegames.logging.logging
 import ui.scene.HomeScene
 import ui.scene.LoginScene
 import store.AppStore
+import ui.scene.DetailScene
 
 val logger = logging("App")
 val networkApi = NetworkApi()
@@ -42,6 +43,15 @@ fun App() {
             ) {
                 AppTheme {
                     HomeScene(navigator)
+                }
+            }
+
+            scene(
+                route = RouteConstants.ROUTE_DETAILS,
+                navTransition = NavTransition()
+            ) {
+                AppTheme {
+                    DetailScene(navigator)
                 }
             }
         }

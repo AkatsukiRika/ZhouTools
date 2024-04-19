@@ -16,6 +16,8 @@
     <string name="sync_data">Sync</string>
     <string name="sync_success">Synced to server successfully.</string>
     <string name="sync_failed">Unable to sync data.</string>
+    <string name="pull_success">Pulled from server successfully.</string>
+    <string name="pull_failed">Unable to pull data.</string>
     <string name="in_progress">In progress</string>
     <string name="last_sync_x">Last sync: %1$s</string>
     <string name="server_data_confirm_title">Server Data Confirmation</string>
@@ -24,4 +26,9 @@
     <string name="cancel">Cancel</string>
     <string name="logout_confirm_title">Log Out Confirmation</string>
     <string name="logout_confirm_content">Sure to log out as %1$s?</string>
+    <string name="details">Details</string>
+    <string name="sync_confirm_title">Sync Confirmation</string>
+    <string name="sync_confirm_content">Pull data from server, or push local data to server?</string>
+    <string name="pull">Pull</string>
+    <string name="push">Push</string>
 </resources>
