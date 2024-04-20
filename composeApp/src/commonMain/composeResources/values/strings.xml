@@ -33,4 +33,11 @@
     <string name="push">Push</string>
     <string name="today">Today</string>
     <string name="history">History</string>
+    <string name="time_run">Time for Run</string>
+    <string name="countdown_run">Countdown to Run</string>
+    <string name="countdown_ot">Countdown to OT</string>
+    <string name="time_details">Time Details</string>
+    <string name="countdown">Countdown</string>
+    <string name="run">Run</string>
+    <string name="no_today_data">No today's data yet</string>
 </resources>

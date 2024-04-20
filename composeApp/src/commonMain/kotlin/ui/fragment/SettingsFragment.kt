@@ -1,13 +1,10 @@
 package ui.fragment
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
@@ -26,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import constant.RouteConstants
 import extension.firstCharToCapital
-import global.AppColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
@@ -46,6 +42,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
 import ui.dialog.ConfirmDialog
+import ui.widget.VerticalDivider
 import util.TimeCardUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_logout
@@ -188,7 +185,7 @@ fun SettingsFragment(
             )
         }
 
-        Divider()
+        VerticalDivider()
 
         Row(
             modifier = Modifier
@@ -222,7 +219,7 @@ fun SettingsFragment(
             }
         }
 
-        Divider()
+        VerticalDivider()
     }
 
     if (showLogoutDialog) {
@@ -255,13 +252,4 @@ fun SettingsFragment(
             }
         )
     }
-}
-
-@Composable
-private fun Divider() {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(1.dp)
-        .background(AppColors.Divider)
-    )
 }

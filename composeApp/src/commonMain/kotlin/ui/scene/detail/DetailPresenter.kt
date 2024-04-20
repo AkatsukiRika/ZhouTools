@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import constant.TimeConstants
 import extension.dayStartTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -19,6 +20,7 @@ import networkApi
 import store.AppStore
 import util.TimeCardUtil
 import util.TimeUtil
+import kotlin.math.max
 
 const val DETAIL_TAB_TODAY = 0
 const val DETAIL_TAB_HISTORY = 1
@@ -34,9 +36,9 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
         val dayStartTime = currentTime.dayStartTime()
         val todayTimeCard = TimeCardUtil.todayTimeCard() ?: 0L
         val todayTimeRun = TimeCardUtil.todayTimeRun() ?: 0L
-        val todayTimeWork = currentTime - todayTimeCard
-        val countdownRun = TimeCardUtil.MIN_WORKING_TIME - todayTimeWork
-        val countdownOT = TimeCardUtil.MIN_OT_TIME - todayTimeWork
+        val todayTimeWork = if (todayTimeRun == 0L) currentTime - todayTimeCard else todayTimeRun - todayTimeCard
+        val countdownRun = max(0L, TimeCardUtil.MIN_WORKING_TIME - todayTimeWork)
+        val countdownOT = max(0L, TimeCardUtil.MIN_OT_TIME - todayTimeWork)
         val progress = todayTimeWork.toFloat() / TimeCardUtil.MIN_OT_TIME
         todayState = DetailTodayState(
             dayStartTime = dayStartTime,
@@ -56,14 +58,50 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
             logger.e { "initHistoryData failed: serverData is null" }
             return
         }
-        val daysBeforeToday = serverData.days.filter { it.dayStartTime < todayState.dayStartTime }
+        val days = serverData.days
+        if (days.isNotEmpty()) {
+            val minDayStartTime = days.minBy { it.dayStartTime }.dayStartTime
+            val maxDayStartTime = days.maxBy { it.dayStartTime }.dayStartTime
+            val weekList = mutableListOf<DetailHistoryWeek>()
+
+            for (weekStartTime in minDayStartTime..maxDayStartTime step TimeConstants.WEEK_MILLIS) {
+                val weekEndTime = weekStartTime + TimeConstants.WEEK_MILLIS
+                val weekDays = mutableListOf<DetailHistoryWeekDay>()
+                var otDays = 0
+
+                for (dayStartTime in weekStartTime..weekEndTime step TimeConstants.DAY_MILLIS) {
+                    val matchDay = days.find { it.dayStartTime == dayStartTime }
+                    matchDay?.let {
+                        val timeWork = if (it.latestTimeRun != null) it.latestTimeRun!! - it.latestTimeCard else 0L
+                        val weekDay = DetailHistoryWeekDay(
+                            dayStartTime = it.dayStartTime,
+                            timeCard = it.latestTimeCard,
+                            timeRun = it.latestTimeRun ?: 0L,
+                            timeWork = timeWork,
+                            isOT = timeWork >= TimeCardUtil.MIN_OT_TIME
+                        )
+                        weekDays.add(weekDay)
+                        if (weekDay.isOT) {
+                            otDays++
+                        }
+                    }
+                }
+
+                val week = DetailHistoryWeek(days = weekDays, otDays = otDays)
+                weekList.add(week)
+            }
+
+            historyState = DetailHistoryState(weekList)
+        }
     }
 
     fun refreshTodayData() {
         val currentTime = TimeUtil.currentTimeMillis()
-        val todayTimeWork = currentTime - todayState.timeCard
-        val countdownRun = TimeCardUtil.MIN_WORKING_TIME - todayTimeWork
-        val countdownOT = TimeCardUtil.MIN_OT_TIME - todayTimeWork
+        val todayTimeCard = TimeCardUtil.todayTimeCard() ?: 0L
+        val todayTimeRun = TimeCardUtil.todayTimeRun() ?: 0L
+        val todayTimeWork = if (todayTimeRun == 0L) currentTime - todayTimeCard else todayTimeRun - todayTimeCard
+        val countdownRun = max(0L, TimeCardUtil.MIN_WORKING_TIME - todayTimeWork)
+        val countdownOT = max(0L, TimeCardUtil.MIN_OT_TIME - todayTimeWork)
         val progress = todayTimeWork.toFloat() / TimeCardUtil.MIN_OT_TIME
         todayState = todayState.copy(
             timeWork = todayTimeWork,
@@ -75,6 +113,7 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
 
     LaunchedEffect(Unit) {
         initTodayData()
+        initHistoryData()
 
         launch(Dispatchers.IO) {
             while (true) {

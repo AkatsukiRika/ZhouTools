@@ -78,7 +78,7 @@ fun DetailScene(navigator: Navigator) {
         }
 
         item {
-            Spacer(modifier = Modifier.height(2000.dp))
+            TodayFragment(state.todayState)
         }
     }
 }
