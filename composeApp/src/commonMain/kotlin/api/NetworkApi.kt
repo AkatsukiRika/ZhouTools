@@ -49,11 +49,11 @@ class NetworkApi {
      * Second in pair is error message when login failed; JWT token when login succeeded.
      */
     suspend fun login(request: LoginRequest): Pair<Boolean, String?> {
-        val bodyText = httpClient.post("https://www.tang-ping.top/api/login") {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.bodyAsText()
         try {
+            val bodyText = httpClient.post("https://www.tang-ping.top/api/login") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.bodyAsText()
             val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
             val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
             if (code == CODE_SUCCESS) {
@@ -74,12 +74,12 @@ class NetworkApi {
      * @return isSuccess to errorMessage
      */
     suspend fun sync(token: String, request: TimeCardSyncRequest): Pair<Boolean, String?> {
-        val bodyText = httpClient.post("https://www.tang-ping.top/api/timeCard/sync") {
-            contentType(ContentType.Application.Json)
-            header(KEY_AUTH, token)
-            setBody(request)
-        }.bodyAsText()
         return try {
+            val bodyText = httpClient.post("https://www.tang-ping.top/api/timeCard/sync") {
+                contentType(ContentType.Application.Json)
+                header(KEY_AUTH, token)
+                setBody(request)
+            }.bodyAsText()
             val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
             val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
             if (code == CODE_SUCCESS) {
@@ -95,11 +95,11 @@ class NetworkApi {
     }
 
     suspend fun getServerTimeCards(token: String, username: String): TimeCardRecords? {
-        val bodyText = httpClient.get("https://www.tang-ping.top/api/timeCard/get") {
-            header(KEY_AUTH, token)
-            parameter(KEY_USERNAME, username)
-        }.bodyAsText()
         return try {
+            val bodyText = httpClient.get("https://www.tang-ping.top/api/timeCard/get") {
+                header(KEY_AUTH, token)
+                parameter(KEY_USERNAME, username)
+            }.bodyAsText()
             val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
             val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
             if (code == CODE_SUCCESS) {
