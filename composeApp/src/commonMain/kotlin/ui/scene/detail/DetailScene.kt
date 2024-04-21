@@ -1,18 +1,16 @@
 package ui.scene.detail
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Tab
@@ -38,7 +36,7 @@ import zhoutools.composeapp.generated.resources.history
 import zhoutools.composeapp.generated.resources.ic_back
 import zhoutools.composeapp.generated.resources.today
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun DetailScene(navigator: Navigator) {
     val (state, channel) = rememberPresenter { DetailPresenter(it) }
@@ -47,37 +45,35 @@ fun DetailScene(navigator: Navigator) {
         DETAIL_TAB_HISTORY to stringResource(Res.string.history)
     )
 
-    LazyColumn(modifier = Modifier
+    Column(modifier = Modifier
         .fillMaxSize()
         .background(AppColors.Background)
     ) {
-        item {
-            TitleBar(navigator)
-        }
+        TitleBar(navigator)
 
-        stickyHeader {
-            TabRow(
-                selectedTabIndex = state.tab,
-                backgroundColor = Color.White,
-                contentColor = AppColors.Theme
-            ) {
-                tabs.forEach {
-                    val index = it.key
-                    val title = it.value
-                    Tab(
-                        selected = state.tab == index,
-                        onClick = {
-                            channel.trySend(DetailAction.ChangeTab(index))
-                        },
-                        text = {
-                            Text(text = title)
-                        }
-                    )
-                }
+        TabRow(
+            selectedTabIndex = state.tab,
+            backgroundColor = Color.White,
+            contentColor = AppColors.Theme
+        ) {
+            tabs.forEach {
+                val index = it.key
+                val title = it.value
+                Tab(
+                    selected = state.tab == index,
+                    onClick = {
+                        channel.trySend(DetailAction.ChangeTab(index))
+                    },
+                    text = {
+                        Text(text = title)
+                    }
+                )
             }
         }
 
-        item {
+        if (state.tab == DETAIL_TAB_HISTORY) {
+            HistoryFragment(state.historyState)
+        } else {
             TodayFragment(state.todayState)
         }
     }

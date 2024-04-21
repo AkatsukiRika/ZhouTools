@@ -87,7 +87,12 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
                     }
                 }
 
-                val week = DetailHistoryWeek(days = weekDays, otDays = otDays)
+                val week = DetailHistoryWeek(
+                    weekStartTime = weekStartTime,
+                    weekEndTime = weekEndTime,
+                    days = weekDays,
+                    otDays = otDays
+                )
                 weekList.add(week)
             }
 
@@ -161,6 +166,8 @@ data class DetailHistoryState(
 )
 
 data class DetailHistoryWeek(
+    val weekStartTime: Long = 0L,
+    val weekEndTime: Long = 0L,
     val days: List<DetailHistoryWeekDay> = emptyList(),
     val otDays: Int = 0
 )

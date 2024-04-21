@@ -40,4 +40,5 @@
     <string name="countdown">Countdown</string>
     <string name="run">Run</string>
     <string name="no_today_data">No today's data yet</string>
+    <string name="no_history_data">No history data yet</string>
 </resources>
