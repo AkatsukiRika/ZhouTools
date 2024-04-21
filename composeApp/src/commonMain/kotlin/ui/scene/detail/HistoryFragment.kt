@@ -28,12 +28,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import extension.isBlankJson
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import store.AppStore
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_empty
 import zhoutools.composeapp.generated.resources.ic_history_overtime
@@ -46,7 +48,7 @@ import zhoutools.composeapp.generated.resources.working_time
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HistoryFragment(state: DetailHistoryState) {
-    if (state.weekList.isEmpty()) {
+    if (state.weekList.isEmpty() || AppStore.timeCards.isBlankJson()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

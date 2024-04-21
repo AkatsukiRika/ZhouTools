@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import constant.RouteConstants
 import extension.firstCharToCapital
+import extension.toHourMinString
+import extension.toMonthDayString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
@@ -48,6 +50,7 @@ import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_logout
 import zhoutools.composeapp.generated.resources.ic_sync
 import zhoutools.composeapp.generated.resources.in_progress
+import zhoutools.composeapp.generated.resources.last_sync_x
 import zhoutools.composeapp.generated.resources.logout
 import zhoutools.composeapp.generated.resources.logout_confirm_content
 import zhoutools.composeapp.generated.resources.logout_confirm_title
@@ -145,6 +148,7 @@ fun SettingsFragment(
                 AppStore.timeCards = Json.encodeToString(serverData)
                 logger.i { "pull success: ${AppStore.timeCards}" }
                 // success
+                AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
                 showSnackbar(getString(Res.string.pull_success))
                 inProgress = false
                 showSyncDialog = false
@@ -180,7 +184,7 @@ fun SettingsFragment(
             )
 
             Text(
-                text = stringResource(Res.string.logout),
+                text = stringResource(Res.string.logout) + ": ${AppStore.loginUsername}",
                 fontSize = 16.sp
             )
         }
@@ -209,9 +213,15 @@ fun SettingsFragment(
                 fontSize = 16.sp
             )
 
-            if (inProgress) {
+            if (inProgress || AppStore.lastSync != 0L) {
+                val text = if (inProgress) {
+                    "(${stringResource(Res.string.in_progress)}$dots)"
+                } else {
+                    "(${stringResource(Res.string.last_sync_x, "${AppStore.lastSync.toMonthDayString()} ${AppStore.lastSync.toHourMinString()}")})"
+                }
+
                 Text(
-                    text = "(${stringResource(Res.string.in_progress)}$dots)",
+                    text = text,
                     color = Color.Black.copy(alpha = 0.5f),
                     fontSize = 16.sp,
                     modifier = Modifier.padding(start = 8.dp)
