@@ -69,7 +69,7 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
                 val weekDays = mutableListOf<DetailHistoryWeekDay>()
                 var otDays = 0
 
-                for (dayStartTime in weekStartTime..weekEndTime step TimeConstants.DAY_MILLIS) {
+                for (dayStartTime in weekStartTime until weekEndTime step TimeConstants.DAY_MILLIS) {
                     val matchDay = days.find { it.dayStartTime == dayStartTime }
                     matchDay?.let {
                         val timeWork = if (it.latestTimeRun != null) it.latestTimeRun!! - it.latestTimeCard else 0L
