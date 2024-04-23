@@ -1,3 +1,5 @@
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.*
@@ -27,8 +29,8 @@ fun App() {
         val isLogin = AppStore.loginToken.isNotBlank()
         val navTransition = remember {
             NavTransition(
-                createTransition = slideInHorizontally { it },
-                destroyTransition = slideOutHorizontally { it },
+                createTransition = slideInHorizontally(animationSpec = tween(easing = LinearEasing)) { it },
+                destroyTransition = slideOutHorizontally(animationSpec = tween(easing = LinearEasing)) { it },
                 pauseTransition = slideOutHorizontally { -it / 4 },
                 resumeTransition = slideInHorizontally { -it / 4 },
                 exitTargetContentZIndex = 1f
