@@ -1,9 +1,12 @@
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.*
 import api.NetworkApi
 import global.AppTheme
 import constant.RouteConstants
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
+import moe.tlaster.precompose.navigation.SwipeProperties
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -22,15 +25,25 @@ fun App() {
     PreComposeApp {
         val navigator = rememberNavigator()
         val isLogin = AppStore.loginToken.isNotBlank()
+        val navTransition = remember {
+            NavTransition(
+                createTransition = slideInHorizontally { it },
+                destroyTransition = slideOutHorizontally { it },
+                pauseTransition = slideOutHorizontally { -it / 4 },
+                resumeTransition = slideInHorizontally { -it / 4 },
+                exitTargetContentZIndex = 1f
+            )
+        }
 
         NavHost(
             navigator = navigator,
-            navTransition = NavTransition(),
+            swipeProperties = remember { SwipeProperties() },
+            navTransition = navTransition,
             initialRoute = if (isLogin) RouteConstants.ROUTE_HOME else RouteConstants.ROUTE_LOGIN
         ) {
             scene(
                 route = RouteConstants.ROUTE_LOGIN,
-                navTransition = NavTransition()
+                navTransition = navTransition
             ) {
                 AppTheme {
                     LoginScene(navigator)
@@ -39,7 +52,7 @@ fun App() {
 
             scene(
                 route = RouteConstants.ROUTE_HOME,
-                navTransition = NavTransition()
+                navTransition = navTransition
             ) {
                 AppTheme {
                     HomeScene(navigator)
@@ -48,7 +61,7 @@ fun App() {
 
             scene(
                 route = RouteConstants.ROUTE_DETAILS,
-                navTransition = NavTransition()
+                navTransition = navTransition
             ) {
                 AppTheme {
                     DetailScene(navigator)
