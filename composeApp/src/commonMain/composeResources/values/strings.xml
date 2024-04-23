@@ -41,4 +41,5 @@
     <string name="run">Run</string>
     <string name="no_today_data">No today's data yet</string>
     <string name="no_history_data">No history data yet</string>
+    <string name="version_x">Version %1$s</string>
 </resources>

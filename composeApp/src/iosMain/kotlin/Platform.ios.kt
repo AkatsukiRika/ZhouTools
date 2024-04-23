@@ -1,8 +1,10 @@
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import kotlinx.cinterop.ExperimentalForeignApi
+import platform.Foundation.NSBundle
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
+import platform.Foundation.NSString
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIDevice
@@ -25,4 +27,10 @@ actual fun createDataStore(): DataStore<Preferences>? {
         )
         (requireNotNull(documentDirectory).path + "/$PREFERENCES_NAME")
     }
+}
+
+actual fun getAppVersion(): String {
+    val nsBundle = NSBundle.mainBundle()
+    val version = nsBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? NSString
+    return version?.toString() ?: ""
 }

@@ -16,3 +16,8 @@ actual fun createDataStore(): DataStore<Preferences>? {
         File(context.applicationContext.filesDir, PREFERENCES_NAME).path
     }
 }
+
+actual fun getAppVersion(): String {
+    val context = MainActivity.context ?: return ""
+    return context.packageManager.getPackageInfo(context.packageName, 0).versionName
+}

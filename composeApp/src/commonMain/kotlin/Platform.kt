@@ -32,3 +32,5 @@ internal fun createDataStoreWithDefaults(
 )
 
 expect fun createDataStore(): DataStore<Preferences>?
+
+expect fun getAppVersion(): String

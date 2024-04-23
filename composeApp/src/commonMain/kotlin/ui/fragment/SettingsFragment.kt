@@ -25,6 +25,7 @@ import constant.RouteConstants
 import extension.firstCharToCapital
 import extension.toHourMinString
 import extension.toMonthDayString
+import getAppVersion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
@@ -63,6 +64,7 @@ import zhoutools.composeapp.generated.resources.sync_confirm_title
 import zhoutools.composeapp.generated.resources.sync_data
 import zhoutools.composeapp.generated.resources.sync_failed
 import zhoutools.composeapp.generated.resources.sync_success
+import zhoutools.composeapp.generated.resources.version_x
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -230,6 +232,13 @@ fun SettingsFragment(
         }
 
         VerticalDivider()
+
+        Text(
+            text = stringResource(Res.string.version_x, getAppVersion()),
+            color = Color.Black.copy(alpha = 0.5f),
+            fontSize = 16.sp,
+            modifier = Modifier.padding(top = 48.dp)
+        )
     }
 
     if (showLogoutDialog) {
