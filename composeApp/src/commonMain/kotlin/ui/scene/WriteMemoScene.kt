@@ -30,6 +30,8 @@ import global.AppColors
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import ui.fragment.MemoExternalEvent
+import ui.fragment.MemoObject
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.confirm
@@ -73,12 +75,17 @@ fun WriteMemoScene(navigator: Navigator) {
         SettingsLayout(todo, setTodo, pin, setPin)
 
         Button(
-            onClick = {},
+            onClick = {
+                val event = MemoExternalEvent.WriteMemo(text, todo, pin)
+                MemoObject.emitSync(event)
+                navigator.goBack()
+            },
             modifier = Modifier
                 .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
                 .fillMaxWidth()
                 .height(54.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(16.dp)),
+            enabled = text.isNotEmpty()
         ) {
             Text(
                 text = stringResource(Res.string.confirm).uppercase(),
