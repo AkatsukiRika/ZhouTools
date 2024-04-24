@@ -23,8 +23,10 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.ic_memo
 import zhoutools.composeapp.generated.resources.ic_settings
 import zhoutools.composeapp.generated.resources.ic_time_card
+import zhoutools.composeapp.generated.resources.memo
 import zhoutools.composeapp.generated.resources.settings
 import zhoutools.composeapp.generated.resources.time_card
 
@@ -63,6 +65,30 @@ fun BottomBar(
                 text = stringResource(Res.string.time_card),
                 fontSize = 11.sp,
                 color = if (selectIndex == TabConstants.TAB_TIME_CARD) AppColors.Theme else Color.Black
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clickableNoRipple {
+                    onSelect(TabConstants.TAB_MEMO)
+                }
+                .padding(horizontal = 4.dp)
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_memo),
+                modifier = Modifier.height(32.dp).offset(y = 4.dp),
+                contentDescription = null,
+                tint = if (selectIndex == TabConstants.TAB_MEMO) AppColors.Theme else Color.Unspecified
+            )
+
+            Text(
+                text = stringResource(Res.string.memo),
+                fontSize = 11.sp,
+                color = if (selectIndex == TabConstants.TAB_MEMO) AppColors.Theme else Color.Black
             )
         }
 

@@ -42,4 +42,8 @@
     <string name="no_today_data">No today's data yet</string>
     <string name="no_history_data">No history data yet</string>
     <string name="version_x">Version %1$s</string>
+    <string name="memo">Memo</string>
+    <string name="write_memo">Write Memo</string>
+    <string name="set_as_todo">Set as TODO</string>
+    <string name="pin_to_top">Pin to Top</string>
 </resources>

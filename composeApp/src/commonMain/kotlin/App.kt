@@ -16,6 +16,7 @@ import org.lighthousegames.logging.logging
 import ui.scene.HomeScene
 import ui.scene.LoginScene
 import store.AppStore
+import ui.scene.WriteMemoScene
 import ui.scene.detail.DetailScene
 
 val logger = logging("App")
@@ -78,6 +79,15 @@ fun App() {
             ) {
                 AppTheme {
                     DetailScene(navigator)
+                }
+            }
+
+            scene(
+                route = RouteConstants.ROUTE_WRITE_MEMO,
+                navTransition = navTransition
+            ) {
+                AppTheme {
+                    WriteMemoScene(navigator)
                 }
             }
         }

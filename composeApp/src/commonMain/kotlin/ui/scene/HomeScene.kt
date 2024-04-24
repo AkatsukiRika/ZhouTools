@@ -22,6 +22,7 @@ import global.AppColors
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
+import ui.fragment.MemoFragment
 import ui.widget.BottomBar
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -65,6 +66,7 @@ fun HomeScene(navigator: Navigator) {
                         navigator = navigator,
                         showSnackbar = ::showSnackbar
                     )
+                    TabConstants.TAB_MEMO -> MemoFragment(navigator = navigator)
                     else -> TimeCardFragment(
                         modifier = Modifier.fillMaxSize(),
                         navigator = navigator
