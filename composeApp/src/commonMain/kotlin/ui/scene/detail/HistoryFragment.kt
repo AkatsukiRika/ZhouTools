@@ -40,6 +40,7 @@ import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_empty
 import zhoutools.composeapp.generated.resources.ic_history_overtime
 import zhoutools.composeapp.generated.resources.ic_history_run
+import zhoutools.composeapp.generated.resources.ic_working
 import zhoutools.composeapp.generated.resources.no_history_data
 import zhoutools.composeapp.generated.resources.time_card
 import zhoutools.composeapp.generated.resources.time_run
@@ -123,7 +124,11 @@ private fun DayItem(day: DetailHistoryWeekDay) {
         ) {
             Icon(
                 painter = painterResource(
-                    if (day.isOT) Res.drawable.ic_history_overtime else Res.drawable.ic_history_run
+                    if (day.timeRun == 0L) {
+                        Res.drawable.ic_working
+                    } else {
+                        if (day.isOT) Res.drawable.ic_history_overtime else Res.drawable.ic_history_run
+                    }
                 ),
                 contentDescription = null,
                 tint = Color.White,

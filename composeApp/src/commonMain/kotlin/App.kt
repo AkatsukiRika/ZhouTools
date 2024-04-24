@@ -26,6 +26,8 @@ val networkApi = NetworkApi()
 fun App() {
     PreComposeApp {
         val navigator = rememberNavigator()
+        val currentEntry = navigator.currentEntry.collectAsState(initial = null).value
+        var swipeProperties: SwipeProperties? = remember { SwipeProperties() }
         val isLogin = AppStore.loginToken.isNotBlank()
         val navTransition = remember {
             NavTransition(
@@ -37,9 +39,18 @@ fun App() {
             )
         }
 
+        LaunchedEffect(currentEntry) {
+            val currentRoute = currentEntry?.route?.route
+            swipeProperties = if (currentRoute == RouteConstants.ROUTE_HOME) {
+                null
+            } else {
+                SwipeProperties()
+            }
+        }
+
         NavHost(
             navigator = navigator,
-            swipeProperties = remember { SwipeProperties() },
+            swipeProperties = swipeProperties,
             navTransition = navTransition,
             initialRoute = if (isLogin) RouteConstants.ROUTE_HOME else RouteConstants.ROUTE_LOGIN
         ) {
