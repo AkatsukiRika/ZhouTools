@@ -27,10 +27,6 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
                 isPin = editMemo.isPin
             }
 
-            is WriteMemoAction.SetText -> {
-                text = this.newText
-            }
-
             is WriteMemoAction.SetTodo -> {
                 isTodo = this.newTodo
             }
@@ -46,6 +42,7 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
             }
 
             is WriteMemoAction.Confirm -> {
+                text = this.text
                 if (memo == null) {
                     memoUtil.addMemo(text, isTodo, isPin)
                 } else {
@@ -69,9 +66,8 @@ data class WriteMemoState(
 
 sealed interface WriteMemoAction {
     data class BeginEdit(val editMemo: Memo) : WriteMemoAction
-    data class SetText(val newText: String) : WriteMemoAction
     data class SetTodo(val newTodo: Boolean) : WriteMemoAction
     data class SetPin(val newPin: Boolean) : WriteMemoAction
     data object Delete : WriteMemoAction
-    data object Confirm : WriteMemoAction
+    data class Confirm(val text: String) : WriteMemoAction
 }

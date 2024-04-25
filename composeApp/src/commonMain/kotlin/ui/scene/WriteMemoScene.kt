@@ -101,7 +101,6 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
             value = text,
             onValueChange = {
                 text = it
-                channel.trySend(WriteMemoAction.SetText(it))
             },
             modifier = Modifier
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
@@ -134,7 +133,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
                     .fillMaxWidth()
                     .height(54.dp)
                     .clip(RoundedCornerShape(16.dp)),
-                enabled = state.text.isNotEmpty()
+                enabled = text.isNotEmpty()
             ) {
                 Text(
                     text = stringResource(Res.string.delete).uppercase(),
@@ -146,7 +145,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
 
         Button(
             onClick = {
-                channel.trySend(WriteMemoAction.Confirm)
+                channel.trySend(WriteMemoAction.Confirm(text))
                 navigator.goBack()
             },
             modifier = Modifier
@@ -154,7 +153,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
                 .fillMaxWidth()
                 .height(54.dp)
                 .clip(RoundedCornerShape(16.dp)),
-            enabled = state.text.isNotEmpty()
+            enabled = text.isNotEmpty()
         ) {
             Text(
                 text = stringResource(Res.string.confirm).uppercase(),
