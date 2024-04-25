@@ -10,13 +10,13 @@ data class MemoRecords(
 
 @Serializable
 data class Memo(
-    val text: String = "",
+    var text: String = "",
     @SerialName("is_todo")
-    val isTodo: Boolean = false,
+    var isTodo: Boolean = false,
     @SerialName("is_pin")
-    val isPin: Boolean = false,
+    var isPin: Boolean = false,
     @SerialName("create_time")
     val createTime: Long = 0L,
     @SerialName("modify_time")
-    val modifyTime: Long = 0L
+    var modifyTime: Long = 0L
 )

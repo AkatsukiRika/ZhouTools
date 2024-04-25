@@ -46,4 +46,6 @@
     <string name="write_memo">Write Memo</string>
     <string name="set_as_todo">Set as TODO</string>
     <string name="pin_to_top">Pin to Top</string>
+    <string name="edit_memo">Edit Memo</string>
+    <string name="delete">Delete</string>
 </resources>

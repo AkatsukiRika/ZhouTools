@@ -9,6 +9,7 @@ import constant.RouteConstants
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.SwipeProperties
+import moe.tlaster.precompose.navigation.path
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -86,8 +87,10 @@ fun App() {
                 route = RouteConstants.ROUTE_WRITE_MEMO,
                 navTransition = navTransition
             ) {
+                val isEdit = it.path<Boolean>("edit") ?: false
+
                 AppTheme {
-                    WriteMemoScene(navigator)
+                    WriteMemoScene(navigator, isEdit)
                 }
             }
         }

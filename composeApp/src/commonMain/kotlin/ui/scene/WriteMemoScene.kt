@@ -17,8 +17,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,24 +30,60 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.runBlocking
+import model.Memo
+import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
+import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
-import ui.fragment.MemoExternalEvent
-import ui.fragment.MemoObject
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.confirm
+import zhoutools.composeapp.generated.resources.delete
+import zhoutools.composeapp.generated.resources.edit_memo
 import zhoutools.composeapp.generated.resources.pin_to_top
 import zhoutools.composeapp.generated.resources.set_as_todo
 import zhoutools.composeapp.generated.resources.write_memo
 
+object WriteMemoObject {
+    private val _eventFlow = MutableSharedFlow<WriteMemoEvent?>(replay = 1)
+
+    val eventFlow: SharedFlow<WriteMemoEvent?>
+        get() = _eventFlow
+
+    fun emitSync(event: WriteMemoEvent?) {
+        runBlocking {
+            _eventFlow.emit(event)
+        }
+    }
+}
+
+sealed interface WriteMemoEvent {
+    data class BeginEdit(val memo: Memo) : WriteMemoEvent
+}
+
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun WriteMemoScene(navigator: Navigator) {
-    val (text, setText) = remember { mutableStateOf("") }
-    val (todo, setTodo) = remember { mutableStateOf(false) }
-    val (pin, setPin) = remember { mutableStateOf(false) }
+fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
+    val event = WriteMemoObject.eventFlow.collectAsStateWithLifecycle(initial = null).value
+    val (state, channel) = rememberPresenter { WriteMemoPresenter(it) }
+    var text by remember(state.text) { mutableStateOf(state.text) }
+
+    LaunchedEffect(event) {
+        if (event != null) {
+            when (event) {
+                is WriteMemoEvent.BeginEdit -> {
+                    if (isEdit) {
+                        channel.trySend(WriteMemoAction.BeginEdit(editMemo = event.memo))
+                    }
+                }
+            }
+            WriteMemoObject.emitSync(null)
+        }
+    }
 
     Column(modifier = Modifier
         .imePadding()
@@ -53,12 +92,17 @@ fun WriteMemoScene(navigator: Navigator) {
     ) {
         TitleBar(
             navigator = navigator,
-            title = stringResource(Res.string.write_memo)
+            title = stringResource(
+                if (isEdit) Res.string.edit_memo else Res.string.write_memo
+            )
         )
 
         TextField(
             value = text,
-            onValueChange = setText,
+            onValueChange = {
+                text = it
+                channel.trySend(WriteMemoAction.SetText(it))
+            },
             modifier = Modifier
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
                 .fillMaxWidth()
@@ -72,20 +116,45 @@ fun WriteMemoScene(navigator: Navigator) {
             )
         )
 
-        SettingsLayout(todo, setTodo, pin, setPin)
+        SettingsLayout(
+            state.isTodo,
+            { channel.trySend(WriteMemoAction.SetTodo(it)) },
+            state.isPin,
+            { channel.trySend(WriteMemoAction.SetPin(it)) }
+        )
+
+        if (isEdit) {
+            Button(
+                onClick = {
+                    channel.trySend(WriteMemoAction.Delete)
+                    navigator.goBack()
+                },
+                modifier = Modifier
+                    .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
+                    .fillMaxWidth()
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                enabled = state.text.isNotEmpty()
+            ) {
+                Text(
+                    text = stringResource(Res.string.delete).uppercase(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp
+                )
+            }
+        }
 
         Button(
             onClick = {
-                val event = MemoExternalEvent.WriteMemo(text, todo, pin)
-                MemoObject.emitSync(event)
+                channel.trySend(WriteMemoAction.Confirm)
                 navigator.goBack()
             },
             modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
+                .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
                 .fillMaxWidth()
                 .height(54.dp)
                 .clip(RoundedCornerShape(16.dp)),
-            enabled = text.isNotEmpty()
+            enabled = state.text.isNotEmpty()
         ) {
             Text(
                 text = stringResource(Res.string.confirm).uppercase(),
@@ -93,6 +162,8 @@ fun WriteMemoScene(navigator: Navigator) {
                 fontSize = 24.sp
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
