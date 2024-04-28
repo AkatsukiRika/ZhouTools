@@ -48,4 +48,6 @@
     <string name="pin_to_top">Pin to Top</string>
     <string name="edit_memo">Edit Memo</string>
     <string name="delete">Delete</string>
+    <string name="mark_done">Mark Done</string>
+    <string name="edit">Edit</string>
 </resources>

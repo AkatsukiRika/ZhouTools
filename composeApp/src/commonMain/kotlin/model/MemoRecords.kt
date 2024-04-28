@@ -13,6 +13,8 @@ data class Memo(
     var text: String = "",
     @SerialName("is_todo")
     var isTodo: Boolean = false,
+    @SerialName("is_todo_finished")
+    var isTodoFinished: Boolean = false,
     @SerialName("is_pin")
     var isPin: Boolean = false,
     @SerialName("create_time")

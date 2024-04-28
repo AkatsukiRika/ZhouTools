@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
@@ -123,16 +124,16 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
         )
 
         if (isEdit) {
-            Button(
+            OutlinedButton(
                 onClick = {
                     channel.trySend(WriteMemoAction.Delete)
-                    navigator.goBack()
+                    navigator.goBackWith(result = true)
                 },
                 modifier = Modifier
                     .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
                     .fillMaxWidth()
-                    .height(54.dp)
-                    .clip(RoundedCornerShape(16.dp)),
+                    .height(54.dp),
+                shape = RoundedCornerShape(16.dp),
                 enabled = text.isNotEmpty()
             ) {
                 Text(
@@ -146,7 +147,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
         Button(
             onClick = {
                 channel.trySend(WriteMemoAction.Confirm(text))
-                navigator.goBack()
+                navigator.goBackWith(result = true)
             },
             modifier = Modifier
                 .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)

@@ -51,6 +51,20 @@ class MemoUtil {
         saveToDataStore()
     }
 
+    fun markDone(memo: Memo, done: Boolean) {
+        val findResult = memos.find {
+            it.text == memo.text
+                    && it.isTodo == memo.isTodo
+                    && it.isPin == memo.isPin
+                    && it.createTime == memo.createTime
+                    && it.modifyTime == memo.modifyTime
+        }
+        if (findResult != null) {
+            findResult.isTodoFinished = done
+            saveToDataStore()
+        }
+    }
+
     fun deleteMemo(memo: Memo) {
         memos.remove(memo)
         saveToDataStore()
