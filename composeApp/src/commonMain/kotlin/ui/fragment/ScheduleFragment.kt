@@ -13,11 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import util.CalendarUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.schedule
 
@@ -43,22 +45,25 @@ private fun CalendarGrid() {
     LazyVerticalGrid(
         modifier = Modifier
             .background(Color.White)
+            .padding(start = 12.dp, end = 12.dp, bottom = 6.dp)
             .fillMaxWidth(),
         columns = GridCells.Fixed(7),
         content = {
             items(7) {
                 Text(
-                    text = "Sun",
+                    text = CalendarUtil.getWeekDays()[it],
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
+                    textAlign = TextAlign.Center
                 )
             }
             items(42) {
                 Text(
-                    text = "1",
+                    text = "${it + 1}",
                     fontSize = 14.sp,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
+                    textAlign = TextAlign.Center
                 )
             }
         }
