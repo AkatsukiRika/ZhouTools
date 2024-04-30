@@ -24,9 +24,11 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_memo
+import zhoutools.composeapp.generated.resources.ic_schedule
 import zhoutools.composeapp.generated.resources.ic_settings
 import zhoutools.composeapp.generated.resources.ic_time_card
 import zhoutools.composeapp.generated.resources.memo
+import zhoutools.composeapp.generated.resources.schedule
 import zhoutools.composeapp.generated.resources.settings
 import zhoutools.composeapp.generated.resources.time_card
 
@@ -65,6 +67,30 @@ fun BottomBar(
                 text = stringResource(Res.string.time_card),
                 fontSize = 11.sp,
                 color = if (selectIndex == TabConstants.TAB_TIME_CARD) AppColors.Theme else Color.Black
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clickableNoRipple {
+                    onSelect(TabConstants.TAB_SCHEDULE)
+                }
+                .padding(horizontal = 4.dp)
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_schedule),
+                modifier = Modifier.height(32.dp).offset(y = 4.dp),
+                contentDescription = null,
+                tint = if (selectIndex == TabConstants.TAB_SCHEDULE) AppColors.Theme else Color.Unspecified
+            )
+
+            Text(
+                text = stringResource(Res.string.schedule),
+                fontSize = 11.sp,
+                color = if (selectIndex == TabConstants.TAB_SCHEDULE) AppColors.Theme else Color.Black
             )
         }
 
