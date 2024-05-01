@@ -21,6 +21,7 @@ fun SchedulePresenter(actionFlow: Flow<ScheduleAction>): ScheduleState {
     var currMonthOfYear by remember { mutableIntStateOf(0) }
     var currMonthDays by remember { mutableStateOf<List<Pair<Int, DayOfWeek>>>(emptyList()) }
     var prevMonthDays by remember { mutableStateOf<List<Pair<Int, DayOfWeek>>>(emptyList()) }
+    var selectDate by remember { mutableStateOf(Triple(0, 0, 0)) }
 
     fun refreshMonthDays() {
         val monthDays = CalendarUtil.getMonthDays(currYear, currMonthOfYear)
@@ -37,6 +38,7 @@ fun SchedulePresenter(actionFlow: Flow<ScheduleAction>): ScheduleState {
         val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         currYear = currentDate.year
         currMonthOfYear = currentDate.monthNumber
+        selectDate = Triple(currYear, currMonthOfYear, currentDate.dayOfMonth)
         refreshMonthDays()
     }
 
@@ -72,17 +74,21 @@ fun SchedulePresenter(actionFlow: Flow<ScheduleAction>): ScheduleState {
             is ScheduleAction.GoNextMonth -> {
                 goNextMonth()
             }
+            is ScheduleAction.SelectDay -> {
+                selectDate = date
+            }
         }
     }
 
-    return ScheduleState(currYear, currMonthOfYear, currMonthDays, prevMonthDays)
+    return ScheduleState(currYear, currMonthOfYear, currMonthDays, prevMonthDays, selectDate)
 }
 
 data class ScheduleState(
     val currYear: Int,
     val currMonthOfYear: Int,    // 1..12
     val currMonthDays: List<Pair<Int, DayOfWeek>> = emptyList(),
-    val prevMonthDays: List<Pair<Int, DayOfWeek>> = emptyList()
+    val prevMonthDays: List<Pair<Int, DayOfWeek>> = emptyList(),
+    val selectDate: Triple<Int, Int, Int>   // year, month (1..12), day (1..31)
 ) {
     @Composable
     fun getCurrMonthName(): String {
@@ -92,9 +98,19 @@ data class ScheduleState(
             monthNames[index]
         } else ""
     }
+
+    fun isToday(dayOfMonth: Int): Boolean {
+        val todayDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        return currYear == todayDate.year && currMonthOfYear == todayDate.monthNumber && dayOfMonth == todayDate.dayOfMonth
+    }
+
+    fun isSelect(dayOfMonth: Int): Boolean {
+        return selectDate.first == currYear && selectDate.second == currMonthOfYear && selectDate.third == dayOfMonth
+    }
 }
 
 sealed interface ScheduleAction {
     data object GoPrevMonth : ScheduleAction
     data object GoNextMonth : ScheduleAction
+    data class SelectDay(val date: Triple<Int, Int, Int>) : ScheduleAction
 }

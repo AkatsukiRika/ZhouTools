@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import global.AppColors
 import kotlinx.coroutines.channels.Channel
 import kotlinx.datetime.DayOfWeek
 import moe.tlaster.precompose.molecule.rememberPresenter
@@ -61,7 +62,7 @@ fun ScheduleFragment(navigator: Navigator) {
             channel = channel
         )
 
-        CalendarGrid(state)
+        CalendarGrid(state, channel)
     }
 }
 
@@ -108,7 +109,7 @@ private fun MonthRow(modifier: Modifier = Modifier, state: ScheduleState, channe
 }
 
 @Composable
-private fun CalendarGrid(state: ScheduleState) {
+private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>) {
     LazyVerticalGrid(
         modifier = Modifier
             .background(Color.White)
@@ -151,11 +152,23 @@ private fun CalendarGrid(state: ScheduleState) {
             }
 
             items(state.currMonthDays) {
+                val isToday = state.isToday(dayOfMonth = it.first)
+                val isSelect = state.isSelect(dayOfMonth = it.first)
+
                 Text(
                     text = "${it.first}",
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(8.dp),
-                    textAlign = TextAlign.Center
+                    fontSize = if (isSelect) 16.sp else 14.sp,
+                    fontWeight = if (isSelect) FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier
+                        .clickable {
+                            channel.trySend(ScheduleAction.SelectDay(
+                                Triple(state.currYear, state.currMonthOfYear, it.first)
+                            ))
+                        }
+                        .background(if (isToday) AppColors.Theme else Color.Transparent)
+                        .padding(8.dp),
+                    textAlign = TextAlign.Center,
+                    color = if (isToday) Color.White else Color.Black
                 )
             }
         }
