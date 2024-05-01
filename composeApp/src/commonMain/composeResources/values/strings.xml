@@ -51,6 +51,7 @@
     <string name="mark_done">Mark Done</string>
     <string name="edit">Edit</string>
     <string name="schedule">Schedule</string>
+    <!-- Week Days -->
     <string name="sunday">Sun</string>
     <string name="monday">Mon</string>
     <string name="tuesday">Tue</string>
@@ -58,4 +59,17 @@
     <string name="thursday">Thu</string>
     <string name="friday">Fri</string>
     <string name="saturday">Sat</string>
+    <!-- Months -->
+    <string name="january">Jan</string>
+    <string name="february">Feb</string>
+    <string name="march">Mar</string>
+    <string name="april">Apr</string>
+    <string name="may">May</string>
+    <string name="june">Jun</string>
+    <string name="july">Jul</string>
+    <string name="august">Aug</string>
+    <string name="september">Sep</string>
+    <string name="october">Oct</string>
+    <string name="november">Nov</string>
+    <string name="december">Dec</string>
 </resources>
