@@ -17,6 +17,7 @@ import org.lighthousegames.logging.logging
 import ui.scene.HomeScene
 import ui.scene.LoginScene
 import store.AppStore
+import ui.scene.AddScheduleScene
 import ui.scene.WriteMemoScene
 import ui.scene.detail.DetailScene
 
@@ -91,6 +92,15 @@ fun App() {
 
                 AppTheme {
                     WriteMemoScene(navigator, isEdit)
+                }
+            }
+
+            scene(
+                route = RouteConstants.ROUTE_ADD_SCHEDULE,
+                navTransition = navTransition
+            ) {
+                AppTheme {
+                    AddScheduleScene(navigator)
                 }
             }
         }

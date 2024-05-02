@@ -1,0 +1,216 @@
+package ui.scene
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.Switch
+import androidx.compose.material.SwitchDefaults
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import extension.toHourMinString
+import global.AppColors
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.runBlocking
+import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
+import moe.tlaster.precompose.molecule.rememberPresenter
+import moe.tlaster.precompose.navigation.Navigator
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
+import ui.widget.TitleBar
+import ui.widget.VerticalDivider
+import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.add_schedule
+import zhoutools.composeapp.generated.resources.all_day
+import zhoutools.composeapp.generated.resources.confirm
+import zhoutools.composeapp.generated.resources.end_time
+import zhoutools.composeapp.generated.resources.start_time
+
+object AddScheduleObject {
+    private val _eventFlow = MutableSharedFlow<AddScheduleEvent?>(replay = 1)
+
+    val eventFlow: SharedFlow<AddScheduleEvent?>
+        get() = _eventFlow
+
+    fun emitSync(event: AddScheduleEvent?) {
+        runBlocking {
+            _eventFlow.emit(event)
+        }
+    }
+}
+
+sealed interface AddScheduleEvent {
+    data class SetDate(val year: Int, val month: Int, val day: Int) : AddScheduleEvent
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun AddScheduleScene(navigator: Navigator) {
+    val event = AddScheduleObject.eventFlow.collectAsStateWithLifecycle(initial = null).value
+    val (state, channel) = rememberPresenter { AddSchedulePresenter(it) }
+    var text by remember(state.text) { mutableStateOf(state.text) }
+
+    LaunchedEffect(event) {
+        if (event != null) {
+            when (event) {
+                is AddScheduleEvent.SetDate -> {
+                    channel.trySend(AddScheduleAction.SetDate(Triple(event.year, event.month, event.day)))
+                }
+            }
+        }
+    }
+
+    Column(modifier = Modifier
+        .imePadding()
+        .fillMaxSize()
+        .background(AppColors.Background)
+    ) {
+        TitleBar(
+            navigator = navigator,
+            title = stringResource(Res.string.add_schedule)
+        )
+
+        TextField(
+            value = text,
+            onValueChange = {
+                text = it
+            },
+            modifier = Modifier
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp)),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                backgroundColor = Color.White
+            ),
+            minLines = 3,
+            maxLines = 3
+        )
+
+        SettingsLayout(state, channel)
+
+        Button(
+            onClick = {
+                navigator.goBack()
+            },
+            modifier = Modifier
+                .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
+                .fillMaxWidth()
+                .height(54.dp)
+                .clip(RoundedCornerShape(16.dp)),
+            enabled = text.isNotEmpty()
+        ) {
+            Text(
+                text = stringResource(Res.string.confirm).uppercase(),
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun SettingsLayout(state: AddScheduleState, channel: Channel<AddScheduleAction>) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(all = 16.dp)
+        .clip(RoundedCornerShape(12.dp))
+        .background(Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable {}
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.start_time),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = state.startTime.toHourMinString(),
+                fontSize = 16.sp
+            )
+        }
+
+        VerticalDivider()
+
+        Row(
+            modifier = Modifier
+                .clickable {}
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.end_time),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = state.endTime.toHourMinString(),
+                fontSize = 16.sp
+            )
+        }
+
+        VerticalDivider()
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.all_day),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Switch(
+                checked = state.isAllDay,
+                onCheckedChange = {
+                    channel.trySend(AddScheduleAction.SetAllDay(it))
+                },
+                colors = SwitchDefaults.colors(checkedThumbColor = AppColors.Theme, checkedTrackColor = AppColors.LightTheme)
+            )
+        }
+    }
+}

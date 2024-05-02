@@ -2,16 +2,21 @@ package ui.fragment
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import constant.RouteConstants
 import global.AppColors
 import kotlinx.coroutines.channels.Channel
 import kotlinx.datetime.DayOfWeek
@@ -32,8 +38,11 @@ import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.scene.AddScheduleEvent
+import ui.scene.AddScheduleObject
 import util.CalendarUtil
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.add_schedule
 import zhoutools.composeapp.generated.resources.ic_next
 import zhoutools.composeapp.generated.resources.ic_prev
 import zhoutools.composeapp.generated.resources.schedule
@@ -63,6 +72,17 @@ fun ScheduleFragment(navigator: Navigator) {
         )
 
         CalendarGrid(state, channel)
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        AddScheduleButton(onClick = {
+            AddScheduleObject.emitSync(AddScheduleEvent.SetDate(
+                year = state.selectDate.first,
+                month = state.selectDate.second,
+                day = state.selectDate.third
+            ))
+            navigator.navigate(RouteConstants.ROUTE_ADD_SCHEDULE)
+        })
     }
 }
 
@@ -173,4 +193,34 @@ private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>)
             }
         }
     )
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun AddScheduleButton(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(AppColors.LightTheme)
+            .clickable {
+                onClick()
+            },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "+",
+            color = Color.White,
+            fontSize = 32.sp
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Text(
+            text = stringResource(Res.string.add_schedule),
+            color = Color.White
+        )
+    }
 }
