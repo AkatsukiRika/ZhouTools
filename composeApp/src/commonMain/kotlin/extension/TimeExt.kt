@@ -41,6 +41,18 @@ fun Long.toHourMinString(utc: Boolean = false): String {
     return "${localDateTime.hour.toString().padStart(2, '0')}:${localDateTime.minute.toString().padStart(2, '0')}"
 }
 
+fun Long.getHour(): Int {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return localDateTime.hour
+}
+
+fun Long.getMinute(): Int {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return localDateTime.minute
+}
+
 fun Long.toDateString(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())

@@ -57,6 +57,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             // Logging
             api(libs.km.logging)
+            // Material3
+            implementation(libs.material3)
         }
     }
 }

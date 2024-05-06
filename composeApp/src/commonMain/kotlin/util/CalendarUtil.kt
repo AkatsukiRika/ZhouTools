@@ -7,6 +7,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.april
@@ -58,6 +59,22 @@ object CalendarUtil {
         stringResource(Res.string.october),
         stringResource(Res.string.november),
         stringResource(Res.string.december),
+    )
+
+    @OptIn(ExperimentalResourceApi::class)
+    suspend fun getMonthNamesNonComposable(): List<String> = listOf(
+        getString(Res.string.january),
+        getString(Res.string.february),
+        getString(Res.string.march),
+        getString(Res.string.april),
+        getString(Res.string.may),
+        getString(Res.string.june),
+        getString(Res.string.july),
+        getString(Res.string.august),
+        getString(Res.string.september),
+        getString(Res.string.october),
+        getString(Res.string.november),
+        getString(Res.string.december),
     )
 
     /**
