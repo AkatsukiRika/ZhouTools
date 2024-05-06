@@ -43,6 +43,7 @@ import ui.scene.AddScheduleObject
 import util.CalendarUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.add_schedule
+import zhoutools.composeapp.generated.resources.ic_add
 import zhoutools.composeapp.generated.resources.ic_next
 import zhoutools.composeapp.generated.resources.ic_prev
 import zhoutools.composeapp.generated.resources.schedule
@@ -201,6 +202,7 @@ private fun AddScheduleButton(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(44.dp)
             .padding(horizontal = 32.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(AppColors.LightTheme)
@@ -210,10 +212,11 @@ private fun AddScheduleButton(onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "+",
-            color = Color.White,
-            fontSize = 32.sp
+        Icon(
+            painter = painterResource(Res.drawable.ic_add),
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(16.dp)
         )
 
         Spacer(modifier = Modifier.width(12.dp))

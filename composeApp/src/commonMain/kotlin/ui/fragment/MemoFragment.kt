@@ -52,6 +52,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.edit
+import zhoutools.composeapp.generated.resources.ic_add
 import zhoutools.composeapp.generated.resources.ic_pin
 import zhoutools.composeapp.generated.resources.ic_todo
 import zhoutools.composeapp.generated.resources.ic_todo_finished
@@ -140,11 +141,13 @@ fun MemoFragment(navigator: Navigator) {
                     .align(Alignment.BottomEnd)
                     .padding(bottom = 36.dp, end = 18.dp)
             ) {
-                Text(
-                    text = "+",
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 36.sp,
-                    modifier = Modifier.align(Alignment.Center)
+                Icon(
+                    painter = painterResource(Res.drawable.ic_add),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(24.dp)
                 )
             }
         }
