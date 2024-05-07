@@ -10,4 +10,5 @@ object AppColors {
     val Divider = Color(0x26333333)
     val LightGreen = Color(0xFF8DECB4)
     val DarkGreen = Color(0xFF41B06E)
+    val Red = Color(0xFFC40C0C)
 }

@@ -1,7 +1,6 @@
 package ui.scene
 
-import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,51 +28,185 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import logger
+import model.MemoRecords
 import moe.tlaster.precompose.navigation.Navigator
+import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import store.AppStore
+import ui.fragment.TimeCardEvent
+import ui.fragment.TimeCardEventFlow
+import util.MemoUtil
+import util.TimeCardUtil
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.pull_failed
+import zhoutools.composeapp.generated.resources.pull_success
 import zhoutools.composeapp.generated.resources.pulling_memo
 import zhoutools.composeapp.generated.resources.pulling_time_card
 import zhoutools.composeapp.generated.resources.pushing_memo
 import zhoutools.composeapp.generated.resources.pushing_time_card
+import zhoutools.composeapp.generated.resources.sync_failed
+import zhoutools.composeapp.generated.resources.sync_success
 import kotlin.math.roundToInt
 
 enum class ProcessState(val value: Int) {
     PUSHING_MEMO(0),
     PUSHING_TIME_CARD(1),
     PULLING_MEMO(10),
-    PULLING_TIME_CARD(11)
+    PULLING_TIME_CARD(11),
+    SYNC_FAILED(20),
+    SYNC_SUCCESS(21),
+    PULL_FAILED(22),
+    PULL_SUCCESS(23)
 }
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun SyncScene(navigator: Navigator, mode: String) {
-    var progress by remember { mutableFloatStateOf(0f) }
-    val progressStates = remember { mutableStateListOf<Int>() }
+    var progressValue by remember { mutableFloatStateOf(0f) }
+    val progressState by animateFloatAsState(targetValue = progressValue)
+    val processStates = remember { mutableStateListOf<Int>() }
+    val memoUtil = remember { MemoUtil() }
+
+    suspend fun goBack() {
+        delay(1000)
+        navigator.goBack()
+    }
+
+    suspend fun onError() {
+        if (mode == "push") {
+            processStates.add(ProcessState.SYNC_FAILED.value)
+        } else if (mode == "pull") {
+            processStates.add(ProcessState.PULL_FAILED.value)
+        }
+        goBack()
+    }
+
+    suspend fun onSuccess() {
+        if (mode == "push") {
+            processStates.add(ProcessState.SYNC_SUCCESS.value)
+        } else if (mode == "pull") {
+            processStates.add(ProcessState.PULL_SUCCESS.value)
+        }
+        goBack()
+    }
+
+    suspend fun pullTimeCard(): Boolean {
+        if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
+            val serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
+            if (serverData == null) {
+                onError()
+                return false
+            }
+            AppStore.timeCards = Json.encodeToString(serverData)
+            logger.i { "pull success: ${AppStore.timeCards}" }
+            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+            TimeCardEventFlow.emit(TimeCardEvent.RefreshTodayState)
+            return true
+        } else {
+            onError()
+            return false
+        }
+    }
+
+    suspend fun pushTimeCard(): Boolean {
+        val request = TimeCardUtil.buildSyncRequest()
+        if (request == null) {
+            onError()
+            return false
+        }
+        val response = networkApi.sync(AppStore.loginToken, request)
+        if (!response.first) {
+            onError()
+            return false
+        }
+        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+        return true
+    }
+
+    suspend fun pullMemo(): Boolean {
+        if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
+            val serverData = networkApi.getServerMemos(AppStore.loginToken, AppStore.loginUsername)
+            if (serverData == null) {
+                onError()
+                return false
+            }
+            val memoRecords = MemoRecords(memos = serverData.toMutableList())
+            AppStore.memos = Json.encodeToString(memoRecords)
+            logger.i { "pull success: ${AppStore.memos}" }
+            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+            return true
+        } else {
+            onError()
+            return false
+        }
+    }
+
+    suspend fun pushMemo(): Boolean {
+        val request = memoUtil.buildSyncRequest()
+        if (request == null) {
+            onError()
+            return false
+        }
+        val response = networkApi.syncMemo(AppStore.loginToken, request)
+        if (!response.first) {
+            onError()
+            return false
+        }
+        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+        return true
+    }
 
     LaunchedEffect(Unit) {
-        animate(0f, 1f, animationSpec = tween(durationMillis = 2000)) { value, _ ->
-            progress = value
+        withContext(Dispatchers.IO) {
             if (mode == "push") {
-                if (progress >= 0f && ProcessState.PUSHING_MEMO.value !in progressStates) {
-                    progressStates.add(ProcessState.PUSHING_MEMO.value)
+                if (!pushMemo()) {
+                    return@withContext
                 }
-                if (progress >= 0.5f && ProcessState.PUSHING_TIME_CARD.value !in progressStates) {
-                    progressStates.add(ProcessState.PUSHING_TIME_CARD.value)
+                progressValue = 0.5f
+                if (!pushTimeCard()) {
+                    return@withContext
                 }
+                progressValue = 1f
+                onSuccess()
             } else if (mode == "pull") {
-                if (progress >= 0f && ProcessState.PULLING_MEMO.value !in progressStates) {
-                    progressStates.add(ProcessState.PULLING_MEMO.value)
+                if (!pullMemo()) {
+                    return@withContext
                 }
-                if (progress >= 0.5f && ProcessState.PULLING_TIME_CARD.value !in progressStates) {
-                    progressStates.add(ProcessState.PULLING_TIME_CARD.value)
+                progressValue = 0.5f
+                if (!pullTimeCard()) {
+                    return@withContext
                 }
+                progressValue = 1f
+                onSuccess()
             }
         }
-        delay(300)
-        navigator.goBack()
+    }
+
+    LaunchedEffect(progressValue) {
+        if (mode == "push") {
+            if (progressValue >= 0f && ProcessState.PUSHING_MEMO.value !in processStates) {
+                processStates.add(ProcessState.PUSHING_MEMO.value)
+            }
+            if (progressValue >= 0.5f && ProcessState.PUSHING_TIME_CARD.value !in processStates) {
+                processStates.add(ProcessState.PUSHING_TIME_CARD.value)
+            }
+        } else if (mode == "pull") {
+            if (progressValue >= 0f && ProcessState.PULLING_MEMO.value !in processStates) {
+                processStates.add(ProcessState.PULLING_MEMO.value)
+            }
+            if (progressValue >= 0.5f && ProcessState.PULLING_TIME_CARD.value !in processStates) {
+                processStates.add(ProcessState.PULLING_TIME_CARD.value)
+            }
+        }
     }
 
     Column(
@@ -88,33 +221,45 @@ fun SyncScene(navigator: Navigator, mode: String) {
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                progress = { progress },
+                progress = { progressState },
                 trackColor = AppColors.Divider,
                 modifier = Modifier.fillMaxSize(),
                 strokeWidth = 8.dp
             )
 
             Text(
-                text = "${(progress * 100).roundToInt()}%",
+                text = "${(progressState * 100).roundToInt()}%",
                 fontSize = 64.sp,
                 fontWeight = FontWeight.Bold
             )
         }
 
         LazyColumn(modifier = Modifier
-            .padding(top = 32.dp)
+            .padding(top = 64.dp)
             .height(64.dp)
         ) {
-            items(progressStates) {
+            items(processStates) {
                 val text = when (it) {
                     ProcessState.PUSHING_MEMO.value -> stringResource(Res.string.pushing_memo)
                     ProcessState.PUSHING_TIME_CARD.value -> stringResource(Res.string.pushing_time_card)
                     ProcessState.PULLING_MEMO.value -> stringResource(Res.string.pulling_memo)
                     ProcessState.PULLING_TIME_CARD.value -> stringResource(Res.string.pulling_time_card)
+                    ProcessState.SYNC_FAILED.value -> stringResource(Res.string.sync_failed)
+                    ProcessState.SYNC_SUCCESS.value -> stringResource(Res.string.sync_success)
+                    ProcessState.PULL_FAILED.value -> stringResource(Res.string.pull_failed)
+                    ProcessState.PULL_SUCCESS.value -> stringResource(Res.string.pull_success)
                     else -> ""
                 }
-                if (text.isNotEmpty()) {
-                    Text(text)
+                if (it in listOf(ProcessState.SYNC_FAILED.value, ProcessState.PULL_FAILED.value)) {
+                    Text(text, color = AppColors.Red)
+                } else if (it in listOf(ProcessState.SYNC_SUCCESS.value, ProcessState.PULL_SUCCESS.value)) {
+                    Text(text, color = AppColors.DarkGreen)
+                } else if (text.isNotEmpty()) {
+                    Text(
+                        text,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                        color = Color.Black.copy(alpha = 0.6f)
+                    )
                 }
             }
         }

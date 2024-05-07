@@ -17,8 +17,10 @@ data class Memo(
     var isTodoFinished: Boolean = false,
     @SerialName("is_pin")
     var isPin: Boolean = false,
+    @Serializable(with = DoubleToLongSerializer::class)
     @SerialName("create_time")
     val createTime: Long = 0L,
+    @Serializable(with = DoubleToLongSerializer::class)
     @SerialName("modify_time")
     var modifyTime: Long = 0L
 )

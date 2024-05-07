@@ -5,6 +5,7 @@ import kotlinx.serialization.json.Json
 import logger
 import model.Memo
 import model.MemoRecords
+import model.MemoSyncRequest
 import store.AppStore
 
 class MemoUtil {
@@ -77,6 +78,18 @@ class MemoUtil {
         displayList.addAll(pinList)
         displayList.addAll(notPinList)
         return displayList
+    }
+
+    fun buildSyncRequest(): MemoSyncRequest? {
+        return try {
+            if (AppStore.loginUsername.isEmpty()) {
+                null
+            } else {
+                MemoSyncRequest(username = AppStore.loginUsername, memos = memos)
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun saveToDataStore() {
