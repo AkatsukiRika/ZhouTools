@@ -78,4 +78,8 @@
     <string name="all_day">All Day</string>
     <string name="save">Save</string>
     <string name="date">Date</string>
+    <string name="pushing_memo">Uploading memo data to the cloud…</string>
+    <string name="pulling_memo">Retrieving memo data from the cloud…</string>
+    <string name="pushing_time_card">Uploading time cards to the cloud…</string>
+    <string name="pulling_time_card">Retrieving time cards from the cloud…</string>
 </resources>

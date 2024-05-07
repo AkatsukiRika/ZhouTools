@@ -261,10 +261,12 @@ fun SettingsFragment(
             cancel = stringResource(Res.string.pull),
             confirm = stringResource(Res.string.push),
             onCancel = {
-                pull()
+                showSyncDialog = false
+                navigator.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, "pull"))
             },
             onConfirm = {
-                push()
+                showSyncDialog = false
+                navigator.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, "push"))
             },
             onDismiss = {
                 showSyncDialog = false
