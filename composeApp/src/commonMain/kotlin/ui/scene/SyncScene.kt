@@ -81,113 +81,100 @@ fun SyncScene(navigator: Navigator, mode: String) {
         navigator.goBack()
     }
 
-    suspend fun onError() {
+    fun onError() {
         if (mode == "push") {
             processStates.add(ProcessState.SYNC_FAILED.value)
         } else if (mode == "pull") {
             processStates.add(ProcessState.PULL_FAILED.value)
         }
-        goBack()
     }
 
-    suspend fun onSuccess() {
+    fun onSuccess() {
         if (mode == "push") {
             processStates.add(ProcessState.SYNC_SUCCESS.value)
         } else if (mode == "pull") {
             processStates.add(ProcessState.PULL_SUCCESS.value)
         }
-        goBack()
     }
 
-    suspend fun pullTimeCard(): Boolean {
+    suspend fun pullTimeCard() {
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
             val serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
             if (serverData == null) {
                 onError()
-                return false
+                return
             }
             AppStore.timeCards = Json.encodeToString(serverData)
             logger.i { "pull success: ${AppStore.timeCards}" }
             AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
             TimeCardEventFlow.emit(TimeCardEvent.RefreshTodayState)
-            return true
+            onSuccess()
         } else {
             onError()
-            return false
         }
     }
 
-    suspend fun pushTimeCard(): Boolean {
+    suspend fun pushTimeCard() {
         val request = TimeCardUtil.buildSyncRequest()
         if (request == null) {
             onError()
-            return false
+            return
         }
         val response = networkApi.sync(AppStore.loginToken, request)
         if (!response.first) {
             onError()
-            return false
+            return
         }
         AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-        return true
+        onSuccess()
     }
 
-    suspend fun pullMemo(): Boolean {
+    suspend fun pullMemo() {
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
             val serverData = networkApi.getServerMemos(AppStore.loginToken, AppStore.loginUsername)
             if (serverData == null) {
                 onError()
-                return false
+                return
             }
             val memoRecords = MemoRecords(memos = serverData.toMutableList())
             AppStore.memos = Json.encodeToString(memoRecords)
             logger.i { "pull success: ${AppStore.memos}" }
             AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-            return true
+            onSuccess()
         } else {
             onError()
-            return false
         }
     }
 
-    suspend fun pushMemo(): Boolean {
+    suspend fun pushMemo() {
         val request = memoUtil.buildSyncRequest()
         if (request == null) {
             onError()
-            return false
+            return
         }
         val response = networkApi.syncMemo(AppStore.loginToken, request)
         if (!response.first) {
             onError()
-            return false
+            return
         }
         AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-        return true
+        onSuccess()
     }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             if (mode == "push") {
-                if (!pushMemo()) {
-                    return@withContext
-                }
+                pushMemo()
                 progressValue = 0.5f
-                if (!pushTimeCard()) {
-                    return@withContext
-                }
+                pushTimeCard()
                 progressValue = 1f
-                onSuccess()
             } else if (mode == "pull") {
-                if (!pullMemo()) {
-                    return@withContext
-                }
+                pullMemo()
                 progressValue = 0.5f
-                if (!pullTimeCard()) {
-                    return@withContext
-                }
+                pullTimeCard()
                 progressValue = 1f
-                onSuccess()
             }
+            goBack()
         }
     }
 
@@ -236,7 +223,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
 
         LazyColumn(modifier = Modifier
             .padding(top = 64.dp)
-            .height(64.dp)
+            .height(80.dp)
         ) {
             items(processStates) {
                 val text = when (it) {
@@ -251,9 +238,17 @@ fun SyncScene(navigator: Navigator, mode: String) {
                     else -> ""
                 }
                 if (it in listOf(ProcessState.SYNC_FAILED.value, ProcessState.PULL_FAILED.value)) {
-                    Text(text, color = AppColors.Red)
+                    Text(
+                        text,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                        color = AppColors.Red
+                    )
                 } else if (it in listOf(ProcessState.SYNC_SUCCESS.value, ProcessState.PULL_SUCCESS.value)) {
-                    Text(text, color = AppColors.DarkGreen)
+                    Text(
+                        text,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                        color = AppColors.DarkGreen
+                    )
                 } else if (text.isNotEmpty()) {
                     Text(
                         text,
