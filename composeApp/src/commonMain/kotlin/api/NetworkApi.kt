@@ -42,6 +42,7 @@ class NetworkApi {
     private val httpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {
+                encodeDefaults = true
                 ignoreUnknownKeys = true
                 namingStrategy = JsonNamingStrategy.SnakeCase
             })
