@@ -1,9 +1,9 @@
-package model
+package model.request
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TimeCardSyncRequest(
+data class LoginRequest(
     val username: String,
-    val timeCard: TimeCardRecords
+    val password: String
 )

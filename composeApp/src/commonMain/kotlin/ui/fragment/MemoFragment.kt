@@ -44,7 +44,7 @@ import extension.clickableNoRipple
 import global.AppColors
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import model.Memo
+import model.records.Memo
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi

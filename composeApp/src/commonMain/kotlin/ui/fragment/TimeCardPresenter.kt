@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import logger
-import model.TimeCardRecords
+import model.records.TimeCardRecords
 import moe.tlaster.precompose.molecule.collectAction
 import networkApi
 import store.AppStore

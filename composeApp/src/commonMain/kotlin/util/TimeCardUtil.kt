@@ -4,9 +4,9 @@ import extension.dayStartTime
 import extension.isBlankJson
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import model.TimeCardDay
-import model.TimeCardRecords
-import model.TimeCardSyncRequest
+import model.records.TimeCardDay
+import model.records.TimeCardRecords
+import model.request.TimeCardSyncRequest
 import store.AppStore
 
 object TimeCardUtil {

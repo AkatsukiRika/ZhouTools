@@ -34,7 +34,7 @@ import constant.RouteConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-import model.LoginRequest
+import model.request.LoginRequest
 import moe.tlaster.precompose.navigation.Navigator
 import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi

@@ -20,11 +20,11 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import model.LoginRequest
-import model.Memo
-import model.MemoSyncRequest
-import model.TimeCardRecords
-import model.TimeCardSyncRequest
+import model.request.LoginRequest
+import model.records.Memo
+import model.request.MemoSyncRequest
+import model.records.TimeCardRecords
+import model.request.TimeCardSyncRequest
 
 class NetworkApi {
     companion object {

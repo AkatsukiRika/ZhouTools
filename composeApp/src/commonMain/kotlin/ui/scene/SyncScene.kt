@@ -36,7 +36,7 @@ import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import logger
-import model.MemoRecords
+import model.records.MemoRecords
 import moe.tlaster.precompose.navigation.Navigator
 import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi

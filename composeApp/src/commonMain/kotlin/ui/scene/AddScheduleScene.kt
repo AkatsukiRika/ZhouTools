@@ -60,6 +60,7 @@ import zhoutools.composeapp.generated.resources.confirm
 import zhoutools.composeapp.generated.resources.date
 import zhoutools.composeapp.generated.resources.end_time
 import zhoutools.composeapp.generated.resources.save
+import zhoutools.composeapp.generated.resources.set_as_milestone
 import zhoutools.composeapp.generated.resources.start_time
 
 object AddScheduleObject {
@@ -307,6 +308,31 @@ private fun SettingsLayout(
                 checked = state.isAllDay,
                 onCheckedChange = {
                     channel.trySend(AddScheduleAction.SetAllDay(it))
+                },
+                colors = SwitchDefaults.colors(checkedThumbColor = AppColors.Theme, checkedTrackColor = AppColors.LightTheme)
+            )
+        }
+
+        VerticalDivider()
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.set_as_milestone),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Switch(
+                checked = state.isMilestone,
+                onCheckedChange = {
+                    channel.trySend(AddScheduleAction.SetMilestone(it))
                 },
                 colors = SwitchDefaults.colors(checkedThumbColor = AppColors.Theme, checkedTrackColor = AppColors.LightTheme)
             )

@@ -26,6 +26,7 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
     var startTime by remember { mutableLongStateOf(TimeUtil.currentTimeMillis()) }
     var endTime by remember { mutableLongStateOf(TimeUtil.currentTimeMillis()) }
     var isAllDay by remember { mutableStateOf(false) }
+    var isMilestone by remember { mutableStateOf(false) }
     var timeEditType by remember { mutableStateOf<TimeEditType?>(null) }
 
     fun setDate(dateTriple: Triple<Int, Int, Int>) {
@@ -45,6 +46,10 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
                 isAllDay = newValue
             }
 
+            is AddScheduleAction.SetMilestone -> {
+                isMilestone = newValue
+            }
+
             is AddScheduleAction.SetStartTime -> {
                 val millis = TimeUtil.toEpochMillis(year, monthOfYear, dayOfMonth, hour, minute)
                 startTime = millis
@@ -61,7 +66,7 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
         }
     }
 
-    return AddScheduleState(year, monthOfYear, dayOfMonth, text, startTime, endTime, isAllDay, timeEditType)
+    return AddScheduleState(year, monthOfYear, dayOfMonth, text, startTime, endTime, isAllDay, isMilestone, timeEditType)
 }
 
 data class AddScheduleState(
@@ -72,6 +77,7 @@ data class AddScheduleState(
     val startTime: Long,
     val endTime: Long,
     val isAllDay: Boolean,
+    val isMilestone: Boolean,
     val timeEditType: TimeEditType?
 ) {
     suspend fun getDateString(): String {
@@ -86,6 +92,7 @@ data class AddScheduleState(
 sealed interface AddScheduleAction {
     data class SetDate(val dateTriple: Triple<Int, Int, Int>) : AddScheduleAction
     data class SetAllDay(val newValue: Boolean) : AddScheduleAction
+    data class SetMilestone(val newValue: Boolean) : AddScheduleAction
     data class SetStartTime(val hour: Int, val minute: Int) : AddScheduleAction
     data class SetEndTime(val hour: Int, val minute: Int) : AddScheduleAction
     data class SetTimeEditType(val editType: TimeEditType) : AddScheduleAction

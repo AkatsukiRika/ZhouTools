@@ -3,9 +3,9 @@ package util
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import logger
-import model.Memo
-import model.MemoRecords
-import model.MemoSyncRequest
+import model.records.Memo
+import model.records.MemoRecords
+import model.request.MemoSyncRequest
 import store.AppStore
 
 class MemoUtil {

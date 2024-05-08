@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.Flow
-import model.Memo
+import model.records.Memo
 import moe.tlaster.precompose.molecule.collectAction
 import util.MemoUtil
 

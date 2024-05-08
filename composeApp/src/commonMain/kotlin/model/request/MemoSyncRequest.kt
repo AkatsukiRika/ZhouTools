@@ -1,6 +1,7 @@
-package model
+package model.request
 
 import kotlinx.serialization.Serializable
+import model.records.Memo
 
 @Serializable
 data class MemoSyncRequest(

@@ -76,6 +76,7 @@
     <string name="start_time">Starting Time</string>
     <string name="end_time">Ending Time</string>
     <string name="all_day">All Day</string>
+    <string name="set_as_milestone">Set as Milestone</string>
     <string name="save">Save</string>
     <string name="date">Date</string>
     <string name="pushing_memo">Uploading memo data to the cloud…</string>

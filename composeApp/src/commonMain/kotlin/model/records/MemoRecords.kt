@@ -1,7 +1,8 @@
-package model
+package model.records
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import model.DoubleToLongSerializer
 
 @Serializable
 data class MemoRecords(
