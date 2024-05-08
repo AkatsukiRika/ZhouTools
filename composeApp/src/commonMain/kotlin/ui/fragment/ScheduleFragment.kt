@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import constant.RouteConstants
 import constant.TimeConstants
 import extension.dayStartTime
+import extension.toHourMinString
 import global.AppColors
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -59,6 +60,7 @@ import util.ScheduleUtil
 import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.add_schedule
+import zhoutools.composeapp.generated.resources.all_day
 import zhoutools.composeapp.generated.resources.ic_add
 import zhoutools.composeapp.generated.resources.ic_milestone
 import zhoutools.composeapp.generated.resources.ic_next
@@ -96,7 +98,7 @@ fun ScheduleFragment(navigator: Navigator) {
 
     LaunchedEffect(Unit) {
         scheduleList.clear()
-        scheduleList.addAll(util.getScheduleList())
+        scheduleList.addAll(util.getDisplayList())
     }
 
     LaunchedEffect(event) {
@@ -105,7 +107,7 @@ fun ScheduleFragment(navigator: Navigator) {
                 is ScheduleEvent.RefreshData -> {
                     util.refreshData()
                     scheduleList.clear()
-                    scheduleList.addAll(util.getScheduleList())
+                    scheduleList.addAll(util.getDisplayList())
                 }
             }
             ScheduleObject.emitSync(null)
@@ -136,7 +138,8 @@ fun ScheduleFragment(navigator: Navigator) {
 
         ScheduleCardList(
             list = scheduleList,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            state = state
         )
 
         AddScheduleButton(onClick = {
@@ -243,8 +246,8 @@ private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>)
 
                 Text(
                     text = "${it.first}",
-                    fontSize = if (isSelect) 16.sp else 14.sp,
-                    fontWeight = if (isSelect) FontWeight.Bold else FontWeight.Normal,
+                    fontSize = if (isSelect) 18.sp else 14.sp,
+                    fontWeight = if (isSelect) FontWeight.ExtraBold else FontWeight.Normal,
                     modifier = Modifier
                         .clickable {
                             channel.trySend(ScheduleAction.SelectDay(
@@ -294,7 +297,7 @@ private fun AddScheduleButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun ScheduleCardList(modifier: Modifier = Modifier, list: List<Schedule>) {
+private fun ScheduleCardList(modifier: Modifier = Modifier, list: List<Schedule>, state: ScheduleState) {
     LazyColumn(modifier = modifier
         .fillMaxWidth()
         .padding(start = 16.dp, end = 16.dp)
@@ -302,7 +305,9 @@ private fun ScheduleCardList(modifier: Modifier = Modifier, list: List<Schedule>
         items(list) {
             if (it.isMilestone) {
                 MilestoneCard(it)
-
+                Spacer(modifier = Modifier.height(16.dp))
+            } else if (it.dayStartTime == TimeUtil.toEpochMillis(state.selectDate.first, state.selectDate.second, state.selectDate.third, 0, 0)) {
+                NormalCard(it)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -354,5 +359,43 @@ private fun MilestoneCard(card: Schedule) {
             tint = Color.Unspecified,
             contentDescription = null
         )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun NormalCard(card: Schedule) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(8.dp))
+        .background(Color.White)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            val startTimeText = card.startingTime.toHourMinString()
+            val endTimeText = card.endingTime.toHourMinString()
+            val headerText = if (card.isAllDay) {
+                stringResource(Res.string.all_day)
+            } else {
+                "$startTimeText - $endTimeText"
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = headerText,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = card.text,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }

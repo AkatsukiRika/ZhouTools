@@ -23,7 +23,14 @@ class ScheduleUtil {
         }
     }
 
-    fun getScheduleList(): List<Schedule> = schedules
+    fun getDisplayList(): List<Schedule> {
+        val displayList = mutableListOf<Schedule>()
+        val milestoneList = schedules.filter { it.isMilestone }
+        val othersList = schedules.filterNot { it.isMilestone }
+        displayList.addAll(milestoneList)
+        displayList.addAll(othersList)
+        return displayList
+    }
 
     fun addSchedule(schedule: Schedule) {
         schedules.add(schedule)
