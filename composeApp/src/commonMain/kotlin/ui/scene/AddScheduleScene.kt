@@ -181,6 +181,7 @@ fun AddScheduleScene(navigator: Navigator) {
 
             Button(
                 onClick = {
+                    channel.trySend(AddScheduleAction.Confirm(text))
                     navigator.goBack()
                 },
                 modifier = Modifier

@@ -83,4 +83,6 @@
     <string name="pulling_memo">Retrieving memo data from the cloud…</string>
     <string name="pushing_time_card">Uploading time cards to the cloud…</string>
     <string name="pulling_time_card">Retrieving time cards from the cloud…</string>
+    <string name="x_days_until">%1$s Day(s) Until</string>
+    <string name="x_days_since">%1$s Day(s) Since</string>
 </resources>

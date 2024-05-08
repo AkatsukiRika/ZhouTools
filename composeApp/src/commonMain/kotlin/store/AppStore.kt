@@ -7,11 +7,13 @@ object AppStore : KotStoreModel() {
     var loginUsername by stringStore(key = "login_username", default = "")
     var timeCards by stringStore(key = "time_cards", default = "{}", syncSave = true)
     var memos by stringStore(key = "memos", default = "{}", syncSave = true)
+    var schedules by stringStore(key = "schedules", default = "{}", syncSave = true)
     var lastSync by longStore(key = "last_sync", default = 0L)
 
     fun clearCache() {
         timeCards = "{}"
         memos = "{}"
+        schedules = "{}"
         lastSync = 0L
     }
 }

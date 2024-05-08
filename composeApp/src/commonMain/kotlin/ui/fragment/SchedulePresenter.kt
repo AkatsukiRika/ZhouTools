@@ -21,7 +21,7 @@ fun SchedulePresenter(actionFlow: Flow<ScheduleAction>): ScheduleState {
     var currMonthOfYear by remember { mutableIntStateOf(0) }
     var currMonthDays by remember { mutableStateOf<List<Pair<Int, DayOfWeek>>>(emptyList()) }
     var prevMonthDays by remember { mutableStateOf<List<Pair<Int, DayOfWeek>>>(emptyList()) }
-    var selectDate by remember { mutableStateOf(Triple(0, 0, 0)) }
+    var selectDate by remember { mutableStateOf(Triple(0, 1, 1)) }
 
     fun refreshMonthDays() {
         val monthDays = CalendarUtil.getMonthDays(currYear, currMonthOfYear)

@@ -7,10 +7,14 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import extension.dayStartTime
+import extension.getHour
+import extension.getMinute
 import kotlinx.coroutines.flow.Flow
-import logger
+import model.records.Schedule
 import moe.tlaster.precompose.molecule.collectAction
 import util.CalendarUtil
+import util.ScheduleUtil
 import util.TimeUtil
 
 enum class TimeEditType {
@@ -28,12 +32,26 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
     var isAllDay by remember { mutableStateOf(false) }
     var isMilestone by remember { mutableStateOf(false) }
     var timeEditType by remember { mutableStateOf<TimeEditType?>(null) }
+    val util = remember { ScheduleUtil() }
 
     fun setDate(dateTriple: Triple<Int, Int, Int>) {
         year = dateTriple.first
         monthOfYear = dateTriple.second
         dayOfMonth = dateTriple.third
-        logger.i { "setDate year=$year, monthOfYear=$monthOfYear, dayOfMonth=$dayOfMonth" }
+        startTime = TimeUtil.toEpochMillis(year, monthOfYear, dayOfMonth, startTime.getHour(), startTime.getMinute())
+        endTime = TimeUtil.toEpochMillis(year, monthOfYear, dayOfMonth, endTime.getHour(), endTime.getMinute())
+    }
+
+    fun addSchedule() {
+        val schedule = Schedule(
+            text = text,
+            dayStartTime = startTime.dayStartTime(),
+            startingTime = startTime,
+            endingTime = endTime,
+            isAllDay = isAllDay,
+            isMilestone = isMilestone
+        )
+        util.addSchedule(schedule)
     }
 
     actionFlow.collectAction {
@@ -62,6 +80,11 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
 
             is AddScheduleAction.SetTimeEditType -> {
                 timeEditType = editType
+            }
+
+            is AddScheduleAction.Confirm -> {
+                text = this.text
+                addSchedule()
             }
         }
     }
@@ -96,4 +119,5 @@ sealed interface AddScheduleAction {
     data class SetStartTime(val hour: Int, val minute: Int) : AddScheduleAction
     data class SetEndTime(val hour: Int, val minute: Int) : AddScheduleAction
     data class SetTimeEditType(val editType: TimeEditType) : AddScheduleAction
+    data class Confirm(val text: String) : AddScheduleAction
 }

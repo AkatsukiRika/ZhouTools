@@ -3,6 +3,7 @@ package ui.fragment
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,17 +13,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -30,9 +37,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import constant.RouteConstants
+import constant.TimeConstants
+import extension.dayStartTime
 import global.AppColors
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DayOfWeek
+import model.records.Schedule
+import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -41,18 +55,62 @@ import org.jetbrains.compose.resources.stringResource
 import ui.scene.AddScheduleEvent
 import ui.scene.AddScheduleObject
 import util.CalendarUtil
+import util.ScheduleUtil
+import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.add_schedule
 import zhoutools.composeapp.generated.resources.ic_add
+import zhoutools.composeapp.generated.resources.ic_milestone
 import zhoutools.composeapp.generated.resources.ic_next
 import zhoutools.composeapp.generated.resources.ic_prev
 import zhoutools.composeapp.generated.resources.schedule
+import zhoutools.composeapp.generated.resources.today
+import zhoutools.composeapp.generated.resources.x_days_since
+import zhoutools.composeapp.generated.resources.x_days_until
+
+object ScheduleObject {
+    private val _eventFlow = MutableSharedFlow<ScheduleEvent?>(replay = 1)
+
+    val eventFlow: SharedFlow<ScheduleEvent?>
+        get() = _eventFlow
+
+    fun emitSync(event: ScheduleEvent?) {
+        runBlocking {
+            _eventFlow.emit(event)
+        }
+    }
+}
+
+sealed interface ScheduleEvent {
+    data object RefreshData : ScheduleEvent
+}
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ScheduleFragment(navigator: Navigator) {
     val scope = rememberCoroutineScope()
     val (state, channel) = rememberPresenter(keys = listOf(scope)) { SchedulePresenter(it) }
+    val util = remember { ScheduleUtil() }
+    val scheduleList = remember { mutableStateListOf<Schedule>() }
+    val event = ScheduleObject.eventFlow.collectAsStateWithLifecycle(initial = null).value
+
+    LaunchedEffect(Unit) {
+        scheduleList.clear()
+        scheduleList.addAll(util.getScheduleList())
+    }
+
+    LaunchedEffect(event) {
+        if (event != null) {
+            when (event) {
+                is ScheduleEvent.RefreshData -> {
+                    util.refreshData()
+                    scheduleList.clear()
+                    scheduleList.addAll(util.getScheduleList())
+                }
+            }
+            ScheduleObject.emitSync(null)
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
@@ -76,6 +134,11 @@ fun ScheduleFragment(navigator: Navigator) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        ScheduleCardList(
+            list = scheduleList,
+            modifier = Modifier.weight(1f)
+        )
+
         AddScheduleButton(onClick = {
             AddScheduleObject.emitSync(AddScheduleEvent.SetDate(
                 year = state.selectDate.first,
@@ -84,6 +147,8 @@ fun ScheduleFragment(navigator: Navigator) {
             ))
             navigator.navigate(RouteConstants.ROUTE_ADD_SCHEDULE)
         })
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -224,6 +289,70 @@ private fun AddScheduleButton(onClick: () -> Unit) {
         Text(
             text = stringResource(Res.string.add_schedule),
             color = Color.White
+        )
+    }
+}
+
+@Composable
+private fun ScheduleCardList(modifier: Modifier = Modifier, list: List<Schedule>) {
+    LazyColumn(modifier = modifier
+        .fillMaxWidth()
+        .padding(start = 16.dp, end = 16.dp)
+    ) {
+        items(list) {
+            if (it.isMilestone) {
+                MilestoneCard(it)
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun MilestoneCard(card: Schedule) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(8.dp))
+        .background(Color.White)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            val todayStartTime = TimeUtil.currentTimeMillis().dayStartTime()
+            val diffDays = (todayStartTime - card.dayStartTime) / TimeConstants.DAY_MILLIS
+            val headerText = when {
+                diffDays > 0 -> stringResource(Res.string.x_days_since, diffDays)
+                diffDays < 0 -> stringResource(Res.string.x_days_until, -diffDays)
+                else -> stringResource(Res.string.today)
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = headerText,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = card.text,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        Icon(
+            painter = painterResource(Res.drawable.ic_milestone),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .size(32.dp)
+                .alpha(0.5f),
+            tint = Color.Unspecified,
+            contentDescription = null
         )
     }
 }
