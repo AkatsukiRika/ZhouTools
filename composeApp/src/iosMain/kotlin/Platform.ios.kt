@@ -8,6 +8,7 @@ import platform.Foundation.NSString
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIDevice
+import platform.UIKit.UIPasteboard
 
 class IOSPlatform: Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
@@ -33,4 +34,9 @@ actual fun getAppVersion(): String {
     val nsBundle = NSBundle.mainBundle()
     val version = nsBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? NSString
     return version?.toString() ?: ""
+}
+
+actual fun setClipboardContent(text: String) {
+    val pasteboard = UIPasteboard.generalPasteboard()
+    pasteboard.string = text
 }

@@ -1,3 +1,6 @@
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Build
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -20,4 +23,11 @@ actual fun createDataStore(): DataStore<Preferences>? {
 actual fun getAppVersion(): String {
     val context = MainActivity.context ?: return ""
     return context.packageManager.getPackageInfo(context.packageName, 0).versionName
+}
+
+actual fun setClipboardContent(text: String) {
+    val context = MainActivity.context ?: return
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("label", text)
+    clipboard.setPrimaryClip(clip)
 }
