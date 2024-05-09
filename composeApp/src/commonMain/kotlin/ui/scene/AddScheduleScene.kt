@@ -24,7 +24,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,16 +36,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import arch.AddScheduleEffect
+import arch.EffectObservers
 import extension.getHour
 import extension.getMinute
 import extension.toHourMinString
 import global.AppColors
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -63,28 +61,10 @@ import zhoutools.composeapp.generated.resources.save
 import zhoutools.composeapp.generated.resources.set_as_milestone
 import zhoutools.composeapp.generated.resources.start_time
 
-object AddScheduleObject {
-    private val _eventFlow = MutableSharedFlow<AddScheduleEvent?>(replay = 1)
-
-    val eventFlow: SharedFlow<AddScheduleEvent?>
-        get() = _eventFlow
-
-    fun emitSync(event: AddScheduleEvent?) {
-        runBlocking {
-            _eventFlow.emit(event)
-        }
-    }
-}
-
-sealed interface AddScheduleEvent {
-    data class SetDate(val year: Int, val month: Int, val day: Int) : AddScheduleEvent
-}
-
 @OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun AddScheduleScene(navigator: Navigator) {
     val scope = rememberCoroutineScope()
-    val event = AddScheduleObject.eventFlow.collectAsStateWithLifecycle(initial = null).value
     val (state, channel) = rememberPresenter { AddSchedulePresenter(it) }
     val scaffoldState = rememberBottomSheetScaffoldState()
     var text by remember(state.text) { mutableStateOf(state.text) }
@@ -92,12 +72,10 @@ fun AddScheduleScene(navigator: Navigator) {
         mutableStateOf(TimePickerState(0, 0, true))
     }
 
-    LaunchedEffect(event) {
-        if (event != null) {
-            when (event) {
-                is AddScheduleEvent.SetDate -> {
-                    channel.trySend(AddScheduleAction.SetDate(Triple(event.year, event.month, event.day)))
-                }
+    EffectObservers.observeAddScheduleEffect {
+        when (it) {
+            is AddScheduleEffect.SetDate -> {
+                channel.trySend(AddScheduleAction.SetDate(Triple(it.year, it.month, it.day)))
             }
         }
     }

@@ -18,7 +18,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,12 +29,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import arch.EffectObservers
+import arch.WriteMemoEffect
 import global.AppColors
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.runBlocking
-import model.records.Memo
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -49,40 +45,19 @@ import zhoutools.composeapp.generated.resources.pin_to_top
 import zhoutools.composeapp.generated.resources.set_as_todo
 import zhoutools.composeapp.generated.resources.write_memo
 
-object WriteMemoObject {
-    private val _eventFlow = MutableSharedFlow<WriteMemoEvent?>(replay = 1)
-
-    val eventFlow: SharedFlow<WriteMemoEvent?>
-        get() = _eventFlow
-
-    fun emitSync(event: WriteMemoEvent?) {
-        runBlocking {
-            _eventFlow.emit(event)
-        }
-    }
-}
-
-sealed interface WriteMemoEvent {
-    data class BeginEdit(val memo: Memo) : WriteMemoEvent
-}
-
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
-    val event = WriteMemoObject.eventFlow.collectAsStateWithLifecycle(initial = null).value
     val (state, channel) = rememberPresenter { WriteMemoPresenter(it) }
     var text by remember(state.text) { mutableStateOf(state.text) }
 
-    LaunchedEffect(event) {
-        if (event != null) {
-            when (event) {
-                is WriteMemoEvent.BeginEdit -> {
-                    if (isEdit) {
-                        channel.trySend(WriteMemoAction.BeginEdit(editMemo = event.memo))
-                    }
+    EffectObservers.observeWriteMemoEffect {
+        when (it) {
+            is WriteMemoEffect.BeginEdit -> {
+                if (isEdit) {
+                    channel.trySend(WriteMemoAction.BeginEdit(editMemo = it.memo))
                 }
             }
-            WriteMemoObject.emitSync(null)
         }
     }
 

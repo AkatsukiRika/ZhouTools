@@ -36,25 +36,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import arch.AddScheduleEffect
+import arch.EffectObservers
+import arch.ScheduleEffect
 import constant.RouteConstants
 import constant.TimeConstants
 import extension.dayStartTime
 import extension.toHourMinString
 import global.AppColors
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DayOfWeek
 import model.records.Schedule
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import ui.scene.AddScheduleEvent
-import ui.scene.AddScheduleObject
 import util.CalendarUtil
 import util.ScheduleUtil
 import util.TimeUtil
@@ -70,23 +67,6 @@ import zhoutools.composeapp.generated.resources.today
 import zhoutools.composeapp.generated.resources.x_days_since
 import zhoutools.composeapp.generated.resources.x_days_until
 
-object ScheduleObject {
-    private val _eventFlow = MutableSharedFlow<ScheduleEvent?>(replay = 1)
-
-    val eventFlow: SharedFlow<ScheduleEvent?>
-        get() = _eventFlow
-
-    fun emitSync(event: ScheduleEvent?) {
-        runBlocking {
-            _eventFlow.emit(event)
-        }
-    }
-}
-
-sealed interface ScheduleEvent {
-    data object RefreshData : ScheduleEvent
-}
-
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ScheduleFragment(navigator: Navigator) {
@@ -94,23 +74,19 @@ fun ScheduleFragment(navigator: Navigator) {
     val (state, channel) = rememberPresenter(keys = listOf(scope)) { SchedulePresenter(it) }
     val util = remember { ScheduleUtil() }
     val scheduleList = remember { mutableStateListOf<Schedule>() }
-    val event = ScheduleObject.eventFlow.collectAsStateWithLifecycle(initial = null).value
 
     LaunchedEffect(Unit) {
         scheduleList.clear()
         scheduleList.addAll(util.getDisplayList())
     }
 
-    LaunchedEffect(event) {
-        if (event != null) {
-            when (event) {
-                is ScheduleEvent.RefreshData -> {
-                    util.refreshData()
-                    scheduleList.clear()
-                    scheduleList.addAll(util.getDisplayList())
-                }
+    EffectObservers.observeScheduleEffect {
+        when (it) {
+            is ScheduleEffect.RefreshData -> {
+                util.refreshData()
+                scheduleList.clear()
+                scheduleList.addAll(util.getDisplayList())
             }
-            ScheduleObject.emitSync(null)
         }
     }
 
@@ -143,7 +119,7 @@ fun ScheduleFragment(navigator: Navigator) {
         )
 
         AddScheduleButton(onClick = {
-            AddScheduleObject.emitSync(AddScheduleEvent.SetDate(
+            EffectObservers.emitAddScheduleEffect(AddScheduleEffect.SetDate(
                 year = state.selectDate.first,
                 month = state.selectDate.second,
                 day = state.selectDate.third
