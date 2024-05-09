@@ -18,6 +18,7 @@ import ui.scene.HomeScene
 import ui.scene.LoginScene
 import store.AppStore
 import ui.scene.AddScheduleScene
+import ui.scene.ExportDataScene
 import ui.scene.SyncScene
 import ui.scene.WriteMemoScene
 import ui.scene.detail.DetailScene
@@ -113,6 +114,15 @@ fun App() {
 
                 AppTheme {
                     SyncScene(navigator, mode)
+                }
+            }
+
+            scene(
+                route = RouteConstants.ROUTE_EXPORT,
+                navTransition = navTransition
+            ) {
+                AppTheme {
+                    ExportDataScene(navigator)
                 }
             }
         }

@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 object AppColors {
     val Background = Color(0xFFF4F4F4)
+    val DarkBackground = Color(0xFF202124)
     val Theme = Color(0xFFD685A9)
     val LightTheme = Color(0xFFE9A6B3)
     val SlightTheme = Color(0xFFFFEAE3)

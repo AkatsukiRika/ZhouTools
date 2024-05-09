@@ -22,32 +22,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import constant.RouteConstants
-import extension.firstCharToCapital
 import extension.toHourMinString
 import extension.toMonthDayString
 import getAppVersion
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import logger
 import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.PopUpTo
-import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
 import ui.dialog.ConfirmDialog
 import ui.widget.VerticalDivider
-import util.TimeCardUtil
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.export_data
+import zhoutools.composeapp.generated.resources.ic_export
 import zhoutools.composeapp.generated.resources.ic_logout
 import zhoutools.composeapp.generated.resources.ic_sync
 import zhoutools.composeapp.generated.resources.in_progress
@@ -56,14 +48,10 @@ import zhoutools.composeapp.generated.resources.logout
 import zhoutools.composeapp.generated.resources.logout_confirm_content
 import zhoutools.composeapp.generated.resources.logout_confirm_title
 import zhoutools.composeapp.generated.resources.pull
-import zhoutools.composeapp.generated.resources.pull_failed
-import zhoutools.composeapp.generated.resources.pull_success
 import zhoutools.composeapp.generated.resources.push
 import zhoutools.composeapp.generated.resources.sync_confirm_content
 import zhoutools.composeapp.generated.resources.sync_confirm_title
 import zhoutools.composeapp.generated.resources.sync_data
-import zhoutools.composeapp.generated.resources.sync_failed
-import zhoutools.composeapp.generated.resources.sync_success
 import zhoutools.composeapp.generated.resources.version_x
 
 @OptIn(ExperimentalResourceApi::class)
@@ -109,59 +97,6 @@ fun SettingsFragment(
                 popUpTo = PopUpTo.First()
             )
         )
-    }
-
-    fun push() {
-        scope.launch(Dispatchers.IO) {
-            inProgress = true
-            val request = TimeCardUtil.buildSyncRequest()
-            if (request == null) {
-                showSnackbar(getString(Res.string.sync_failed))
-                inProgress = false
-                showSyncDialog = false
-                return@launch
-            }
-            val response = networkApi.sync(AppStore.loginToken, request)
-            if (!response.first) {
-                showSnackbar(response.second?.firstCharToCapital() ?: getString(Res.string.sync_failed))
-                inProgress = false
-                showSyncDialog = false
-                return@launch
-            }
-            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-            showSnackbar(getString(Res.string.sync_success))
-            inProgress = false
-            showSyncDialog = false
-        }
-    }
-
-    fun pull() {
-        scope.launch(Dispatchers.IO) {
-            inProgress = true
-            if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-                val serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
-                if (serverData == null) {
-                    // failed
-                    showSnackbar(getString(Res.string.pull_failed))
-                    inProgress = false
-                    showSyncDialog = false
-                    return@launch
-                }
-                AppStore.timeCards = Json.encodeToString(serverData)
-                logger.i { "pull success: ${AppStore.timeCards}" }
-                // success
-                AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-                showSnackbar(getString(Res.string.pull_success))
-                inProgress = false
-                showSyncDialog = false
-                TimeCardEventFlow.emit(TimeCardEvent.RefreshTodayState)
-            } else {
-                // failed
-                showSnackbar(getString(Res.string.pull_failed))
-                inProgress = false
-                showSyncDialog = false
-            }
-        }
     }
 
     Column(
@@ -229,6 +164,31 @@ fun SettingsFragment(
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
+        }
+
+        VerticalDivider()
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navigator.navigate(RouteConstants.ROUTE_EXPORT)
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_export),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(top = 13.dp, bottom = 12.dp, start = 16.dp, end = 16.dp)
+                    .size(26.dp),
+                tint = Color.Unspecified
+            )
+
+            Text(
+                text = stringResource(Res.string.export_data),
+                fontSize = 16.sp
+            )
         }
 
         VerticalDivider()

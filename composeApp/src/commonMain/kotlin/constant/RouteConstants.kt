@@ -10,4 +10,5 @@ object RouteConstants {
     const val ROUTE_WRITE_MEMO = "/writeMemo/$PARAM_EDIT"
     const val ROUTE_ADD_SCHEDULE = "/addSchedule"
     const val ROUTE_SYNC = "/sync/$PARAM_MODE"
+    const val ROUTE_EXPORT = "/export"
 }
