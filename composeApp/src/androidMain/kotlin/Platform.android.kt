@@ -1,7 +1,9 @@
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
+import android.view.inputmethod.InputMethodManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.tangping.zhoujiang.MainActivity
@@ -30,4 +32,14 @@ actual fun setClipboardContent(text: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText("label", text)
     clipboard.setPrimaryClip(clip)
+}
+
+actual fun hideSoftwareKeyboard() {
+    val context = MainActivity.context ?: return
+    val imeManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    val currentFocus = (context as? Activity)?.currentFocus
+    val windowToken = currentFocus?.windowToken
+    windowToken?.let {
+        imeManager.hideSoftInputFromWindow(windowToken, 0)
+    }
 }

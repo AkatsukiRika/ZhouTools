@@ -42,6 +42,7 @@ import extension.getHour
 import extension.getMinute
 import extension.toHourMinString
 import global.AppColors
+import hideSoftwareKeyboard
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -218,6 +219,7 @@ private fun SettingsLayout(
         Row(
             modifier = Modifier
                 .clickable {
+                    hideSoftwareKeyboard()
                     onSetPickerTime(state.startTime.getHour(), state.startTime.getMinute())
                     onShowBottomSheet()
                     channel.trySend(AddScheduleAction.SetTimeEditType(TimeEditType.START_TIME))
@@ -245,6 +247,7 @@ private fun SettingsLayout(
         Row(
             modifier = Modifier
                 .clickable {
+                    hideSoftwareKeyboard()
                     onSetPickerTime(state.endTime.getHour(), state.endTime.getMinute())
                     onShowBottomSheet()
                     channel.trySend(AddScheduleAction.SetTimeEditType(TimeEditType.END_TIME))

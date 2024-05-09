@@ -7,8 +7,10 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSString
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
+import platform.UIKit.UIApplication
 import platform.UIKit.UIDevice
 import platform.UIKit.UIPasteboard
+import platform.UIKit.endEditing
 
 class IOSPlatform: Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
@@ -39,4 +41,10 @@ actual fun getAppVersion(): String {
 actual fun setClipboardContent(text: String) {
     val pasteboard = UIPasteboard.generalPasteboard()
     pasteboard.string = text
+}
+
+actual fun hideSoftwareKeyboard() {
+    val sharedApp = UIApplication.sharedApplication()
+    val window = sharedApp.keyWindow
+    window?.endEditing(true)
 }

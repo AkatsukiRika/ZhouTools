@@ -36,3 +36,5 @@ expect fun createDataStore(): DataStore<Preferences>?
 expect fun getAppVersion(): String
 
 expect fun setClipboardContent(text: String)
+
+expect fun hideSoftwareKeyboard()
