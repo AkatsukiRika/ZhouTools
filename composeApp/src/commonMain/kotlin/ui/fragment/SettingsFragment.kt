@@ -10,11 +10,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,9 +23,6 @@ import constant.RouteConstants
 import extension.toHourMinString
 import extension.toMonthDayString
 import getAppVersion
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.PopUpTo
@@ -35,20 +30,22 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
+import ui.dialog.CloudServerDialog
 import ui.dialog.ConfirmDialog
 import ui.widget.VerticalDivider
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.export_data
 import zhoutools.composeapp.generated.resources.ic_export
 import zhoutools.composeapp.generated.resources.ic_logout
+import zhoutools.composeapp.generated.resources.ic_server
 import zhoutools.composeapp.generated.resources.ic_sync
-import zhoutools.composeapp.generated.resources.in_progress
 import zhoutools.composeapp.generated.resources.last_sync_x
 import zhoutools.composeapp.generated.resources.logout
 import zhoutools.composeapp.generated.resources.logout_confirm_content
 import zhoutools.composeapp.generated.resources.logout_confirm_title
 import zhoutools.composeapp.generated.resources.pull
 import zhoutools.composeapp.generated.resources.push
+import zhoutools.composeapp.generated.resources.server_settings
 import zhoutools.composeapp.generated.resources.sync_confirm_content
 import zhoutools.composeapp.generated.resources.sync_confirm_title
 import zhoutools.composeapp.generated.resources.sync_data
@@ -61,29 +58,9 @@ fun SettingsFragment(
     navigator: Navigator,
     showSnackbar: (String) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-    var inProgress by remember { mutableStateOf(false) }
-    var dots by remember { mutableStateOf("...") }
-    var job by remember { mutableStateOf<Job?>(null) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showSyncDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(inProgress) {
-        if (inProgress) {
-            job = launch {
-                while (true) {
-                    delay(200)
-                    dots = when (dots) {
-                        "." -> ".."
-                        ".." -> "..."
-                        else -> "."
-                    }
-                }
-            }
-        } else {
-            job?.cancel()
-        }
-    }
+    var showServerDialog by remember { mutableStateOf(false) }
 
     fun logout() {
         showLogoutDialog = false
@@ -150,12 +127,8 @@ fun SettingsFragment(
                 fontSize = 16.sp
             )
 
-            if (inProgress || AppStore.lastSync != 0L) {
-                val text = if (inProgress) {
-                    "(${stringResource(Res.string.in_progress)}$dots)"
-                } else {
-                    "(${stringResource(Res.string.last_sync_x, "${AppStore.lastSync.toMonthDayString()} ${AppStore.lastSync.toHourMinString()}")})"
-                }
+            if (AppStore.lastSync != 0L) {
+                val text = "(${stringResource(Res.string.last_sync_x, "${AppStore.lastSync.toMonthDayString()} ${AppStore.lastSync.toHourMinString()}")})"
 
                 Text(
                     text = text,
@@ -187,6 +160,31 @@ fun SettingsFragment(
 
             Text(
                 text = stringResource(Res.string.export_data),
+                fontSize = 16.sp
+            )
+        }
+
+        VerticalDivider()
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    showServerDialog = true
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_server),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(top = 13.dp, bottom = 12.dp, start = 16.dp, end = 16.dp)
+                    .size(26.dp),
+                tint = Color.Unspecified
+            )
+
+            Text(
+                text = stringResource(Res.string.server_settings),
                 fontSize = 16.sp
             )
         }
@@ -230,6 +228,17 @@ fun SettingsFragment(
             },
             onDismiss = {
                 showSyncDialog = false
+            }
+        )
+    }
+
+    if (showServerDialog) {
+        CloudServerDialog(
+            onCancel = {
+                showServerDialog = false
+            },
+            onConfirm = {
+                showServerDialog = false
             }
         )
     }

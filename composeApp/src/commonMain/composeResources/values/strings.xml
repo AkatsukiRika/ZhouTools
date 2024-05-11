@@ -88,4 +88,6 @@
     <string name="x_days_since">%1$s Day(s) Since</string>
     <string name="export_data">Export Data</string>
     <string name="copied_to_clipboard">Copied to clipboard.</string>
+    <string name="server_settings">Cloud Server Settings</string>
+    <string name="server_settings_hint">Fill in a self-hosted URL to use custom server. Leave blank to use the official cloud service.</string>
 </resources>
