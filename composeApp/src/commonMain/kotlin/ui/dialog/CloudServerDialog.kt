@@ -14,6 +14,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,8 +26,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import extension.isValidUrl
+import global.AppColors
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import store.AppStore
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.cancel
 import zhoutools.composeapp.generated.resources.confirm
@@ -31,7 +39,12 @@ import zhoutools.composeapp.generated.resources.server_settings_hint
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun CloudServerDialog(onCancel: () -> Unit, onConfirm: () -> Unit) {
+fun CloudServerDialog(onCancel: () -> Unit, onConfirm: (String) -> Unit) {
+    var inputUrl by remember { mutableStateOf(AppStore.customServerUrl) }
+    val isValidUrl by remember(inputUrl) {
+        derivedStateOf { inputUrl.isEmpty() || inputUrl.isValidUrl() }
+    }
+
     Dialog(onDismissRequest = {}) {
         Column(modifier = Modifier
             .fillMaxWidth()
@@ -58,13 +71,16 @@ fun CloudServerDialog(onCancel: () -> Unit, onConfirm: () -> Unit) {
             )
 
             TextField(
-                value = "",
-                onValueChange = {},
+                value = inputUrl,
+                onValueChange = {
+                    inputUrl = it
+                },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
+                    disabledIndicatorColor = Color.Transparent,
+                    textColor = if (isValidUrl) AppColors.DarkGreen else AppColors.Red
                 )
             )
 
@@ -87,7 +103,9 @@ fun CloudServerDialog(onCancel: () -> Unit, onConfirm: () -> Unit) {
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
-                    onClick = onConfirm,
+                    onClick = {
+                        onConfirm(inputUrl)
+                    },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(

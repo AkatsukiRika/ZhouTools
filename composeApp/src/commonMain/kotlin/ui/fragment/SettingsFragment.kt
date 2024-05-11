@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,13 +21,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import constant.RouteConstants
+import extension.isValidUrl
 import extension.toHourMinString
 import extension.toMonthDayString
 import getAppVersion
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.PopUpTo
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
@@ -39,6 +43,7 @@ import zhoutools.composeapp.generated.resources.ic_export
 import zhoutools.composeapp.generated.resources.ic_logout
 import zhoutools.composeapp.generated.resources.ic_server
 import zhoutools.composeapp.generated.resources.ic_sync
+import zhoutools.composeapp.generated.resources.invalid_url_toast
 import zhoutools.composeapp.generated.resources.last_sync_x
 import zhoutools.composeapp.generated.resources.logout
 import zhoutools.composeapp.generated.resources.logout_confirm_content
@@ -58,6 +63,7 @@ fun SettingsFragment(
     navigator: Navigator,
     showSnackbar: (String) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showSyncDialog by remember { mutableStateOf(false) }
     var showServerDialog by remember { mutableStateOf(false) }
@@ -239,6 +245,15 @@ fun SettingsFragment(
             },
             onConfirm = {
                 showServerDialog = false
+                if (it.isNotEmpty()) {
+                    if (it.isValidUrl().not()) {
+                        scope.launch {
+                            showSnackbar(getString(Res.string.invalid_url_toast))
+                        }
+                    } else {
+                        AppStore.customServerUrl = it
+                    }
+                }
             }
         )
     }
