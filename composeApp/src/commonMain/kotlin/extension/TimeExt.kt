@@ -53,6 +53,24 @@ fun Long.getMinute(): Int {
     return localDateTime.minute
 }
 
+fun Long.getYear(): Int {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return localDateTime.year
+}
+
+fun Long.getMonthOfYear(): Int {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return localDateTime.monthNumber
+}
+
+fun Long.getDayOfMonth(): Int {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return localDateTime.dayOfMonth
+}
+
 fun Long.toDateString(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())

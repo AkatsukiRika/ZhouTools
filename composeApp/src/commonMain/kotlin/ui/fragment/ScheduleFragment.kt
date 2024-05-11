@@ -85,13 +85,32 @@ fun ScheduleFragment(navigator: Navigator) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
     val (state, channel) = rememberPresenter(keys = listOf(scope)) { SchedulePresenter(it) }
-    val util = remember { ScheduleUtil() }
     val scheduleList = remember { mutableStateListOf<Schedule>() }
     var selectItem by remember { mutableStateOf<Schedule?>(null) }
 
     fun refreshData() {
         scheduleList.clear()
-        scheduleList.addAll(util.getDisplayList())
+        scheduleList.addAll(ScheduleUtil.getDisplayList())
+    }
+
+    fun onEdit() {
+        selectItem?.let {
+            EffectObservers.emitAddScheduleEffect(AddScheduleEffect.BeginEdit(schedule = it))
+            navigator.navigate(RouteConstants.ROUTE_ADD_SCHEDULE)
+            scope.launch {
+                scaffoldState.bottomSheetState.collapse()
+            }
+        }
+    }
+
+    fun onDelete() {
+        selectItem?.let {
+            ScheduleUtil.deleteSchedule(it)
+            refreshData()
+            scope.launch {
+                scaffoldState.bottomSheetState.collapse()
+            }
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -101,24 +120,19 @@ fun ScheduleFragment(navigator: Navigator) {
     EffectObservers.observeScheduleEffect {
         when (it) {
             is ScheduleEffect.RefreshData -> {
-                util.refreshData()
+                ScheduleUtil.refreshData()
                 scheduleList.clear()
-                scheduleList.addAll(util.getDisplayList())
+                scheduleList.addAll(ScheduleUtil.getDisplayList())
             }
         }
     }
 
     BottomSheetScaffold(
         sheetContent = {
-            BottomSheetContent(onEdit = {}, onDelete = {
-                selectItem?.let {
-                    util.deleteSchedule(it)
-                    refreshData()
-                    scope.launch {
-                        scaffoldState.bottomSheetState.collapse()
-                    }
-                }
-            })
+            BottomSheetContent(
+                onEdit = ::onEdit,
+                onDelete = ::onDelete
+            )
         },
         scaffoldState = scaffoldState,
         sheetGesturesEnabled = true,

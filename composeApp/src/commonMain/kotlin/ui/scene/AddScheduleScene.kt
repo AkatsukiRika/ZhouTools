@@ -57,6 +57,7 @@ import zhoutools.composeapp.generated.resources.add_schedule
 import zhoutools.composeapp.generated.resources.all_day
 import zhoutools.composeapp.generated.resources.confirm
 import zhoutools.composeapp.generated.resources.date
+import zhoutools.composeapp.generated.resources.edit_schedule
 import zhoutools.composeapp.generated.resources.end_time
 import zhoutools.composeapp.generated.resources.save
 import zhoutools.composeapp.generated.resources.set_as_milestone
@@ -77,6 +78,10 @@ fun AddScheduleScene(navigator: Navigator) {
         when (it) {
             is AddScheduleEffect.SetDate -> {
                 channel.trySend(AddScheduleAction.SetDate(Triple(it.year, it.month, it.day)))
+            }
+
+            is AddScheduleEffect.BeginEdit -> {
+                channel.trySend(AddScheduleAction.BeginEdit(it.schedule))
             }
         }
     }
@@ -124,7 +129,7 @@ fun AddScheduleScene(navigator: Navigator) {
         ) {
             TitleBar(
                 navigator = navigator,
-                title = stringResource(Res.string.add_schedule)
+                title = stringResource(if (state.isEdit) Res.string.edit_schedule else Res.string.add_schedule)
             )
 
             TextField(

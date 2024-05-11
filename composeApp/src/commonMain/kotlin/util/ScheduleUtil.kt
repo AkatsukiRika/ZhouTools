@@ -7,7 +7,7 @@ import model.records.Schedule
 import model.records.ScheduleRecords
 import store.AppStore
 
-class ScheduleUtil {
+object ScheduleUtil {
     private val schedules = mutableListOf<Schedule>()
 
     init {
@@ -17,6 +17,7 @@ class ScheduleUtil {
     fun refreshData() {
         try {
             val records: ScheduleRecords = Json.decodeFromString(AppStore.schedules)
+            schedules.clear()
             schedules.addAll(records.schedules)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -42,7 +43,7 @@ class ScheduleUtil {
         saveToDataStore()
     }
 
-    private fun saveToDataStore() {
+    fun saveToDataStore() {
         val records = ScheduleRecords(schedules)
         AppStore.schedules = Json.encodeToString(records)
         logger.i { "ScheduleUtil savedToDataStore, AppStore.schedules=${AppStore.schedules}" }

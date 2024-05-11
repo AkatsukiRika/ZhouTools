@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import model.records.Memo
+import model.records.Schedule
 
 object EffectObservers {
     private val writeMemoEffectObserver by lazy {
@@ -38,6 +39,16 @@ object EffectObservers {
         }
     }
 
+    fun emitScheduleEffect(effect: ScheduleEffect, scope: CoroutineScope? = null) {
+        if (scope == null) {
+            scheduleEffectObserver.emitSync(effect)
+        } else {
+            scope.launch {
+                scheduleEffectObserver.emit(effect)
+            }
+        }
+    }
+
     @Composable
     fun observeWriteMemoEffect(onEffect: (WriteMemoEffect) -> Unit) {
         writeMemoEffectObserver.observeComposable(onEffect)
@@ -66,6 +77,7 @@ sealed interface WriteMemoEffect {
 
 sealed interface AddScheduleEffect {
     data class SetDate(val year: Int, val month: Int, val day: Int) : AddScheduleEffect
+    data class BeginEdit(val schedule: Schedule) : AddScheduleEffect
 }
 
 sealed interface ScheduleEffect {

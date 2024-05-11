@@ -73,6 +73,7 @@
     <string name="november">Nov</string>
     <string name="december">Dec</string>
     <string name="add_schedule">Add Schedule</string>
+    <string name="edit_schedule">Edit Schedule</string>
     <string name="start_time">Starting Time</string>
     <string name="end_time">Ending Time</string>
     <string name="all_day">All Day</string>

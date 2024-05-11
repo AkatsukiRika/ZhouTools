@@ -7,9 +7,14 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import arch.EffectObservers
+import arch.ScheduleEffect
 import extension.dayStartTime
+import extension.getDayOfMonth
 import extension.getHour
 import extension.getMinute
+import extension.getMonthOfYear
+import extension.getYear
 import kotlinx.coroutines.flow.Flow
 import model.records.Schedule
 import moe.tlaster.precompose.molecule.collectAction
@@ -32,7 +37,8 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
     var isAllDay by remember { mutableStateOf(false) }
     var isMilestone by remember { mutableStateOf(false) }
     var timeEditType by remember { mutableStateOf<TimeEditType?>(null) }
-    val util = remember { ScheduleUtil() }
+    var isEdit by remember { mutableStateOf(false) }
+    var editItem by remember { mutableStateOf<Schedule?>(null) }
 
     fun setDate(dateTriple: Triple<Int, Int, Int>) {
         year = dateTriple.first
@@ -40,6 +46,18 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
         dayOfMonth = dateTriple.third
         startTime = TimeUtil.toEpochMillis(year, monthOfYear, dayOfMonth, startTime.getHour(), startTime.getMinute())
         endTime = TimeUtil.toEpochMillis(year, monthOfYear, dayOfMonth, endTime.getHour(), endTime.getMinute())
+    }
+
+    fun initEditData(schedule: Schedule) {
+        editItem = schedule
+        year = schedule.dayStartTime.getYear()
+        monthOfYear = schedule.dayStartTime.getMonthOfYear()
+        dayOfMonth = schedule.dayStartTime.getDayOfMonth()
+        text = schedule.text
+        startTime = schedule.startingTime
+        endTime = schedule.endingTime
+        isAllDay = schedule.isAllDay
+        isMilestone = schedule.isMilestone
     }
 
     fun addSchedule() {
@@ -51,7 +69,19 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
             isAllDay = isAllDay,
             isMilestone = isMilestone
         )
-        util.addSchedule(schedule)
+        ScheduleUtil.addSchedule(schedule)
+    }
+
+    fun editSchedule() {
+        editItem?.let {
+            it.text = text
+            it.startingTime = startTime
+            it.endingTime = endTime
+            it.isAllDay = isAllDay
+            it.isMilestone = isMilestone
+            ScheduleUtil.saveToDataStore()
+        }
+        EffectObservers.emitScheduleEffect(ScheduleEffect.RefreshData)
     }
 
     actionFlow.collectAction {
@@ -84,12 +114,21 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
 
             is AddScheduleAction.Confirm -> {
                 text = this.text
-                addSchedule()
+                if (isEdit) {
+                    editSchedule()
+                } else {
+                    addSchedule()
+                }
+            }
+
+            is AddScheduleAction.BeginEdit -> {
+                isEdit = true
+                initEditData(schedule)
             }
         }
     }
 
-    return AddScheduleState(year, monthOfYear, dayOfMonth, text, startTime, endTime, isAllDay, isMilestone, timeEditType)
+    return AddScheduleState(year, monthOfYear, dayOfMonth, text, startTime, endTime, isAllDay, isMilestone, timeEditType, isEdit)
 }
 
 data class AddScheduleState(
@@ -101,7 +140,8 @@ data class AddScheduleState(
     val endTime: Long,
     val isAllDay: Boolean,
     val isMilestone: Boolean,
-    val timeEditType: TimeEditType?
+    val timeEditType: TimeEditType?,
+    val isEdit: Boolean
 ) {
     suspend fun getDateString(): String {
         if (monthOfYear - 1 in CalendarUtil.getMonthNamesNonComposable().indices) {
@@ -120,4 +160,5 @@ sealed interface AddScheduleAction {
     data class SetEndTime(val hour: Int, val minute: Int) : AddScheduleAction
     data class SetTimeEditType(val editType: TimeEditType) : AddScheduleAction
     data class Confirm(val text: String) : AddScheduleAction
+    data class BeginEdit(val schedule: Schedule) : AddScheduleAction
 }
