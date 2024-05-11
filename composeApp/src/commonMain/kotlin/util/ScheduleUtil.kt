@@ -37,6 +37,11 @@ class ScheduleUtil {
         saveToDataStore()
     }
 
+    fun deleteSchedule(schedule: Schedule) {
+        schedules.remove(schedule)
+        saveToDataStore()
+    }
+
     private fun saveToDataStore() {
         val records = ScheduleRecords(schedules)
         AppStore.schedules = Json.encodeToString(records)
