@@ -24,7 +24,9 @@ import model.request.LoginRequest
 import model.records.Memo
 import model.request.MemoSyncRequest
 import model.records.TimeCardRecords
+import model.request.ScheduleSyncRequest
 import model.request.TimeCardSyncRequest
+import store.AppStore
 
 class NetworkApi {
     companion object {
@@ -49,13 +51,19 @@ class NetworkApi {
         }
     }
 
+    private fun getBaseUrl() = if (AppStore.customServerUrl.isEmpty()) {
+        "https://www.tang-ping.top"
+    } else {
+        AppStore.customServerUrl
+    }
+
     /**
      * @return First in pair indicates whether login is performed successfully.
      * Second in pair is error message when login failed; JWT token when login succeeded.
      */
     suspend fun login(request: LoginRequest): Pair<Boolean, String?> {
         try {
-            val bodyText = httpClient.post("https://www.tang-ping.top/api/login") {
+            val bodyText = httpClient.post(getBaseUrl() + "/api/login") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }.bodyAsText()
@@ -80,7 +88,7 @@ class NetworkApi {
      */
     suspend fun sync(token: String, request: TimeCardSyncRequest): Pair<Boolean, String?> {
         return try {
-            val bodyText = httpClient.post("https://www.tang-ping.top/api/timeCard/sync") {
+            val bodyText = httpClient.post(getBaseUrl() + "/api/timeCard/sync") {
                 contentType(ContentType.Application.Json)
                 header(KEY_AUTH, token)
                 setBody(request)
@@ -101,7 +109,7 @@ class NetworkApi {
 
     suspend fun getServerTimeCards(token: String, username: String): TimeCardRecords? {
         return try {
-            val bodyText = httpClient.get("https://www.tang-ping.top/api/timeCard/get") {
+            val bodyText = httpClient.get(getBaseUrl() + "/api/timeCard/get") {
                 header(KEY_AUTH, token)
                 parameter(KEY_USERNAME, username)
             }.bodyAsText()
@@ -128,7 +136,7 @@ class NetworkApi {
      */
     suspend fun syncMemo(token: String, request: MemoSyncRequest): Pair<Boolean, String?> {
         return try {
-            val bodyText = httpClient.post("https://www.tang-ping.top/api/memo/sync") {
+            val bodyText = httpClient.post(getBaseUrl() + "/api/memo/sync") {
                 contentType(ContentType.Application.Json)
                 header(KEY_AUTH, token)
                 setBody(request)
@@ -149,7 +157,7 @@ class NetworkApi {
 
     suspend fun getServerMemos(token: String, username: String): List<Memo>? {
         return try {
-            val bodyText = httpClient.get("https://www.tang-ping.top/api/memo/get") {
+            val bodyText = httpClient.get(getBaseUrl() + "/api/memo/get") {
                 header(KEY_AUTH, token)
                 parameter(KEY_USERNAME, username)
             }.bodyAsText()
@@ -173,6 +181,30 @@ class NetworkApi {
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    /**
+     * @return isSuccess to errorMessage
+     */
+    suspend fun syncSchedule(token: String, request: ScheduleSyncRequest): Pair<Boolean, String?> {
+        return try {
+            val bodyText = httpClient.post(getBaseUrl() + "/api/schedule/sync") {
+                contentType(ContentType.Application.Json)
+                header(KEY_AUTH, token)
+                setBody(request)
+            }.bodyAsText()
+            val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
+            val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
+            if (code == CODE_SUCCESS) {
+                true to null
+            } else {
+                val message = jsonObject[KEY_MESSAGE]?.jsonPrimitive?.content
+                false to message
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false to null
         }
     }
 }

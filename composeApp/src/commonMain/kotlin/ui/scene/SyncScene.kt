@@ -6,11 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,9 +19,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
@@ -45,6 +46,7 @@ import store.AppStore
 import ui.fragment.TimeCardEvent
 import ui.fragment.TimeCardEventFlow
 import util.MemoUtil
+import util.ScheduleUtil
 import util.TimeCardUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.pull_failed
@@ -52,6 +54,7 @@ import zhoutools.composeapp.generated.resources.pull_success
 import zhoutools.composeapp.generated.resources.pulling_memo
 import zhoutools.composeapp.generated.resources.pulling_time_card
 import zhoutools.composeapp.generated.resources.pushing_memo
+import zhoutools.composeapp.generated.resources.pushing_schedule
 import zhoutools.composeapp.generated.resources.pushing_time_card
 import zhoutools.composeapp.generated.resources.sync_failed
 import zhoutools.composeapp.generated.resources.sync_success
@@ -60,6 +63,7 @@ import kotlin.math.roundToInt
 enum class ProcessState(val value: Int) {
     PUSHING_MEMO(0),
     PUSHING_TIME_CARD(1),
+    PUSHING_SCHEDULE(2),
     PULLING_MEMO(10),
     PULLING_TIME_CARD(11),
     SYNC_FAILED(20),
@@ -161,12 +165,29 @@ fun SyncScene(navigator: Navigator, mode: String) {
         onSuccess()
     }
 
+    suspend fun pushSchedule() {
+        val request = ScheduleUtil.buildSyncRequest()
+        if (request == null) {
+            onError()
+            return
+        }
+        val response = networkApi.syncSchedule(AppStore.loginToken, request)
+        if (!response.first) {
+            onError()
+            return
+        }
+        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+        onSuccess()
+    }
+
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             if (mode == "push") {
                 pushMemo()
-                progressValue = 0.5f
+                progressValue = 1 / 3f
                 pushTimeCard()
+                progressValue = 2 / 3f
+                pushSchedule()
                 progressValue = 1f
             } else if (mode == "pull") {
                 pullMemo()
@@ -183,8 +204,11 @@ fun SyncScene(navigator: Navigator, mode: String) {
             if (progressValue >= 0f && ProcessState.PUSHING_MEMO.value !in processStates) {
                 processStates.add(ProcessState.PUSHING_MEMO.value)
             }
-            if (progressValue >= 0.5f && ProcessState.PUSHING_TIME_CARD.value !in processStates) {
+            if (progressValue >= 1 / 3f && ProcessState.PUSHING_TIME_CARD.value !in processStates) {
                 processStates.add(ProcessState.PUSHING_TIME_CARD.value)
+            }
+            if (progressValue >= 2 / 3f && ProcessState.PUSHING_SCHEDULE.value !in processStates) {
+                processStates.add(ProcessState.PUSHING_SCHEDULE.value)
             }
         } else if (mode == "pull") {
             if (progressValue >= 0f && ProcessState.PULLING_MEMO.value !in processStates) {
@@ -221,14 +245,12 @@ fun SyncScene(navigator: Navigator, mode: String) {
             )
         }
 
-        LazyColumn(modifier = Modifier
-            .padding(top = 64.dp)
-            .height(80.dp)
-        ) {
-            items(processStates) {
+        val annotatedString = buildAnnotatedString {
+            processStates.forEach {
                 val text = when (it) {
                     ProcessState.PUSHING_MEMO.value -> stringResource(Res.string.pushing_memo)
                     ProcessState.PUSHING_TIME_CARD.value -> stringResource(Res.string.pushing_time_card)
+                    ProcessState.PUSHING_SCHEDULE.value -> stringResource(Res.string.pushing_schedule)
                     ProcessState.PULLING_MEMO.value -> stringResource(Res.string.pulling_memo)
                     ProcessState.PULLING_TIME_CARD.value -> stringResource(Res.string.pulling_time_card)
                     ProcessState.SYNC_FAILED.value -> stringResource(Res.string.sync_failed)
@@ -237,26 +259,34 @@ fun SyncScene(navigator: Navigator, mode: String) {
                     ProcessState.PULL_SUCCESS.value -> stringResource(Res.string.pull_success)
                     else -> ""
                 }
-                if (it in listOf(ProcessState.SYNC_FAILED.value, ProcessState.PULL_FAILED.value)) {
-                    Text(
-                        text,
-                        modifier = Modifier.padding(bottom = 4.dp),
-                        color = AppColors.Red
-                    )
+                val textColor = if (it in listOf(ProcessState.SYNC_FAILED.value, ProcessState.PULL_FAILED.value)) {
+                    AppColors.Red
                 } else if (it in listOf(ProcessState.SYNC_SUCCESS.value, ProcessState.PULL_SUCCESS.value)) {
-                    Text(
-                        text,
-                        modifier = Modifier.padding(bottom = 4.dp),
-                        color = AppColors.DarkGreen
-                    )
-                } else if (text.isNotEmpty()) {
-                    Text(
-                        text,
-                        modifier = Modifier.padding(bottom = 4.dp),
-                        color = Color.Black.copy(alpha = 0.6f)
-                    )
+                    AppColors.DarkGreen
+                } else {
+                    Color.Black.copy(alpha = 0.6f)
+                }
+                withStyle(SpanStyle(color = textColor)) {
+                    appendLine(text)
                 }
             }
+        }
+
+        val longestAnnotatedString = buildAnnotatedString {
+            repeat(6) {
+                withStyle(SpanStyle(color = AppColors.DarkGreen)) {
+                    appendLine(stringResource(Res.string.pushing_schedule))
+                }
+            }
+        }
+
+        Box(modifier = Modifier.padding(top = 64.dp)) {
+            Text(text = annotatedString)
+
+            Text(
+                text = longestAnnotatedString,
+                modifier = Modifier.alpha(0f)
+            )
         }
     }
 }

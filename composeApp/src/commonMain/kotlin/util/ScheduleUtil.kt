@@ -5,6 +5,7 @@ import kotlinx.serialization.json.Json
 import logger
 import model.records.Schedule
 import model.records.ScheduleRecords
+import model.request.ScheduleSyncRequest
 import store.AppStore
 
 object ScheduleUtil {
@@ -41,6 +42,18 @@ object ScheduleUtil {
     fun deleteSchedule(schedule: Schedule) {
         schedules.remove(schedule)
         saveToDataStore()
+    }
+
+    fun buildSyncRequest(): ScheduleSyncRequest? {
+        return try {
+            if (AppStore.loginUsername.isEmpty()) {
+                null
+            } else {
+                ScheduleSyncRequest(username = AppStore.loginUsername, schedules = schedules)
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     fun saveToDataStore() {
