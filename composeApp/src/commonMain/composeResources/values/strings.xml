@@ -85,6 +85,7 @@
     <string name="pushing_time_card">Uploading time cards to the cloud…</string>
     <string name="pulling_time_card">Retrieving time cards from the cloud…</string>
     <string name="pushing_schedule">Uploading schedule data to the cloud…</string>
+    <string name="pulling_schedule">Retrieving schedule data from the cloud…</string>
     <string name="x_days_until">%1$s Day(s) Until</string>
     <string name="x_days_since">%1$s Day(s) Since</string>
     <string name="export_data">Export Data</string>

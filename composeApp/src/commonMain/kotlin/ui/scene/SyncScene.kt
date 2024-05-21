@@ -38,6 +38,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import logger
 import model.records.MemoRecords
+import model.records.ScheduleRecords
 import moe.tlaster.precompose.navigation.Navigator
 import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -52,6 +53,7 @@ import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.pull_failed
 import zhoutools.composeapp.generated.resources.pull_success
 import zhoutools.composeapp.generated.resources.pulling_memo
+import zhoutools.composeapp.generated.resources.pulling_schedule
 import zhoutools.composeapp.generated.resources.pulling_time_card
 import zhoutools.composeapp.generated.resources.pushing_memo
 import zhoutools.composeapp.generated.resources.pushing_schedule
@@ -66,6 +68,7 @@ enum class ProcessState(val value: Int) {
     PUSHING_SCHEDULE(2),
     PULLING_MEMO(10),
     PULLING_TIME_CARD(11),
+    PULLING_SCHEDULE(12),
     SYNC_FAILED(20),
     SYNC_SUCCESS(21),
     PULL_FAILED(22),
@@ -165,6 +168,23 @@ fun SyncScene(navigator: Navigator, mode: String) {
         onSuccess()
     }
 
+    suspend fun pullSchedule() {
+        if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
+            val serverData = networkApi.getServerSchedules(AppStore.loginToken, AppStore.loginUsername)
+            if (serverData == null) {
+                onError()
+                return
+            }
+            val scheduleRecords = ScheduleRecords(schedules = serverData.toMutableList())
+            AppStore.schedules = Json.encodeToString(scheduleRecords)
+            logger.i { "pull success: ${AppStore.schedules}" }
+            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+            onSuccess()
+        } else {
+            onError()
+        }
+    }
+
     suspend fun pushSchedule() {
         val request = ScheduleUtil.buildSyncRequest()
         if (request == null) {
@@ -191,8 +211,10 @@ fun SyncScene(navigator: Navigator, mode: String) {
                 progressValue = 1f
             } else if (mode == "pull") {
                 pullMemo()
-                progressValue = 0.5f
+                progressValue = 1 / 3f
                 pullTimeCard()
+                progressValue = 2 / 3f
+                pullSchedule()
                 progressValue = 1f
             }
             goBack()
@@ -214,8 +236,11 @@ fun SyncScene(navigator: Navigator, mode: String) {
             if (progressValue >= 0f && ProcessState.PULLING_MEMO.value !in processStates) {
                 processStates.add(ProcessState.PULLING_MEMO.value)
             }
-            if (progressValue >= 0.5f && ProcessState.PULLING_TIME_CARD.value !in processStates) {
+            if (progressValue >= 1 / 3f && ProcessState.PULLING_TIME_CARD.value !in processStates) {
                 processStates.add(ProcessState.PULLING_TIME_CARD.value)
+            }
+            if (progressValue >= 2 / 3f && ProcessState.PULLING_SCHEDULE.value !in processStates) {
+                processStates.add(ProcessState.PULLING_SCHEDULE.value)
             }
         }
     }
@@ -253,6 +278,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
                     ProcessState.PUSHING_SCHEDULE.value -> stringResource(Res.string.pushing_schedule)
                     ProcessState.PULLING_MEMO.value -> stringResource(Res.string.pulling_memo)
                     ProcessState.PULLING_TIME_CARD.value -> stringResource(Res.string.pulling_time_card)
+                    ProcessState.PULLING_SCHEDULE.value -> stringResource(Res.string.pulling_schedule)
                     ProcessState.SYNC_FAILED.value -> stringResource(Res.string.sync_failed)
                     ProcessState.SYNC_SUCCESS.value -> stringResource(Res.string.sync_success)
                     ProcessState.PULL_FAILED.value -> stringResource(Res.string.pull_failed)
@@ -273,9 +299,9 @@ fun SyncScene(navigator: Navigator, mode: String) {
         }
 
         val longestAnnotatedString = buildAnnotatedString {
-            repeat(6) {
+            repeat(8) {
                 withStyle(SpanStyle(color = AppColors.DarkGreen)) {
-                    appendLine(stringResource(Res.string.pushing_schedule))
+                    appendLine(stringResource(Res.string.pulling_schedule))
                 }
             }
         }

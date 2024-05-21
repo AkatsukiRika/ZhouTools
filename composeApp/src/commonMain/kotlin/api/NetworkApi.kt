@@ -22,6 +22,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import model.request.LoginRequest
 import model.records.Memo
+import model.records.Schedule
 import model.request.MemoSyncRequest
 import model.records.TimeCardRecords
 import model.request.ScheduleSyncRequest
@@ -36,6 +37,7 @@ class NetworkApi {
         const val KEY_TOKEN = "token"
         const val KEY_USERNAME = "username"
         const val KEY_MEMOS = "memos"
+        const val KEY_SCHEDULES = "schedules"
         const val KEY_AUTH = "Authorization"
         const val CODE_SUCCESS = 0
     }
@@ -205,6 +207,35 @@ class NetworkApi {
         } catch (e: Exception) {
             e.printStackTrace()
             false to null
+        }
+    }
+
+    suspend fun getServerSchedules(token: String, username: String): List<Schedule>? {
+        return try {
+            val bodyText = httpClient.get(getBaseUrl() + "/api/schedule/get") {
+                header(KEY_AUTH, token)
+                parameter(KEY_USERNAME, username)
+            }.bodyAsText()
+            val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
+            val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
+            if (code == CODE_SUCCESS) {
+                val json = Json { ignoreUnknownKeys = true }
+                val data = jsonObject[KEY_DATA]?.jsonObject
+                if (data != null) {
+                    val resultList = mutableListOf<Schedule>()
+                    val scheduleJsonArray = data[KEY_SCHEDULES]?.jsonArray
+                    scheduleJsonArray?.forEach {
+                        resultList.add(json.decodeFromJsonElement(it))
+                    }
+                    return resultList
+                }
+                null
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
