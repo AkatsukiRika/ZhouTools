@@ -94,4 +94,6 @@
     <string name="server_settings_hint">Fill in a self-hosted URL to use custom server. Leave blank to use the official cloud service.</string>
     <string name="invalid_url_toast">Please fill in a valid web URL.</string>
     <string name="deposit">Deposit</string>
+    <string name="current_deposit">Current Deposit Amount</string>
+    <string name="records">Records</string>
 </resources>
