@@ -19,10 +19,14 @@ import androidx.compose.ui.unit.sp
 import constant.TabConstants
 import extension.clickableNoRipple
 import global.AppColors
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.deposit
+import zhoutools.composeapp.generated.resources.ic_deposit
 import zhoutools.composeapp.generated.resources.ic_memo
 import zhoutools.composeapp.generated.resources.ic_schedule
 import zhoutools.composeapp.generated.resources.ic_settings
@@ -48,100 +52,85 @@ fun BottomBar(
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .clickableNoRipple {
-                    onSelect(TabConstants.TAB_TIME_CARD)
-                }
-                .padding(horizontal = 4.dp)
+        BottomBarItem(
+            index = TabConstants.TAB_TIME_CARD,
+            selectIndex = selectIndex,
+            icon = Res.drawable.ic_time_card,
+            name = Res.string.time_card
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_time_card),
-                modifier = Modifier.height(32.dp).offset(y = 4.dp),
-                contentDescription = null,
-                tint = if (selectIndex == TabConstants.TAB_TIME_CARD) AppColors.Theme else Color.Unspecified
-            )
-
-            Text(
-                text = stringResource(Res.string.time_card),
-                fontSize = 11.sp,
-                color = if (selectIndex == TabConstants.TAB_TIME_CARD) AppColors.Theme else Color.Black
-            )
+            onSelect(it)
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .clickableNoRipple {
-                    onSelect(TabConstants.TAB_SCHEDULE)
-                }
-                .padding(horizontal = 4.dp)
+        BottomBarItem(
+            index = TabConstants.TAB_SCHEDULE,
+            selectIndex = selectIndex,
+            icon = Res.drawable.ic_schedule,
+            name = Res.string.schedule
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_schedule),
-                modifier = Modifier.height(32.dp).offset(y = 4.dp),
-                contentDescription = null,
-                tint = if (selectIndex == TabConstants.TAB_SCHEDULE) AppColors.Theme else Color.Unspecified
-            )
-
-            Text(
-                text = stringResource(Res.string.schedule),
-                fontSize = 11.sp,
-                color = if (selectIndex == TabConstants.TAB_SCHEDULE) AppColors.Theme else Color.Black
-            )
+            onSelect(it)
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .clickableNoRipple {
-                    onSelect(TabConstants.TAB_MEMO)
-                }
-                .padding(horizontal = 4.dp)
+        BottomBarItem(
+            index = TabConstants.TAB_MEMO,
+            selectIndex = selectIndex,
+            icon = Res.drawable.ic_memo,
+            name = Res.string.memo
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_memo),
-                modifier = Modifier.height(32.dp).offset(y = 4.dp),
-                contentDescription = null,
-                tint = if (selectIndex == TabConstants.TAB_MEMO) AppColors.Theme else Color.Unspecified
-            )
-
-            Text(
-                text = stringResource(Res.string.memo),
-                fontSize = 11.sp,
-                color = if (selectIndex == TabConstants.TAB_MEMO) AppColors.Theme else Color.Black
-            )
+            onSelect(it)
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .clickableNoRipple {
-                    onSelect(TabConstants.TAB_SETTINGS)
-                }
-                .padding(horizontal = 4.dp)
+        BottomBarItem(
+            index = TabConstants.TAB_DEPOSIT,
+            selectIndex = selectIndex,
+            icon = Res.drawable.ic_deposit,
+            name = Res.string.deposit
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_settings),
-                modifier = Modifier.height(32.dp).offset(y = 4.dp),
-                contentDescription = null,
-                tint = if (selectIndex == TabConstants.TAB_SETTINGS) AppColors.Theme else Color.Unspecified
-            )
-
-            Text(
-                text = stringResource(Res.string.settings),
-                fontSize = 11.sp,
-                color = if (selectIndex == TabConstants.TAB_SETTINGS) AppColors.Theme else Color.Black
-            )
+            onSelect(it)
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
+        BottomBarItem(
+            index = TabConstants.TAB_SETTINGS,
+            selectIndex = selectIndex,
+            icon = Res.drawable.ic_settings,
+            name = Res.string.settings
+        ) {
+            onSelect(it)
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun BottomBarItem(index: Int, selectIndex: Int, icon: DrawableResource, name: StringResource, onSelect: (Int) -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickableNoRipple {
+                onSelect(index)
+            }
+            .padding(horizontal = 4.dp)
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            modifier = Modifier.height(32.dp).offset(y = 4.dp),
+            contentDescription = null,
+            tint = if (selectIndex == index) AppColors.Theme else Color.Unspecified
+        )
+
+        Text(
+            text = stringResource(name),
+            fontSize = 11.sp,
+            color = if (selectIndex == index) AppColors.Theme else Color.Black
+        )
     }
 }

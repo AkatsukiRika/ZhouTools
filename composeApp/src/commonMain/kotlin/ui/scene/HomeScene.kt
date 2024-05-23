@@ -22,6 +22,7 @@ import global.AppColors
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
+import ui.fragment.DepositFragment
 import ui.fragment.MemoFragment
 import ui.fragment.ScheduleFragment
 import ui.widget.BottomBar
@@ -69,6 +70,7 @@ fun HomeScene(navigator: Navigator) {
                     )
                     TabConstants.TAB_MEMO -> MemoFragment(navigator = navigator)
                     TabConstants.TAB_SCHEDULE -> ScheduleFragment(navigator = navigator)
+                    TabConstants.TAB_DEPOSIT -> DepositFragment(navigator = navigator)
                     else -> TimeCardFragment(
                         modifier = Modifier.fillMaxSize(),
                         navigator = navigator

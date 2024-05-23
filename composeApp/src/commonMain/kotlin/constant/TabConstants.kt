@@ -5,5 +5,6 @@ object TabConstants {
     const val TAB_SCHEDULE = 1
     const val TAB_SETTINGS = 2
     const val TAB_MEMO = 3
-    const val TAB_COUNT = 4
+    const val TAB_DEPOSIT = 4
+    const val TAB_COUNT = 5
 }
