@@ -3,6 +3,7 @@ package ui.scene
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.BottomSheetScaffoldState
+import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Switch
@@ -88,36 +91,7 @@ fun AddScheduleScene(navigator: Navigator) {
 
     BottomSheetScaffold(
         sheetContent = {
-            TimePicker(
-                state = timePickerState,
-                modifier = Modifier
-                    .padding(top = 12.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-
-            Button(
-                onClick = {
-                    scope.launch {
-                        if (state.timeEditType == TimeEditType.START_TIME) {
-                            channel.trySend(AddScheduleAction.SetStartTime(timePickerState.hour, timePickerState.minute))
-                        } else if (state.timeEditType == TimeEditType.END_TIME) {
-                            channel.trySend(AddScheduleAction.SetEndTime(timePickerState.hour, timePickerState.minute))
-                        }
-                        scaffoldState.bottomSheetState.collapse()
-                    }
-                },
-                modifier = Modifier
-                    .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
-                    .fillMaxWidth()
-                    .height(54.dp)
-                    .clip(RoundedCornerShape(16.dp))
-            ) {
-                Text(
-                    text = stringResource(Res.string.save),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
-                )
-            }
+            BottomSheetContent(timePickerState, scaffoldState, state, channel)
         },
         scaffoldState = scaffoldState,
         sheetPeekHeight = 0.dp
@@ -324,5 +298,49 @@ private fun SettingsLayout(
                 colors = SwitchDefaults.colors(checkedThumbColor = AppColors.Theme, checkedTrackColor = AppColors.LightTheme)
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalResourceApi::class)
+@Composable
+private fun ColumnScope.BottomSheetContent(
+    timePickerState: TimePickerState,
+    scaffoldState: BottomSheetScaffoldState,
+    state: AddScheduleState,
+    channel: Channel<AddScheduleAction>
+) {
+    val scope = rememberCoroutineScope()
+
+    if (scaffoldState.bottomSheetState.targetValue == BottomSheetValue.Expanded) {
+        TimePicker(
+            state = timePickerState,
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+    }
+
+    Button(
+        onClick = {
+            scope.launch {
+                if (state.timeEditType == TimeEditType.START_TIME) {
+                    channel.trySend(AddScheduleAction.SetStartTime(timePickerState.hour, timePickerState.minute))
+                } else if (state.timeEditType == TimeEditType.END_TIME) {
+                    channel.trySend(AddScheduleAction.SetEndTime(timePickerState.hour, timePickerState.minute))
+                }
+                scaffoldState.bottomSheetState.collapse()
+            }
+        },
+        modifier = Modifier
+            .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
+            .fillMaxWidth()
+            .height(54.dp)
+            .clip(RoundedCornerShape(16.dp))
+    ) {
+        Text(
+            text = stringResource(Res.string.save),
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp
+        )
     }
 }
