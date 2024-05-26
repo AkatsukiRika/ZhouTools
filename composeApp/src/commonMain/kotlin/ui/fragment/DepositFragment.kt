@@ -23,10 +23,16 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,7 +50,6 @@ import extension.clickableNoRipple
 import extension.toMoneyDisplayStr
 import global.AppColors
 import hideSoftwareKeyboard
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
@@ -77,25 +82,25 @@ fun DepositFragment(navigator: Navigator) {
         bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
     )
 
+    LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
+        if (scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
+            hideSoftwareKeyboard()
+        }
+    }
+
     BottomSheetScaffold(
         sheetContent = {
             BottomSheetContent(onConfirm = {
                 scope.launch {
-                    hideSoftwareKeyboard()
-                    delay(300)
                     scaffoldState.bottomSheetState.hide()
                 }
             })
         },
         scaffoldState = scaffoldState,
-        sheetPeekHeight = 0.dp
+        sheetPeekHeight = 0.dp,
+        containerColor = AppColors.Background
     ) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .clickableNoRipple {
-                hideSoftwareKeyboard()
-            }
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             Text(
                 text = stringResource(Res.string.deposit).uppercase(),
                 fontSize = 24.sp,
@@ -296,7 +301,16 @@ private fun AddRecordButton(onClick: () -> Unit) {
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun BottomSheetContent(onConfirm: () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    var currentDepositStr by remember { mutableStateOf("114514.81") }
+    var monthlyIncomeStr by remember { mutableStateOf("19198.10") }
+    var extraDepositStr by remember { mutableStateOf("81145.14") }
+
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .clickableNoRipple {
+            hideSoftwareKeyboard()
+        }
+    ) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
@@ -340,11 +354,13 @@ private fun BottomSheetContent(onConfirm: () -> Unit) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 BasicTextField(
-                    value = "114514.81",
-                    onValueChange = {},
+                    value = currentDepositStr,
+                    onValueChange = {
+                        currentDepositStr = it
+                    },
                     singleLine = true,
                     textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
             }
 
@@ -365,11 +381,13 @@ private fun BottomSheetContent(onConfirm: () -> Unit) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 BasicTextField(
-                    value = "19198.10",
-                    onValueChange = {},
+                    value = monthlyIncomeStr,
+                    onValueChange = {
+                        monthlyIncomeStr = it
+                    },
                     singleLine = true,
                     textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
             }
 
@@ -390,16 +408,18 @@ private fun BottomSheetContent(onConfirm: () -> Unit) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 BasicTextField(
-                    value = "81145.14",
-                    onValueChange = {},
+                    value = extraDepositStr,
+                    onValueChange = {
+                        extraDepositStr = it
+                    },
                     singleLine = true,
                     textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = onConfirm,
