@@ -94,11 +94,13 @@
     <string name="server_settings_hint">Fill in a self-hosted URL to use custom server. Leave blank to use the official cloud service.</string>
     <string name="invalid_url_toast">Please fill in a valid web URL.</string>
     <string name="deposit">Deposit</string>
-    <string name="current_deposit">Current Deposit Amount</string>
+    <string name="current_deposit">Current Deposit</string>
+    <string name="current_deposit_amount">Current Deposit Amount</string>
     <string name="records">Records</string>
     <string name="monthly_income">Monthly Income</string>
     <string name="balance">Balance</string>
     <string name="balance_diff">Balance Difference</string>
-    <string name="extra_deposit">Extra Deposit Amount</string>
+    <string name="extra_deposit">Extra Deposit</string>
+    <string name="extra_deposit_amount">Extra Deposit Amount</string>
     <string name="add_monthly_record">Add Monthly Record</string>
 </resources>

@@ -15,9 +15,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -25,69 +32,107 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import extension.clickableNoRipple
 import extension.toMoneyDisplayStr
 import global.AppColors
+import hideSoftwareKeyboard
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.widget.VerticalDivider
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.add_monthly_record
 import zhoutools.composeapp.generated.resources.balance
 import zhoutools.composeapp.generated.resources.balance_diff
+import zhoutools.composeapp.generated.resources.confirm
 import zhoutools.composeapp.generated.resources.current_deposit
+import zhoutools.composeapp.generated.resources.current_deposit_amount
+import zhoutools.composeapp.generated.resources.date
 import zhoutools.composeapp.generated.resources.deposit
 import zhoutools.composeapp.generated.resources.extra_deposit
+import zhoutools.composeapp.generated.resources.extra_deposit_amount
 import zhoutools.composeapp.generated.resources.ic_add
 import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
 
-@OptIn(ExperimentalResourceApi::class)
+@OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DepositFragment(navigator: Navigator) {
     val scope = rememberCoroutineScope()
     val (state, channel) = rememberPresenter(keys = listOf(scope)) { DepositPresenter(it) }
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
+    )
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = stringResource(Res.string.deposit).uppercase(),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier
-                .align(Alignment.Start)
-                .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
-        )
-
-        BigCard(state)
-
-        Text(
-            text = stringResource(Res.string.records),
-            fontWeight = FontWeight.Medium,
-            fontSize = 20.sp,
-            modifier = Modifier
-                .align(Alignment.Start)
-                .padding(start = 24.dp, top = 24.dp, bottom = 12.dp)
-        )
-
-        LazyColumn(modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)
-        ) {
-            items(state.displayDeque) {
-                MonthCard(it)
+    BottomSheetScaffold(
+        sheetContent = {
+            BottomSheetContent(onConfirm = {
+                scope.launch {
+                    hideSoftwareKeyboard()
+                    delay(300)
+                    scaffoldState.bottomSheetState.hide()
+                }
+            })
+        },
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = 0.dp
+    ) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .clickableNoRipple {
+                hideSoftwareKeyboard()
             }
+        ) {
+            Text(
+                text = stringResource(Res.string.deposit).uppercase(),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
+            )
+
+            BigCard(state)
+
+            Text(
+                text = stringResource(Res.string.records),
+                fontWeight = FontWeight.Medium,
+                fontSize = 20.sp,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 24.dp, top = 24.dp, bottom = 12.dp)
+            )
+
+            LazyColumn(modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+            ) {
+                items(state.displayDeque) {
+                    MonthCard(it)
+                }
+            }
+
+            AddRecordButton(onClick = {
+                scope.launch {
+                    scaffoldState.bottomSheetState.expand()
+                }
+            })
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
-
-        AddRecordButton(onClick = {})
-
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -109,7 +154,7 @@ private fun BigCard(state: DepositState) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = stringResource(Res.string.current_deposit)
+                text = stringResource(Res.string.current_deposit_amount)
             )
 
             val annotatedAmountString = buildAnnotatedString {
@@ -152,7 +197,7 @@ private fun MonthCard(item: DepositDisplayRecord) {
         Spacer(modifier = Modifier.height(4.dp))
 
         MonthCardDataItem(
-            type = Res.string.current_deposit,
+            type = Res.string.current_deposit_amount,
             value = item.currentAmount.toMoneyDisplayStr()
         )
 
@@ -167,7 +212,7 @@ private fun MonthCard(item: DepositDisplayRecord) {
         )
 
         MonthCardDataItem(
-            type = Res.string.extra_deposit,
+            type = Res.string.extra_deposit_amount,
             value = item.extraDeposit.toMoneyDisplayStr()
         )
 
@@ -245,5 +290,130 @@ private fun AddRecordButton(onClick: () -> Unit) {
             text = stringResource(Res.string.add_monthly_record),
             color = Color.White
         )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun BottomSheetContent(onConfirm: () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(Res.string.date),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = "May 2024",
+                    fontSize = 16.sp
+                )
+            }
+
+            VerticalDivider()
+
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(Res.string.current_deposit),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                BasicTextField(
+                    value = "114514.81",
+                    onValueChange = {},
+                    singleLine = true,
+                    textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+
+            VerticalDivider()
+
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(Res.string.monthly_income),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                BasicTextField(
+                    value = "19198.10",
+                    onValueChange = {},
+                    singleLine = true,
+                    textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+
+            VerticalDivider()
+
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(Res.string.extra_deposit),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                BasicTextField(
+                    value = "81145.14",
+                    onValueChange = {},
+                    singleLine = true,
+                    textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = onConfirm,
+            modifier = Modifier
+                .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
+                .fillMaxWidth()
+                .height(44.dp)
+                .clip(RoundedCornerShape(16.dp))
+        ) {
+            Text(
+                text = stringResource(Res.string.confirm).uppercase(),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        }
     }
 }
