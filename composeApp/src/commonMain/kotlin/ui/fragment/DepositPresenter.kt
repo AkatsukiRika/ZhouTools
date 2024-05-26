@@ -9,8 +9,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import extension.toMonthYearString
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import model.records.DepositMonth
 import model.records.DepositRecords
+import store.AppStore
 import ui.fragment.DepositState.Companion.toDeque
 
 @Composable
@@ -32,6 +35,7 @@ fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
             DepositMonth(monthStartTime = 1711900800000L, currentAmount = 44556034L, monthlyIncome = 2008165L, extraDeposit = 8414012L),
             DepositMonth(monthStartTime = 1714492800000L, currentAmount = 44991012L, monthlyIncome = 1418450L, extraDeposit = 8883255L)
         ))
+        AppStore.depositMonths = Json.encodeToString(mockRecords)
         val deque = mockRecords.toDeque()
         displayDeque = deque
     }

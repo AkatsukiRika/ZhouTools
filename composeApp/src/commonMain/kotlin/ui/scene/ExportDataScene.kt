@@ -47,6 +47,7 @@ import store.AppStore
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.copied_to_clipboard
+import zhoutools.composeapp.generated.resources.deposit
 import zhoutools.composeapp.generated.resources.export_data
 import zhoutools.composeapp.generated.resources.ic_copy
 import zhoutools.composeapp.generated.resources.memo
@@ -70,6 +71,7 @@ fun ExportDataScene(navigator: Navigator) {
         text = when (exportType) {
             ExportType.SCHEDULE.ordinal -> AppStore.schedules
             ExportType.MEMO.ordinal -> AppStore.memos
+            ExportType.DEPOSIT.ordinal -> AppStore.depositMonths
             else -> AppStore.timeCards
         }
     }
@@ -144,6 +146,21 @@ fun ExportDataScene(navigator: Navigator) {
 
                     Spacer(modifier = Modifier.width(16.dp))
                 }
+
+                item {
+                    ElevatedFilterChip(
+                        selected = exportType == ExportType.DEPOSIT.ordinal,
+                        onClick = {
+                            exportType = ExportType.DEPOSIT.ordinal
+                        },
+                        label = {
+                            Text(text = stringResource(Res.string.deposit))
+                        },
+                        colors = chipColors
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -184,5 +201,5 @@ fun ExportDataScene(navigator: Navigator) {
 }
 
 private enum class ExportType {
-    TIME_CARD, SCHEDULE, MEMO
+    TIME_CARD, SCHEDULE, MEMO, DEPOSIT
 }
