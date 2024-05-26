@@ -1,5 +1,6 @@
 package extension
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
@@ -7,6 +8,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
+import util.CalendarUtil
 
 fun Long.dayStartTime(): Long {
     val instant = Instant.fromEpochMilliseconds(this)
@@ -81,4 +83,21 @@ fun Long.toMonthDayString(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return "${localDateTime.monthNumber.toString().padStart(2, '0')}/${localDateTime.dayOfMonth.toString().padStart(2, '0')}"
+}
+
+/**
+ * @return Strings like "May 2024", "Jan 2025"
+ */
+fun Long.toMonthYearString(): String {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    val monthList = runBlocking {
+        CalendarUtil.getMonthNamesNonComposable()
+    }
+    val monthNumberFromZero = localDateTime.monthNumber - 1
+    if (monthNumberFromZero in monthList.indices) {
+        val monthName = monthList[monthNumberFromZero]
+        return "$monthName ${localDateTime.year}"
+    }
+    return ""
 }

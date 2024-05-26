@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import extension.toMoneyDisplayStr
 import global.AppColors
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
@@ -46,7 +48,6 @@ import zhoutools.composeapp.generated.resources.extra_deposit
 import zhoutools.composeapp.generated.resources.ic_add
 import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
-import zhoutools.composeapp.generated.resources.total_diff
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -79,8 +80,8 @@ fun DepositFragment(navigator: Navigator) {
             .fillMaxWidth()
             .weight(1f)
         ) {
-            items(10) {
-                MonthCard()
+            items(state.displayDeque) {
+                MonthCard(it)
             }
         }
 
@@ -112,7 +113,7 @@ private fun BigCard(state: DepositState) {
             )
 
             val annotatedAmountString = buildAnnotatedString {
-                val splitResult = state.getDisplayAmount().split(".")
+                val splitResult = state.currentAmount.toMoneyDisplayStr().split(".")
 
                 if (splitResult.size == 2) {
                     withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
@@ -132,7 +133,7 @@ private fun BigCard(state: DepositState) {
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun MonthCard() {
+private fun MonthCard(item: DepositDisplayRecord) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
@@ -142,7 +143,7 @@ private fun MonthCard() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "May 2024",
+            text = item.monthStr,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             modifier = Modifier.padding(horizontal = 12.dp)
@@ -152,34 +153,39 @@ private fun MonthCard() {
 
         MonthCardDataItem(
             type = Res.string.current_deposit,
-            value = "12345678.90"
+            value = item.currentAmount.toMoneyDisplayStr()
         )
 
         MonthCardDataItem(
             type = Res.string.monthly_income,
-            value = "12345.67"
+            value = item.monthlyIncome.toMoneyDisplayStr()
         )
 
         MonthCardDataItem(
             type = Res.string.balance,
-            value = "12333333.23"
+            value = item.balance.toMoneyDisplayStr()
         )
 
         MonthCardDataItem(
             type = Res.string.extra_deposit,
-            value = "89012.34"
+            value = item.extraDeposit.toMoneyDisplayStr()
         )
 
+        val balanceDiff = item.balanceDiff
+        val balanceDiffStr = if (balanceDiff == null) {
+            "N/A"
+        } else if (balanceDiff > 0) {
+            "+${balanceDiff.toMoneyDisplayStr()}"
+        } else {
+            balanceDiff.toMoneyDisplayStr()
+        }
+        val balanceDiffColor = if (balanceDiff != null && balanceDiff < 0) {
+            AppColors.Red
+        } else AppColors.DarkGreen
         MonthCardDataItem(
             type = Res.string.balance_diff,
-            value = "+12345.67",
-            valueColor = AppColors.DarkGreen
-        )
-
-        MonthCardDataItem(
-            type = Res.string.total_diff,
-            value = "-123.45",
-            valueColor = AppColors.Red
+            value = balanceDiffStr,
+            valueColor = balanceDiffColor
         )
 
         Spacer(modifier = Modifier.height(8.dp))

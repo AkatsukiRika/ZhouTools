@@ -20,3 +20,22 @@ fun Float.roundToDecimalPlaces(n: Int): String {
         }
     }
 }
+
+fun Long.toMoneyDisplayStr() = when {
+    this < 10 -> {
+        "0.0${this}"
+    }
+
+    this < 100 -> {
+        "0.${this}"
+    }
+
+    else -> {
+        val beforePoint = this / 100
+        val afterPoint = this % 100
+        val afterPointStr = if (afterPoint < 10) {
+            "0$afterPoint"
+        } else afterPoint.toString()
+        "${beforePoint}.${afterPointStr}"
+    }
+}
