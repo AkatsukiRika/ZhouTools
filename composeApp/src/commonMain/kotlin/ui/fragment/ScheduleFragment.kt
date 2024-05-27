@@ -44,15 +44,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import arch.AddScheduleEffect
-import arch.EffectObservers
-import arch.ScheduleEffect
+import helper.effect.AddScheduleEffect
+import helper.effect.ScheduleEffect
 import constant.RouteConstants
 import constant.TimeConstants
 import extension.clickableNoRipple
 import extension.dayStartTime
 import extension.toHourMinString
 import global.AppColors
+import helper.effect.EffectObserveHelper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
@@ -95,7 +95,7 @@ fun ScheduleFragment(navigator: Navigator) {
 
     fun onEdit() {
         selectItem?.let {
-            EffectObservers.emitAddScheduleEffect(AddScheduleEffect.BeginEdit(schedule = it))
+            EffectObserveHelper.emitAddScheduleEffect(AddScheduleEffect.BeginEdit(schedule = it))
             navigator.navigate(RouteConstants.ROUTE_ADD_SCHEDULE)
             scope.launch {
                 scaffoldState.bottomSheetState.collapse()
@@ -117,7 +117,7 @@ fun ScheduleFragment(navigator: Navigator) {
         refreshData()
     }
 
-    EffectObservers.observeScheduleEffect {
+    EffectObserveHelper.observeScheduleEffect {
         when (it) {
             is ScheduleEffect.RefreshData -> {
                 ScheduleUtil.refreshData()
@@ -184,7 +184,8 @@ fun ScheduleFragment(navigator: Navigator) {
             )
 
             AddScheduleButton(onClick = {
-                EffectObservers.emitAddScheduleEffect(AddScheduleEffect.SetDate(
+                EffectObserveHelper.emitAddScheduleEffect(
+                    AddScheduleEffect.SetDate(
                     year = state.selectDate.first,
                     month = state.selectDate.second,
                     day = state.selectDate.third

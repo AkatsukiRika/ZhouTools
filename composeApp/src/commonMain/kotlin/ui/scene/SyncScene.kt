@@ -29,6 +29,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
+import helper.effect.EffectObserveHelper
+import helper.effect.TimeCardEffect
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
@@ -44,8 +46,6 @@ import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
-import ui.fragment.TimeCardEvent
-import ui.fragment.TimeCardEventFlow
 import util.MemoUtil
 import util.ScheduleUtil
 import util.TimeCardUtil
@@ -114,7 +114,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
             AppStore.timeCards = Json.encodeToString(serverData)
             logger.i { "pull success: ${AppStore.timeCards}" }
             AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-            TimeCardEventFlow.emit(TimeCardEvent.RefreshTodayState)
+            EffectObserveHelper.emitTimeCardEffect(TimeCardEffect.RefreshTodayState)
             onSuccess()
         } else {
             onError()

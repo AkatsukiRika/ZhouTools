@@ -2,7 +2,6 @@ package ui.fragment
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -11,7 +10,6 @@ import androidx.compose.runtime.setValue
 import extension.isBlankJson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import logger
@@ -22,8 +20,6 @@ import store.AppStore
 import util.TimeCardUtil
 import util.TimeUtil
 
-val TimeCardEventFlow = MutableStateFlow<TimeCardEvent?>(null)
-
 @Composable
 fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
     var currentTime by remember { mutableLongStateOf(0L) }
@@ -32,7 +28,6 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
     var todayRunTime by remember { mutableLongStateOf(0L) }
     var serverData by remember { mutableStateOf<TimeCardRecords?>(null) }
     var showDialog by remember { mutableStateOf(false) }
-    val event = TimeCardEventFlow.collectAsState(initial = null).value
 
     fun refreshTodayState() {
         todayTimeCard = TimeCardUtil.todayTimeCard() ?: 0L
@@ -77,21 +72,6 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
         }
     }
 
-    LaunchedEffect(event) {
-        // handle event
-        logger.i { "received event: $event" }
-        when (event) {
-            is TimeCardEvent.RefreshTodayState -> {
-                refreshTodayState()
-            }
-            else -> {}
-        }
-        // consume event
-        if (event != null) {
-            TimeCardEventFlow.emit(null)
-        }
-    }
-
     actionFlow.collectAction {
         when (this) {
             is TimeCardAction.PressTimeCard -> {
@@ -111,6 +91,10 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
 
             is TimeCardAction.UseServerData -> {
                 useServerData()
+            }
+
+            is TimeCardAction.RefreshTodayState -> {
+                refreshTodayState()
             }
         }
     }
@@ -132,8 +116,5 @@ sealed interface TimeCardAction {
     data object Run : TimeCardAction
     data object CloseDialog : TimeCardAction
     data object UseServerData : TimeCardAction
-}
-
-sealed interface TimeCardEvent {
-    data object RefreshTodayState : TimeCardEvent
+    data object RefreshTodayState : TimeCardAction
 }

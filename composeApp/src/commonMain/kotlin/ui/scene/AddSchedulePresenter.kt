@@ -7,14 +7,14 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import arch.EffectObservers
-import arch.ScheduleEffect
+import helper.effect.ScheduleEffect
 import extension.dayStartTime
 import extension.getDayOfMonth
 import extension.getHour
 import extension.getMinute
 import extension.getMonthOfYear
 import extension.getYear
+import helper.effect.EffectObserveHelper
 import kotlinx.coroutines.flow.Flow
 import model.records.Schedule
 import moe.tlaster.precompose.molecule.collectAction
@@ -81,7 +81,7 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
             it.isMilestone = isMilestone
             ScheduleUtil.saveToDataStore()
         }
-        EffectObservers.emitScheduleEffect(ScheduleEffect.RefreshData)
+        EffectObserveHelper.emitScheduleEffect(ScheduleEffect.RefreshData)
     }
 
     actionFlow.collectAction {

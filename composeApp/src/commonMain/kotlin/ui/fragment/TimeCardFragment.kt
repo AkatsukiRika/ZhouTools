@@ -30,6 +30,8 @@ import constant.RouteConstants
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
+import helper.effect.EffectObserveHelper
+import helper.effect.TimeCardEffect
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -56,6 +58,14 @@ fun TimeCardFragment(
     navigator: Navigator
 ) {
     val (state, channel) = rememberPresenter { TimeCardPresenter(actionFlow = it) }
+
+    EffectObserveHelper.observeTimeCardEffect {
+        when (it) {
+            is TimeCardEffect.RefreshTodayState -> {
+                channel.trySend(TimeCardAction.RefreshTodayState)
+            }
+        }
+    }
 
     Column(
         modifier = modifier

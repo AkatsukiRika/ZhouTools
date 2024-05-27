@@ -1,4 +1,4 @@
-package arch
+package helper.effect
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

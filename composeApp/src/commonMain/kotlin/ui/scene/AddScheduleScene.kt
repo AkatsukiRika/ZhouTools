@@ -39,12 +39,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import arch.AddScheduleEffect
-import arch.EffectObservers
+import helper.effect.AddScheduleEffect
 import extension.getHour
 import extension.getMinute
 import extension.toHourMinString
 import global.AppColors
+import helper.effect.EffectObserveHelper
 import hideSoftwareKeyboard
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -77,7 +77,7 @@ fun AddScheduleScene(navigator: Navigator) {
         mutableStateOf(TimePickerState(0, 0, true))
     }
 
-    EffectObservers.observeAddScheduleEffect {
+    EffectObserveHelper.observeAddScheduleEffect {
         when (it) {
             is AddScheduleEffect.SetDate -> {
                 channel.trySend(AddScheduleAction.SetDate(Triple(it.year, it.month, it.day)))

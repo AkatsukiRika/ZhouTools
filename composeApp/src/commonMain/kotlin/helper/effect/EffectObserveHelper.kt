@@ -1,12 +1,14 @@
-package arch
+package helper.effect
 
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import model.records.Memo
-import model.records.Schedule
 
-object EffectObservers {
+object EffectObserveHelper {
+    private val timeCardEffectObserver by lazy {
+        TimeCardEffectObserver()
+    }
+
     private val writeMemoEffectObserver by lazy {
         WriteMemoEffectObserver()
     }
@@ -17,6 +19,16 @@ object EffectObservers {
 
     private val scheduleEffectObserver by lazy {
         ScheduleEffectObserver()
+    }
+
+    fun emitTimeCardEffect(effect: TimeCardEffect, scope: CoroutineScope? = null) {
+        if (scope == null) {
+            timeCardEffectObserver.emitSync(effect)
+        } else {
+            scope.launch {
+                timeCardEffectObserver.emit(effect)
+            }
+        }
     }
 
     fun emitWriteMemoEffect(effect: WriteMemoEffect, scope: CoroutineScope? = null) {
@@ -50,6 +62,11 @@ object EffectObservers {
     }
 
     @Composable
+    fun observeTimeCardEffect(onEffect: (TimeCardEffect) -> Unit) {
+        timeCardEffectObserver.observeComposable(onEffect)
+    }
+
+    @Composable
     fun observeWriteMemoEffect(onEffect: (WriteMemoEffect) -> Unit) {
         writeMemoEffectObserver.observeComposable(onEffect)
     }
@@ -63,23 +80,4 @@ object EffectObservers {
     fun observeScheduleEffect(onEffect: (ScheduleEffect) -> Unit) {
         scheduleEffectObserver.observeComposable(onEffect)
     }
-}
-
-class WriteMemoEffectObserver : BaseEffectObserver<WriteMemoEffect>()
-
-class AddScheduleEffectObserver : BaseEffectObserver<AddScheduleEffect>()
-
-class ScheduleEffectObserver : BaseEffectObserver<ScheduleEffect>()
-
-sealed interface WriteMemoEffect {
-    data class BeginEdit(val memo: Memo) : WriteMemoEffect
-}
-
-sealed interface AddScheduleEffect {
-    data class SetDate(val year: Int, val month: Int, val day: Int) : AddScheduleEffect
-    data class BeginEdit(val schedule: Schedule) : AddScheduleEffect
-}
-
-sealed interface ScheduleEffect {
-    data object RefreshData : ScheduleEffect
 }

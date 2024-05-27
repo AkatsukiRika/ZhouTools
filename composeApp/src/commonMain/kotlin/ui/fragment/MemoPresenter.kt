@@ -5,8 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import arch.EffectObservers
-import arch.WriteMemoEffect
+import helper.effect.EffectObserveHelper
+import helper.effect.WriteMemoEffect
 import kotlinx.coroutines.flow.Flow
 import model.records.Memo
 import moe.tlaster.precompose.molecule.collectAction
@@ -24,14 +24,14 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
             curMemo = memo
             showBottomSheet = true
         } else {
-            EffectObservers.emitWriteMemoEffect(WriteMemoEffect.BeginEdit(memo))
+            EffectObserveHelper.emitWriteMemoEffect(WriteMemoEffect.BeginEdit(memo))
             onGoEdit()
         }
     }
 
     fun clickEdit() {
         curMemo?.let {
-            EffectObservers.emitWriteMemoEffect(WriteMemoEffect.BeginEdit(it))
+            EffectObserveHelper.emitWriteMemoEffect(WriteMemoEffect.BeginEdit(it))
             onGoEdit()
         }
     }
