@@ -102,4 +102,5 @@
     <string name="balance_diff">Balance Difference</string>
     <string name="extra_deposit">Extra Deposit</string>
     <string name="add_monthly_record">Add Monthly Record</string>
+    <string name="invalid_deposit_toast">Please fill in valid deposit money amounts.</string>
 </resources>

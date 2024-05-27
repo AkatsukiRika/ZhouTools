@@ -3,7 +3,6 @@ package ui.fragment
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,8 +23,11 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberStandardBottomSheetState
@@ -38,7 +40,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import extension.clickableNoRipple
 import extension.toMoneyDisplayStr
+import extension.toMonthYearString
 import global.AppColors
 import hideSoftwareKeyboard
 import kotlinx.coroutines.launch
@@ -59,9 +61,11 @@ import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.VerticalDivider
+import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.add_monthly_record
 import zhoutools.composeapp.generated.resources.balance
@@ -73,6 +77,7 @@ import zhoutools.composeapp.generated.resources.date
 import zhoutools.composeapp.generated.resources.deposit
 import zhoutools.composeapp.generated.resources.extra_deposit
 import zhoutools.composeapp.generated.resources.ic_add
+import zhoutools.composeapp.generated.resources.invalid_deposit_toast
 import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
 
@@ -84,6 +89,7 @@ fun DepositFragment(navigator: Navigator) {
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
     )
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
@@ -93,11 +99,21 @@ fun DepositFragment(navigator: Navigator) {
 
     BottomSheetScaffold(
         sheetContent = {
-            BottomSheetContent(onConfirm = {
-                scope.launch {
-                    scaffoldState.bottomSheetState.hide()
+            BottomSheetContent(
+                onConfirm = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.hide()
+                    }
+                },
+                onShowSnackbar = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(it)
+                    }
                 }
-            })
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
         },
         scaffoldState = scaffoldState,
         sheetPeekHeight = 0.dp,
@@ -301,10 +317,16 @@ private fun AddRecordButton(onClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
+@OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun BottomSheetContent(onConfirm: () -> Unit) {
+private fun BottomSheetContent(onConfirm: () -> Unit, onShowSnackbar: (String) -> Unit) {
+    val scope = rememberCoroutineScope()
     var isPickingDate by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+    var dateStr by remember { mutableStateOf(TimeUtil.currentTimeMillis().toMonthYearString()) }
+    var currentDepositStr by remember { mutableStateOf("0.00") }
+    var monthlyIncomeStr by remember { mutableStateOf("0.00") }
+    var extraDepositStr by remember { mutableStateOf("0.00") }
 
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -312,15 +334,27 @@ private fun BottomSheetContent(onConfirm: () -> Unit) {
             hideSoftwareKeyboard()
         }
     ) {
-        Box {
+        if (isPickingDate) {
+            BottomSheetDatePicker(datePickerState = datePickerState)
+        } else {
             BottomSheetMainColumn(
-                modifier = Modifier.alpha(if (isPickingDate) 0f else 1f),
+                dateStr = dateStr,
+                currentDepositStr = currentDepositStr,
+                monthlyIncomeStr = monthlyIncomeStr,
+                extraDepositStr = extraDepositStr,
+                onCurrentDepositStrChange = {
+                    currentDepositStr = it
+                },
+                onMonthlyIncomeStrChange = {
+                    monthlyIncomeStr = it
+                },
+                onExtraDepositStrChange = {
+                    extraDepositStr = it
+                },
                 onDateRowClick = {
                     isPickingDate = true
                 }
             )
-
-            BottomSheetDatePicker(modifier = Modifier.alpha(if (isPickingDate) 1f else 0f))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -328,9 +362,22 @@ private fun BottomSheetContent(onConfirm: () -> Unit) {
         Button(
             onClick = {
                 if (isPickingDate) {
+                    val selectedDateMillis = datePickerState.selectedDateMillis
+                    if (selectedDateMillis != null) {
+                        dateStr = selectedDateMillis.toMonthYearString()
+                    }
                     isPickingDate = false
                 } else {
-                    onConfirm()
+                    val isValidInput = currentDepositStr.toDoubleOrNull() != null
+                            && monthlyIncomeStr.toDoubleOrNull() != null
+                            && extraDepositStr.toDoubleOrNull() != null
+                    if (isValidInput) {
+                        onConfirm()
+                    } else {
+                        scope.launch {
+                            onShowSnackbar(getString(Res.string.invalid_deposit_toast))
+                        }
+                    }
                 }
             },
             modifier = Modifier
@@ -352,12 +399,15 @@ private fun BottomSheetContent(onConfirm: () -> Unit) {
 @Composable
 private fun BottomSheetMainColumn(
     modifier: Modifier = Modifier,
+    dateStr: String,
+    currentDepositStr: String,
+    monthlyIncomeStr: String,
+    extraDepositStr: String,
+    onCurrentDepositStrChange: ((String) -> Unit)? = null,
+    onMonthlyIncomeStrChange: ((String) -> Unit)? = null,
+    onExtraDepositStrChange: ((String) -> Unit)? = null,
     onDateRowClick: (() -> Unit)? = null
 ) {
-    var currentDepositStr by remember { mutableStateOf("114514.81") }
-    var monthlyIncomeStr by remember { mutableStateOf("19198.10") }
-    var extraDepositStr by remember { mutableStateOf("81145.14") }
-
     Column(modifier = modifier
         .fillMaxWidth()
         .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
@@ -382,7 +432,7 @@ private fun BottomSheetMainColumn(
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = "May 2024",
+                text = dateStr,
                 fontSize = 16.sp
             )
         }
@@ -406,10 +456,14 @@ private fun BottomSheetMainColumn(
             BasicTextField(
                 value = currentDepositStr,
                 onValueChange = {
-                    currentDepositStr = it
+                    onCurrentDepositStrChange?.invoke(it)
                 },
                 singleLine = true,
-                textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.End,
+                    color = if (currentDepositStr.toDoubleOrNull() != null) Color.Unspecified else AppColors.Red
+                ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
         }
@@ -433,10 +487,14 @@ private fun BottomSheetMainColumn(
             BasicTextField(
                 value = monthlyIncomeStr,
                 onValueChange = {
-                    monthlyIncomeStr = it
+                    onMonthlyIncomeStrChange?.invoke(it)
                 },
                 singleLine = true,
-                textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.End,
+                    color = if (monthlyIncomeStr.toDoubleOrNull() != null) Color.Unspecified else AppColors.Red
+                ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
         }
@@ -460,10 +518,14 @@ private fun BottomSheetMainColumn(
             BasicTextField(
                 value = extraDepositStr,
                 onValueChange = {
-                    extraDepositStr = it
+                    onExtraDepositStrChange?.invoke(it)
                 },
                 singleLine = true,
-                textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.End,
+                    color = if (extraDepositStr.toDoubleOrNull() != null) Color.Unspecified else AppColors.Red
+                ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
         }
@@ -472,9 +534,7 @@ private fun BottomSheetMainColumn(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetDatePicker(modifier: Modifier = Modifier) {
-    val datePickerState = rememberDatePickerState()
-
+fun BottomSheetDatePicker(modifier: Modifier = Modifier, datePickerState: DatePickerState) {
     DatePicker(
         state = datePickerState,
         modifier = modifier
