@@ -3,6 +3,7 @@ package ui.fragment
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,9 +23,11 @@ import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.DatePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -68,7 +72,6 @@ import zhoutools.composeapp.generated.resources.current_deposit_amount
 import zhoutools.composeapp.generated.resources.date
 import zhoutools.composeapp.generated.resources.deposit
 import zhoutools.composeapp.generated.resources.extra_deposit
-import zhoutools.composeapp.generated.resources.extra_deposit_amount
 import zhoutools.composeapp.generated.resources.ic_add
 import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
@@ -202,7 +205,7 @@ private fun MonthCard(item: DepositDisplayRecord) {
         Spacer(modifier = Modifier.height(4.dp))
 
         MonthCardDataItem(
-            type = Res.string.current_deposit_amount,
+            type = Res.string.current_deposit,
             value = item.currentAmount.toMoneyDisplayStr()
         )
 
@@ -217,7 +220,7 @@ private fun MonthCard(item: DepositDisplayRecord) {
         )
 
         MonthCardDataItem(
-            type = Res.string.extra_deposit_amount,
+            type = Res.string.extra_deposit,
             value = item.extraDeposit.toMoneyDisplayStr()
         )
 
@@ -301,9 +304,7 @@ private fun AddRecordButton(onClick: () -> Unit) {
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun BottomSheetContent(onConfirm: () -> Unit) {
-    var currentDepositStr by remember { mutableStateOf("114514.81") }
-    var monthlyIncomeStr by remember { mutableStateOf("19198.10") }
-    var extraDepositStr by remember { mutableStateOf("81145.14") }
+    var isPickingDate by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -311,118 +312,27 @@ private fun BottomSheetContent(onConfirm: () -> Unit) {
             hideSoftwareKeyboard()
         }
     ) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(Res.string.date),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
-                )
+        Box {
+            BottomSheetMainColumn(
+                modifier = Modifier.alpha(if (isPickingDate) 0f else 1f),
+                onDateRowClick = {
+                    isPickingDate = true
+                }
+            )
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                Text(
-                    text = "May 2024",
-                    fontSize = 16.sp
-                )
-            }
-
-            VerticalDivider()
-
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(Res.string.current_deposit),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                BasicTextField(
-                    value = currentDepositStr,
-                    onValueChange = {
-                        currentDepositStr = it
-                    },
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-                )
-            }
-
-            VerticalDivider()
-
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(Res.string.monthly_income),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                BasicTextField(
-                    value = monthlyIncomeStr,
-                    onValueChange = {
-                        monthlyIncomeStr = it
-                    },
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-                )
-            }
-
-            VerticalDivider()
-
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(Res.string.extra_deposit),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                BasicTextField(
-                    value = extraDepositStr,
-                    onValueChange = {
-                        extraDepositStr = it
-                    },
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-                )
-            }
+            BottomSheetDatePicker(modifier = Modifier.alpha(if (isPickingDate) 1f else 0f))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = onConfirm,
+            onClick = {
+                if (isPickingDate) {
+                    isPickingDate = false
+                } else {
+                    onConfirm()
+                }
+            },
             modifier = Modifier
                 .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
                 .fillMaxWidth()
@@ -436,4 +346,137 @@ private fun BottomSheetContent(onConfirm: () -> Unit) {
             )
         }
     }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun BottomSheetMainColumn(
+    modifier: Modifier = Modifier,
+    onDateRowClick: (() -> Unit)? = null
+) {
+    var currentDepositStr by remember { mutableStateOf("114514.81") }
+    var monthlyIncomeStr by remember { mutableStateOf("19198.10") }
+    var extraDepositStr by remember { mutableStateOf("81145.14") }
+
+    Column(modifier = modifier
+        .fillMaxWidth()
+        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+        .clip(RoundedCornerShape(12.dp))
+        .background(Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable {
+                    onDateRowClick?.invoke()
+                }
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.date),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = "May 2024",
+                fontSize = 16.sp
+            )
+        }
+
+        VerticalDivider()
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.current_deposit),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            BasicTextField(
+                value = currentDepositStr,
+                onValueChange = {
+                    currentDepositStr = it
+                },
+                singleLine = true,
+                textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            )
+        }
+
+        VerticalDivider()
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.monthly_income),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            BasicTextField(
+                value = monthlyIncomeStr,
+                onValueChange = {
+                    monthlyIncomeStr = it
+                },
+                singleLine = true,
+                textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            )
+        }
+
+        VerticalDivider()
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.extra_deposit),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            BasicTextField(
+                value = extraDepositStr,
+                onValueChange = {
+                    extraDepositStr = it
+                },
+                singleLine = true,
+                textStyle = TextStyle(fontSize = 16.sp, textAlign = TextAlign.End),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheetDatePicker(modifier: Modifier = Modifier) {
+    val datePickerState = rememberDatePickerState()
+
+    DatePicker(
+        state = datePickerState,
+        modifier = modifier
+    )
 }

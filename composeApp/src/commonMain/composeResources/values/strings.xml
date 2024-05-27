@@ -101,6 +101,5 @@
     <string name="balance">Balance</string>
     <string name="balance_diff">Balance Difference</string>
     <string name="extra_deposit">Extra Deposit</string>
-    <string name="extra_deposit_amount">Extra Deposit Amount</string>
     <string name="add_monthly_record">Add Monthly Record</string>
 </resources>
