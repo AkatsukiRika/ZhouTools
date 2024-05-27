@@ -14,12 +14,12 @@ import extension.getHour
 import extension.getMinute
 import extension.getMonthOfYear
 import extension.getYear
+import helper.ScheduleHelper
 import helper.effect.EffectObserveHelper
 import kotlinx.coroutines.flow.Flow
 import model.records.Schedule
 import moe.tlaster.precompose.molecule.collectAction
 import util.CalendarUtil
-import util.ScheduleUtil
 import util.TimeUtil
 
 enum class TimeEditType {
@@ -69,17 +69,12 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
             isAllDay = isAllDay,
             isMilestone = isMilestone
         )
-        ScheduleUtil.addSchedule(schedule)
+        ScheduleHelper.addSchedule(schedule)
     }
 
     fun editSchedule() {
         editItem?.let {
-            it.text = text
-            it.startingTime = startTime
-            it.endingTime = endTime
-            it.isAllDay = isAllDay
-            it.isMilestone = isMilestone
-            ScheduleUtil.saveToDataStore()
+            ScheduleHelper.modifySchedule(it, text, startTime, endTime, isAllDay, isMilestone)
         }
         EffectObserveHelper.emitScheduleEffect(ScheduleEffect.RefreshData)
     }

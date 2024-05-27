@@ -29,6 +29,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
+import helper.MemoHelper
+import helper.ScheduleHelper
 import helper.effect.EffectObserveHelper
 import helper.effect.TimeCardEffect
 import kotlinx.coroutines.Dispatchers
@@ -46,9 +48,7 @@ import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
-import util.MemoUtil
-import util.ScheduleUtil
-import util.TimeCardUtil
+import helper.TimeCardHelper
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.pull_failed
 import zhoutools.composeapp.generated.resources.pull_success
@@ -81,7 +81,6 @@ fun SyncScene(navigator: Navigator, mode: String) {
     var progressValue by remember { mutableFloatStateOf(0f) }
     val progressState by animateFloatAsState(targetValue = progressValue)
     val processStates = remember { mutableStateListOf<Int>() }
-    val memoUtil = remember { MemoUtil() }
 
     suspend fun goBack() {
         delay(1000)
@@ -122,7 +121,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
     }
 
     suspend fun pushTimeCard() {
-        val request = TimeCardUtil.buildSyncRequest()
+        val request = TimeCardHelper.buildSyncRequest()
         if (request == null) {
             onError()
             return
@@ -154,7 +153,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
     }
 
     suspend fun pushMemo() {
-        val request = memoUtil.buildSyncRequest()
+        val request = MemoHelper.buildSyncRequest()
         if (request == null) {
             onError()
             return
@@ -186,7 +185,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
     }
 
     suspend fun pushSchedule() {
-        val request = ScheduleUtil.buildSyncRequest()
+        val request = ScheduleHelper.buildSyncRequest()
         if (request == null) {
             onError()
             return

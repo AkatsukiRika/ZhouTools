@@ -1,25 +1,14 @@
-package util
+package helper
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import logger
 import model.records.Memo
 import model.records.MemoRecords
 import model.request.MemoSyncRequest
 import store.AppStore
+import util.TimeUtil
 
-class MemoUtil {
-    private val memos = mutableListOf<Memo>()
-
-    init {
-        try {
-            val records: MemoRecords = Json.decodeFromString(AppStore.memos)
-            memos.addAll(records.memos)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
+object MemoHelper {
     fun addMemo(text: String, todo: Boolean, pin: Boolean) {
         val time = TimeUtil.currentTimeMillis()
         val memo = Memo(
@@ -29,11 +18,13 @@ class MemoUtil {
             createTime = time,
             modifyTime = time
         )
+        val memos = getMemos()
         memos.add(memo)
-        saveToDataStore()
+        saveMemos(memos)
     }
 
     fun modifyMemo(memo: Memo, text: String, todo: Boolean, pin: Boolean) {
+        val memos = getMemos()
         val findResult = memos.find {
             it.text == memo.text
                     && it.isTodo == memo.isTodo
@@ -49,10 +40,11 @@ class MemoUtil {
         } else {
             addMemo(text, todo, pin)
         }
-        saveToDataStore()
+        saveMemos(memos)
     }
 
     fun markDone(memo: Memo, done: Boolean) {
+        val memos = getMemos()
         val findResult = memos.find {
             it.text == memo.text
                     && it.isTodo == memo.isTodo
@@ -62,16 +54,18 @@ class MemoUtil {
         }
         if (findResult != null) {
             findResult.isTodoFinished = done
-            saveToDataStore()
+            saveMemos(memos)
         }
     }
 
     fun deleteMemo(memo: Memo) {
+        val memos = getMemos()
         memos.remove(memo)
-        saveToDataStore()
+        saveMemos(memos)
     }
 
     fun getDisplayList(): List<Memo> {
+        val memos = getMemos()
         val displayList = mutableListOf<Memo>()
         val pinList = memos.filter { it.isPin }
         val notPinList = memos.filterNot { it.isPin }
@@ -81,6 +75,7 @@ class MemoUtil {
     }
 
     fun buildSyncRequest(): MemoSyncRequest? {
+        val memos = getMemos()
         return try {
             if (AppStore.loginUsername.isEmpty()) {
                 null
@@ -92,9 +87,16 @@ class MemoUtil {
         }
     }
 
-    private fun saveToDataStore() {
+    private fun getMemos() = try {
+        val memoRecords = Json.decodeFromString<MemoRecords>(AppStore.memos)
+        memoRecords.memos
+    } catch (e: Exception) {
+        e.printStackTrace()
+        mutableListOf()
+    }
+
+    private fun saveMemos(memos: MutableList<Memo>) {
         val records = MemoRecords(memos)
         AppStore.memos = Json.encodeToString(records)
-        logger.i { "MemoUtil savedToDataStore, AppStore.memos=${AppStore.memos}" }
     }
 }

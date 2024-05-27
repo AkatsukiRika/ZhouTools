@@ -17,7 +17,7 @@ import model.records.TimeCardRecords
 import moe.tlaster.precompose.molecule.collectAction
 import networkApi
 import store.AppStore
-import util.TimeCardUtil
+import helper.TimeCardHelper
 import util.TimeUtil
 
 @Composable
@@ -30,8 +30,8 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
     var showDialog by remember { mutableStateOf(false) }
 
     fun refreshTodayState() {
-        todayTimeCard = TimeCardUtil.todayTimeCard() ?: 0L
-        todayRunTime = TimeCardUtil.todayTimeRun() ?: 0L
+        todayTimeCard = TimeCardHelper.todayTimeCard() ?: 0L
+        todayRunTime = TimeCardHelper.todayTimeRun() ?: 0L
         logger.i { "todayTimeCard=$todayTimeCard, todayRunTime=$todayRunTime" }
     }
 
@@ -75,12 +75,12 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
     actionFlow.collectAction {
         when (this) {
             is TimeCardAction.PressTimeCard -> {
-                TimeCardUtil.pressTimeCard()
+                TimeCardHelper.pressTimeCard()
                 refreshTodayState()
             }
 
             is TimeCardAction.Run -> {
-                if (TimeCardUtil.run()) {
+                if (TimeCardHelper.run()) {
                     refreshTodayState()
                 }
             }

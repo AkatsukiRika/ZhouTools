@@ -32,7 +32,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.VerticalDivider
-import util.TimeCardUtil
+import helper.TimeCardHelper
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.countdown
 import zhoutools.composeapp.generated.resources.countdown_ot
@@ -183,14 +183,14 @@ private fun ProgressBar(state: DetailTodayState) {
                 .border(width = 1.dp, color = AppColors.Divider, shape = RoundedCornerShape(6.dp))
                 .clip(RoundedCornerShape(6.dp)),
             color = when {
-                state.timeWork < TimeCardUtil.MIN_WORKING_TIME -> AppColors.Theme
-                state.timeWork >= TimeCardUtil.MIN_WORKING_TIME && state.timeWork < TimeCardUtil.MIN_OT_TIME -> AppColors.LightGreen
+                state.timeWork < TimeCardHelper.MIN_WORKING_TIME -> AppColors.Theme
+                state.timeWork >= TimeCardHelper.MIN_WORKING_TIME && state.timeWork < TimeCardHelper.MIN_OT_TIME -> AppColors.LightGreen
                 else -> AppColors.DarkGreen
             }
         )
 
         Row(modifier = Modifier.fillMaxWidth().offset(y = 24.dp)) {
-            Spacer(modifier = Modifier.weight(TimeCardUtil.MIN_WORKING_TIME.toFloat()))
+            Spacer(modifier = Modifier.weight(TimeCardHelper.MIN_WORKING_TIME.toFloat()))
 
             Text(
                 text = stringResource(Res.string.run).uppercase(),
@@ -198,7 +198,7 @@ private fun ProgressBar(state: DetailTodayState) {
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.weight((TimeCardUtil.MIN_OT_TIME - TimeCardUtil.MIN_WORKING_TIME).toFloat()))
+            Spacer(modifier = Modifier.weight((TimeCardHelper.MIN_OT_TIME - TimeCardHelper.MIN_WORKING_TIME).toFloat()))
         }
     }
 }

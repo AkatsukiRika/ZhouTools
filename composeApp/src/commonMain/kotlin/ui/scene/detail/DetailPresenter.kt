@@ -18,7 +18,7 @@ import logger
 import moe.tlaster.precompose.molecule.collectAction
 import networkApi
 import store.AppStore
-import util.TimeCardUtil
+import helper.TimeCardHelper
 import util.TimeUtil
 import kotlin.math.max
 
@@ -34,12 +34,12 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
     fun initTodayData() {
         val currentTime = TimeUtil.currentTimeMillis()
         val dayStartTime = currentTime.dayStartTime()
-        val todayTimeCard = TimeCardUtil.todayTimeCard() ?: 0L
-        val todayTimeRun = TimeCardUtil.todayTimeRun() ?: 0L
+        val todayTimeCard = TimeCardHelper.todayTimeCard() ?: 0L
+        val todayTimeRun = TimeCardHelper.todayTimeRun() ?: 0L
         val todayTimeWork = if (todayTimeRun == 0L) currentTime - todayTimeCard else todayTimeRun - todayTimeCard
-        val countdownRun = max(0L, TimeCardUtil.MIN_WORKING_TIME - todayTimeWork)
-        val countdownOT = max(0L, TimeCardUtil.MIN_OT_TIME - todayTimeWork)
-        val progress = todayTimeWork.toFloat() / TimeCardUtil.MIN_OT_TIME
+        val countdownRun = max(0L, TimeCardHelper.MIN_WORKING_TIME - todayTimeWork)
+        val countdownOT = max(0L, TimeCardHelper.MIN_OT_TIME - todayTimeWork)
+        val progress = todayTimeWork.toFloat() / TimeCardHelper.MIN_OT_TIME
         todayState = DetailTodayState(
             dayStartTime = dayStartTime,
             timeCard = todayTimeCard,
@@ -78,7 +78,7 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
                             timeCard = it.latestTimeCard,
                             timeRun = it.latestTimeRun ?: 0L,
                             timeWork = timeWork,
-                            isOT = timeWork >= TimeCardUtil.MIN_OT_TIME
+                            isOT = timeWork >= TimeCardHelper.MIN_OT_TIME
                         )
                         weekDays.add(weekDay)
                         if (weekDay.isOT) {
@@ -102,12 +102,12 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
 
     fun refreshTodayData() {
         val currentTime = TimeUtil.currentTimeMillis()
-        val todayTimeCard = TimeCardUtil.todayTimeCard() ?: 0L
-        val todayTimeRun = TimeCardUtil.todayTimeRun() ?: 0L
+        val todayTimeCard = TimeCardHelper.todayTimeCard() ?: 0L
+        val todayTimeRun = TimeCardHelper.todayTimeRun() ?: 0L
         val todayTimeWork = if (todayTimeRun == 0L) currentTime - todayTimeCard else todayTimeRun - todayTimeCard
-        val countdownRun = max(0L, TimeCardUtil.MIN_WORKING_TIME - todayTimeWork)
-        val countdownOT = max(0L, TimeCardUtil.MIN_OT_TIME - todayTimeWork)
-        val progress = todayTimeWork.toFloat() / TimeCardUtil.MIN_OT_TIME
+        val countdownRun = max(0L, TimeCardHelper.MIN_WORKING_TIME - todayTimeWork)
+        val countdownOT = max(0L, TimeCardHelper.MIN_OT_TIME - todayTimeWork)
+        val progress = todayTimeWork.toFloat() / TimeCardHelper.MIN_OT_TIME
         todayState = todayState.copy(
             timeWork = todayTimeWork,
             countdownRun = countdownRun,

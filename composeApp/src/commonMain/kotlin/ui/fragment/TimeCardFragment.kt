@@ -38,7 +38,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.dialog.ConfirmDialog
-import util.TimeCardUtil
+import helper.TimeCardHelper
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_details
 import zhoutools.composeapp.generated.resources.ic_overtime
@@ -166,8 +166,8 @@ fun TitleLayout(onDetailsClick: () -> Unit) {
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HasTodayCardLayout(workingTime: Long, isRun: Boolean, onRun: () -> Unit) {
-    val isEnoughWork = workingTime >= TimeCardUtil.MIN_WORKING_TIME
-    val isEnoughOT = workingTime >= TimeCardUtil.MIN_OT_TIME
+    val isEnoughWork = workingTime >= TimeCardHelper.MIN_WORKING_TIME
+    val isEnoughOT = workingTime >= TimeCardHelper.MIN_OT_TIME
 
     Text(
         text = stringResource(Res.string.working_time),

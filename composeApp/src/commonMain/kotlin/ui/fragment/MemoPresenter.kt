@@ -5,17 +5,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import helper.MemoHelper
 import helper.effect.EffectObserveHelper
 import helper.effect.WriteMemoEffect
 import kotlinx.coroutines.flow.Flow
 import model.records.Memo
 import moe.tlaster.precompose.molecule.collectAction
-import util.MemoUtil
 
 @Composable
 fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState {
-    val memoUtil = remember { MemoUtil() }
-    var displayList by remember { mutableStateOf(memoUtil.getDisplayList()) }
+    var displayList by remember { mutableStateOf(MemoHelper.getDisplayList()) }
     var curMemo by remember { mutableStateOf<Memo?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
 
@@ -49,9 +48,9 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
 
             is MemoAction.MarkDone -> {
                 curMemo?.let {
-                    memoUtil.markDone(it, !it.isTodoFinished)
+                    MemoHelper.markDone(it, !it.isTodoFinished)
                     curMemo = it.copy(isTodoFinished = !it.isTodoFinished)
-                    displayList = memoUtil.getDisplayList()
+                    displayList = MemoHelper.getDisplayList()
                 }
                 showBottomSheet = false
             }
@@ -61,7 +60,7 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
             }
 
             is MemoAction.RefreshDisplayList -> {
-                displayList = memoUtil.getDisplayList()
+                displayList = MemoHelper.getDisplayList()
             }
         }
     }

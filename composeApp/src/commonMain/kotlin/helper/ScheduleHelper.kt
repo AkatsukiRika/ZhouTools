@@ -1,31 +1,15 @@
-package util
+package helper
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import logger
 import model.records.Schedule
 import model.records.ScheduleRecords
 import model.request.ScheduleSyncRequest
 import store.AppStore
 
-object ScheduleUtil {
-    private val schedules = mutableListOf<Schedule>()
-
-    init {
-        refreshData()
-    }
-
-    fun refreshData() {
-        try {
-            val records: ScheduleRecords = Json.decodeFromString(AppStore.schedules)
-            schedules.clear()
-            schedules.addAll(records.schedules)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
+object ScheduleHelper {
     fun getDisplayList(): List<Schedule> {
+        val schedules = getSchedules()
         val displayList = mutableListOf<Schedule>()
         val milestoneList = schedules.filter { it.isMilestone }
         val othersList = schedules.filterNot { it.isMilestone }
@@ -35,16 +19,32 @@ object ScheduleUtil {
     }
 
     fun addSchedule(schedule: Schedule) {
+        val schedules = getSchedules()
         schedules.add(schedule)
-        saveToDataStore()
+        saveSchedules(schedules)
     }
 
     fun deleteSchedule(schedule: Schedule) {
+        val schedules = getSchedules()
         schedules.remove(schedule)
-        saveToDataStore()
+        saveSchedules(schedules)
+    }
+
+    fun modifySchedule(schedule: Schedule, text: String, startingTime: Long, endingTime: Long, isAllDay: Boolean, isMilestone: Boolean) {
+        val schedules = getSchedules()
+        val match = schedules.find { it == schedule }
+        match?.let {
+            it.text = text
+            it.startingTime = startingTime
+            it.endingTime = endingTime
+            it.isAllDay = isAllDay
+            it.isMilestone = isMilestone
+        }
+        saveSchedules(schedules)
     }
 
     fun buildSyncRequest(): ScheduleSyncRequest? {
+        val schedules = getSchedules()
         return try {
             if (AppStore.loginUsername.isEmpty()) {
                 null
@@ -56,9 +56,16 @@ object ScheduleUtil {
         }
     }
 
-    fun saveToDataStore() {
+    private fun getSchedules() = try {
+        val scheduleRecords = Json.decodeFromString<ScheduleRecords>(AppStore.schedules)
+        scheduleRecords.schedules
+    } catch (e: Exception) {
+        e.printStackTrace()
+        mutableListOf()
+    }
+
+    private fun saveSchedules(schedules: MutableList<Schedule>) {
         val records = ScheduleRecords(schedules)
         AppStore.schedules = Json.encodeToString(records)
-        logger.i { "ScheduleUtil savedToDataStore, AppStore.schedules=${AppStore.schedules}" }
     }
 }

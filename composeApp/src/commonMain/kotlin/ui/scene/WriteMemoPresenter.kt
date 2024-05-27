@@ -5,14 +5,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import helper.MemoHelper
 import kotlinx.coroutines.flow.Flow
 import model.records.Memo
 import moe.tlaster.precompose.molecule.collectAction
-import util.MemoUtil
 
 @Composable
 fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
-    val memoUtil = remember { MemoUtil() }
     var memo by remember { mutableStateOf<Memo?>(null) }
     var text by remember { mutableStateOf("") }
     var isTodo by remember { mutableStateOf(false) }
@@ -37,17 +36,17 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
 
             is WriteMemoAction.Delete -> {
                 memo?.let {
-                    memoUtil.deleteMemo(it)
+                    MemoHelper.deleteMemo(it)
                 }
             }
 
             is WriteMemoAction.Confirm -> {
                 text = this.text
                 if (memo == null) {
-                    memoUtil.addMemo(text, isTodo, isPin)
+                    MemoHelper.addMemo(text, isTodo, isPin)
                 } else {
                     memo?.let {
-                        memoUtil.modifyMemo(it, text, isTodo, isPin)
+                        MemoHelper.modifyMemo(it, text, isTodo, isPin)
                     }
                 }
             }

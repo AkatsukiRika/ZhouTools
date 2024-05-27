@@ -1,4 +1,4 @@
-package util
+package helper
 
 import extension.dayStartTime
 import extension.isBlankJson
@@ -8,8 +8,9 @@ import model.records.TimeCardDay
 import model.records.TimeCardRecords
 import model.request.TimeCardSyncRequest
 import store.AppStore
+import util.TimeUtil
 
-object TimeCardUtil {
+object TimeCardHelper {
     const val MIN_WORKING_TIME = ((8 + 1.5) * 60 * 60 * 1000).toLong()
     const val MIN_OT_TIME = ((9 + 1.5) * 60 * 60 * 1000).toLong()
 

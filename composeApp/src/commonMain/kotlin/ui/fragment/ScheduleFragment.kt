@@ -52,6 +52,7 @@ import extension.clickableNoRipple
 import extension.dayStartTime
 import extension.toHourMinString
 import global.AppColors
+import helper.ScheduleHelper
 import helper.effect.EffectObserveHelper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -63,7 +64,6 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import util.CalendarUtil
-import util.ScheduleUtil
 import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.add_schedule
@@ -90,7 +90,7 @@ fun ScheduleFragment(navigator: Navigator) {
 
     fun refreshData() {
         scheduleList.clear()
-        scheduleList.addAll(ScheduleUtil.getDisplayList())
+        scheduleList.addAll(ScheduleHelper.getDisplayList())
     }
 
     fun onEdit() {
@@ -105,7 +105,7 @@ fun ScheduleFragment(navigator: Navigator) {
 
     fun onDelete() {
         selectItem?.let {
-            ScheduleUtil.deleteSchedule(it)
+            ScheduleHelper.deleteSchedule(it)
             refreshData()
             scope.launch {
                 scaffoldState.bottomSheetState.collapse()
@@ -120,9 +120,8 @@ fun ScheduleFragment(navigator: Navigator) {
     EffectObserveHelper.observeScheduleEffect {
         when (it) {
             is ScheduleEffect.RefreshData -> {
-                ScheduleUtil.refreshData()
                 scheduleList.clear()
-                scheduleList.addAll(ScheduleUtil.getDisplayList())
+                scheduleList.addAll(ScheduleHelper.getDisplayList())
             }
         }
     }
