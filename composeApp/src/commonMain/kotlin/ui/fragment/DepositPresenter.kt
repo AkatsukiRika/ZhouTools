@@ -8,39 +8,41 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import extension.toMonthYearString
+import helper.DepositHelper
 import kotlinx.coroutines.flow.Flow
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import model.records.DepositMonth
 import model.records.DepositRecords
-import store.AppStore
+import moe.tlaster.precompose.molecule.collectAction
 import ui.fragment.DepositState.Companion.toDeque
 
 @Composable
 fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
-    var currentAmountCents by remember { mutableLongStateOf(0L) }
+    var currentAmount by remember { mutableLongStateOf(0L) }
     var displayDeque by remember { mutableStateOf(ArrayDeque<DepositDisplayRecord>()) }
 
-    LaunchedEffect(Unit) {
-        // For test purpose
-        currentAmountCents = 1234567890L
-        val mockRecords = DepositRecords(months = listOf(
-            DepositMonth(monthStartTime = 1693497600000L, currentAmount = 38214124L, monthlyIncome = 1225302L, extraDeposit = 0L),
-            DepositMonth(monthStartTime = 1696089600000L, currentAmount = 38840774L, monthlyIncome = 1451085L, extraDeposit = 0L),
-            DepositMonth(monthStartTime = 1698768000000L, currentAmount = 39640942L, monthlyIncome = 1443325L, extraDeposit = 0L),
-            DepositMonth(monthStartTime = 1701360000000L, currentAmount = 39596957L, monthlyIncome = 1374110L, extraDeposit = 0L),
-            DepositMonth(monthStartTime = 1704038400000L, currentAmount = 41309128L, monthlyIncome = 1447205L, extraDeposit = 0L),
-            DepositMonth(monthStartTime = 1706716800000L, currentAmount = 42305969L, monthlyIncome = 1525775L, extraDeposit = 0L),
-            DepositMonth(monthStartTime = 1709222400000L, currentAmount = 43047583L, monthlyIncome = 1447205L, extraDeposit = 8407877L),
-            DepositMonth(monthStartTime = 1711900800000L, currentAmount = 44556034L, monthlyIncome = 2008165L, extraDeposit = 8414012L),
-            DepositMonth(monthStartTime = 1714492800000L, currentAmount = 44991012L, monthlyIncome = 1418450L, extraDeposit = 8883255L)
-        ))
-        AppStore.depositMonths = Json.encodeToString(mockRecords)
-        val deque = mockRecords.toDeque()
+    fun refreshData() {
+        val depositMonths = DepositHelper.getMonths()
+        val deque = DepositRecords(months = depositMonths).toDeque()
         displayDeque = deque
+        displayDeque.firstOrNull()?.let {
+            currentAmount = it.currentAmount + it.extraDeposit
+        }
     }
 
-    return DepositState(currentAmountCents, displayDeque)
+    LaunchedEffect(Unit) {
+        refreshData()
+    }
+
+    actionFlow.collectAction {
+        when (this) {
+            is DepositAction.AddMonth -> {
+                DepositHelper.addMonth(month)
+                refreshData()
+            }
+        }
+    }
+
+    return DepositState(currentAmount, displayDeque)
 }
 
 data class DepositState(
@@ -63,7 +65,7 @@ data class DepositState(
                     val nextMonthBalance = nextMonth.currentAmount - nextMonth.monthlyIncome
                     balanceDiff = balance - nextMonthBalance
                 }
-                deque.addFirst(DepositDisplayRecord(monthStr, currAmount, monthIncome, balance, extraAmount, balanceDiff))
+                deque.add(DepositDisplayRecord(monthStr, currAmount, monthIncome, balance, extraAmount, balanceDiff))
             }
             return deque
         }
@@ -79,4 +81,6 @@ data class DepositDisplayRecord(
     val balanceDiff: Long? = null
 )
 
-sealed interface DepositAction
+sealed interface DepositAction {
+    data class AddMonth(val month: DepositMonth) : DepositAction
+}

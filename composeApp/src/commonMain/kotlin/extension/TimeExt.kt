@@ -27,6 +27,15 @@ fun Long.weekStartTime(): Long {
     return startOfDay.toEpochMilliseconds()
 }
 
+fun Long.monthStartTime(): Long {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    val localDate = localDateTime.date
+    val startOfMonth = localDate.minus(DatePeriod(days = localDate.dayOfMonth - 1))
+    val startOfDay = startOfMonth.atStartOfDayIn(TimeZone.currentSystemDefault())
+    return startOfDay.toEpochMilliseconds()
+}
+
 fun Long.toTimeString(utc: Boolean = false): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(

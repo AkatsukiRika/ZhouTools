@@ -52,14 +52,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import extension.clickableNoRipple
+import extension.monthStartTime
 import extension.toMoneyDisplayStr
 import extension.toMonthYearString
 import global.AppColors
 import hideSoftwareKeyboard
 import kotlinx.coroutines.launch
+import model.records.DepositMonth
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
@@ -80,8 +81,9 @@ import zhoutools.composeapp.generated.resources.ic_add
 import zhoutools.composeapp.generated.resources.invalid_deposit_toast
 import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
+import kotlin.math.roundToLong
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DepositFragment(navigator: Navigator) {
     val scope = rememberCoroutineScope()
@@ -101,6 +103,7 @@ fun DepositFragment(navigator: Navigator) {
         sheetContent = {
             BottomSheetContent(
                 onConfirm = {
+                    channel.trySend(DepositAction.AddMonth(it))
                     scope.launch {
                         scaffoldState.bottomSheetState.hide()
                     }
@@ -160,7 +163,6 @@ fun DepositFragment(navigator: Navigator) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun BigCard(state: DepositState) {
     Card(
@@ -200,7 +202,6 @@ private fun BigCard(state: DepositState) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun MonthCard(item: DepositDisplayRecord) {
     Column(modifier = Modifier
@@ -261,7 +262,6 @@ private fun MonthCard(item: DepositDisplayRecord) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun MonthCardDataItem(type: StringResource, value: String, valueColor: Color? = null) {
     Row(modifier = Modifier
@@ -285,7 +285,6 @@ private fun MonthCardDataItem(type: StringResource, value: String, valueColor: C
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun AddRecordButton(onClick: () -> Unit) {
     Row(
@@ -317,9 +316,9 @@ private fun AddRecordButton(onClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BottomSheetContent(onConfirm: () -> Unit, onShowSnackbar: (String) -> Unit) {
+private fun BottomSheetContent(onConfirm: (DepositMonth) -> Unit, onShowSnackbar: (String) -> Unit) {
     val scope = rememberCoroutineScope()
     var isPickingDate by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -372,7 +371,14 @@ private fun BottomSheetContent(onConfirm: () -> Unit, onShowSnackbar: (String) -
                             && monthlyIncomeStr.toDoubleOrNull() != null
                             && extraDepositStr.toDoubleOrNull() != null
                     if (isValidInput) {
-                        onConfirm()
+                        val selectedDateMillis = datePickerState.selectedDateMillis ?: TimeUtil.currentTimeMillis()
+                        val month = DepositMonth(
+                            monthStartTime = selectedDateMillis.monthStartTime(),
+                            currentAmount = (currentDepositStr.toDouble() * 100).roundToLong(),
+                            monthlyIncome = (monthlyIncomeStr.toDouble() * 100).roundToLong(),
+                            extraDeposit = (extraDepositStr.toDouble() * 100).roundToLong()
+                        )
+                        onConfirm(month)
                     } else {
                         scope.launch {
                             onShowSnackbar(getString(Res.string.invalid_deposit_toast))
@@ -395,7 +401,6 @@ private fun BottomSheetContent(onConfirm: () -> Unit, onShowSnackbar: (String) -
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun BottomSheetMainColumn(
     modifier: Modifier = Modifier,
