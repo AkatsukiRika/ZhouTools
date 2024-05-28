@@ -5,6 +5,11 @@ plugins {
     kotlin(libs.plugins.serialization.get().pluginId).version(libs.versions.serialization)
 }
 
+compose.resources {
+    publicResClass = false
+    generateResClass = always
+}
+
 kotlin {
     androidTarget {
         compilations.all {

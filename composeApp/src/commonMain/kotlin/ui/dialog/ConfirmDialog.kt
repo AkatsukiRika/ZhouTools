@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
@@ -33,7 +32,6 @@ import zhoutools.composeapp.generated.resources.cancel
 import zhoutools.composeapp.generated.resources.confirm
 import zhoutools.composeapp.generated.resources.ic_close
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ConfirmDialog(
     title: String,
@@ -106,7 +104,6 @@ fun ConfirmDialog(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun DismissButton(onDismiss: () -> Unit) {
     Box(

@@ -103,4 +103,6 @@
     <string name="extra_deposit">Extra Deposit</string>
     <string name="add_monthly_record">Add Monthly Record</string>
     <string name="invalid_deposit_toast">Please fill in valid deposit money amounts.</string>
+    <string name="delete_confirm_title">Delete Confirmation</string>
+    <string name="delete_confirm_content">Sure to delete the deposit record on %1$s?</string>
 </resources>

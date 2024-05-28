@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -65,6 +66,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.dialog.ConfirmDialog
 import ui.widget.VerticalDivider
 import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
@@ -75,6 +77,8 @@ import zhoutools.composeapp.generated.resources.confirm
 import zhoutools.composeapp.generated.resources.current_deposit
 import zhoutools.composeapp.generated.resources.current_deposit_amount
 import zhoutools.composeapp.generated.resources.date
+import zhoutools.composeapp.generated.resources.delete_confirm_content
+import zhoutools.composeapp.generated.resources.delete_confirm_title
 import zhoutools.composeapp.generated.resources.deposit
 import zhoutools.composeapp.generated.resources.extra_deposit
 import zhoutools.composeapp.generated.resources.ic_add
@@ -92,6 +96,7 @@ fun DepositFragment(navigator: Navigator) {
         bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
     )
     val snackbarHostState = remember { SnackbarHostState() }
+    var deleteDialogRecord by remember { mutableStateOf<DepositDisplayRecord?>(null) }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
@@ -148,7 +153,9 @@ fun DepositFragment(navigator: Navigator) {
                 .weight(1f)
             ) {
                 items(state.displayDeque) {
-                    MonthCard(it)
+                    MonthCard(it, onClick = {
+                        deleteDialogRecord = it
+                    })
                 }
             }
 
@@ -161,10 +168,43 @@ fun DepositFragment(navigator: Navigator) {
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
+
+    if (deleteDialogRecord != null) {
+        ConfirmDialog(
+            title = stringResource(Res.string.delete_confirm_title),
+            content = stringResource(Res.string.delete_confirm_content, deleteDialogRecord?.monthStr ?: ""),
+            onCancel = {
+                deleteDialogRecord = null
+            },
+            onConfirm = {
+                deleteDialogRecord?.toDepositMonth()?.let {
+                    channel.trySend(DepositAction.RemoveMonth(it))
+                }
+                deleteDialogRecord = null
+            }
+        )
+    }
 }
 
 @Composable
 private fun BigCard(state: DepositState) {
+    var annotatedAmountString by remember { mutableStateOf(AnnotatedString("")) }
+
+    LaunchedEffect(state.currentAmount) {
+        annotatedAmountString = buildAnnotatedString {
+            val splitResult = state.currentAmount.toMoneyDisplayStr().split(".")
+
+            if (splitResult.size == 2) {
+                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
+                    append(splitResult[0])
+                }
+                withStyle(SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold)) {
+                    append("." + splitResult[1])
+                }
+            }
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -179,22 +219,8 @@ private fun BigCard(state: DepositState) {
         ) {
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = stringResource(Res.string.current_deposit_amount)
-            )
+            Text(text = stringResource(Res.string.current_deposit_amount))
 
-            val annotatedAmountString = buildAnnotatedString {
-                val splitResult = state.currentAmount.toMoneyDisplayStr().split(".")
-
-                if (splitResult.size == 2) {
-                    withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
-                        append(splitResult[0])
-                    }
-                    withStyle(SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold)) {
-                        append("." + splitResult[1])
-                    }
-                }
-            }
             Text(annotatedAmountString)
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -203,11 +229,14 @@ private fun BigCard(state: DepositState) {
 }
 
 @Composable
-private fun MonthCard(item: DepositDisplayRecord) {
+private fun MonthCard(item: DepositDisplayRecord, onClick: (() -> Unit)? = null) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
         .clip(RoundedCornerShape(8.dp))
+        .clickable {
+            onClick?.invoke()
+        }
         .background(Color.White)
     ) {
         Spacer(modifier = Modifier.height(8.dp))

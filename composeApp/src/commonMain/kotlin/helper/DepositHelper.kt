@@ -17,7 +17,17 @@ object DepositHelper {
 
     fun addMonth(month: DepositMonth) {
         val months = getMonths().toMutableList()
+        val alreadyMonth = months.find { it.monthStartTime == month.monthStartTime }
+        if (alreadyMonth != null) {
+            months.remove(alreadyMonth)
+        }
         months.add(month)
+        saveMonths(months)
+    }
+
+    fun removeMonth(month: DepositMonth) {
+        val months = getMonths().toMutableList()
+        months.remove(month)
         saveMonths(months)
     }
 

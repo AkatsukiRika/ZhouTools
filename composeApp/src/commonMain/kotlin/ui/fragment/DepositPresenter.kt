@@ -14,6 +14,7 @@ import model.records.DepositMonth
 import model.records.DepositRecords
 import moe.tlaster.precompose.molecule.collectAction
 import ui.fragment.DepositState.Companion.toDeque
+import util.TimeUtil
 
 @Composable
 fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
@@ -27,6 +28,9 @@ fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
         displayDeque.firstOrNull()?.let {
             currentAmount = it.currentAmount + it.extraDeposit
         }
+        if (displayDeque.isEmpty()) {
+            currentAmount = 0L
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -37,6 +41,11 @@ fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
         when (this) {
             is DepositAction.AddMonth -> {
                 DepositHelper.addMonth(month)
+                refreshData()
+            }
+
+            is DepositAction.RemoveMonth -> {
+                DepositHelper.removeMonth(month)
                 refreshData()
             }
         }
@@ -79,8 +88,18 @@ data class DepositDisplayRecord(
     val balance: Long = 0L,
     val extraDeposit: Long = 0L,
     val balanceDiff: Long? = null
-)
+) {
+    fun toDepositMonth(): DepositMonth? {
+        val monthStartTime = TimeUtil.monthYearStringToMonthStartTime(monthStr)
+        return if (monthStartTime != null) {
+            DepositMonth(monthStartTime, currentAmount, monthlyIncome, extraDeposit)
+        } else {
+            null
+        }
+    }
+}
 
 sealed interface DepositAction {
     data class AddMonth(val month: DepositMonth) : DepositAction
+    data class RemoveMonth(val month: DepositMonth) : DepositAction
 }

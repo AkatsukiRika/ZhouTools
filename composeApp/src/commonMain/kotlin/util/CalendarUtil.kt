@@ -6,7 +6,6 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
@@ -32,7 +31,6 @@ import zhoutools.composeapp.generated.resources.september
 import kotlin.math.abs
 
 object CalendarUtil {
-    @OptIn(ExperimentalResourceApi::class)
     @Composable
     fun getWeekDays(): List<String> = listOf(
         stringResource(Res.string.sunday),
@@ -44,7 +42,6 @@ object CalendarUtil {
         stringResource(Res.string.saturday)
     )
 
-    @OptIn(ExperimentalResourceApi::class)
     @Composable
     fun getMonthNames(): List<String> = listOf(
         stringResource(Res.string.january),
@@ -61,7 +58,6 @@ object CalendarUtil {
         stringResource(Res.string.december),
     )
 
-    @OptIn(ExperimentalResourceApi::class)
     suspend fun getMonthNamesNonComposable(): List<String> = listOf(
         getString(Res.string.january),
         getString(Res.string.february),
