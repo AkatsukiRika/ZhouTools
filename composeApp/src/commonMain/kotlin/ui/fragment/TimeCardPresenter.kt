@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import extension.isBlankJson
+import helper.NetworkHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.encodeToString
@@ -15,7 +16,6 @@ import kotlinx.serialization.json.Json
 import logger
 import model.records.TimeCardRecords
 import moe.tlaster.precompose.molecule.collectAction
-import networkApi
 import store.AppStore
 import helper.TimeCardHelper
 import util.TimeUtil
@@ -49,7 +49,7 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
         // init
         refreshTodayState()
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-            serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
+            serverData = NetworkHelper.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
             logger.i { "serverData=$serverData" }
             if (AppStore.timeCards.isBlankJson() && serverData != null) {
                 showDialog = true

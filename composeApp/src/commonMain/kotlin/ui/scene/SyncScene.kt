@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
 import helper.MemoHelper
+import helper.NetworkHelper
 import helper.ScheduleHelper
 import helper.effect.EffectObserveHelper
 import helper.effect.TimeCardEffect
@@ -44,7 +45,6 @@ import logger
 import model.records.MemoRecords
 import model.records.ScheduleRecords
 import moe.tlaster.precompose.navigation.Navigator
-import networkApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
@@ -105,7 +105,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
 
     suspend fun pullTimeCard() {
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-            val serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
+            val serverData = NetworkHelper.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
             if (serverData == null) {
                 onError()
                 return
@@ -126,7 +126,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
             onError()
             return
         }
-        val response = networkApi.sync(AppStore.loginToken, request)
+        val response = NetworkHelper.sync(AppStore.loginToken, request)
         if (!response.first) {
             onError()
             return
@@ -137,7 +137,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
 
     suspend fun pullMemo() {
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-            val serverData = networkApi.getServerMemos(AppStore.loginToken, AppStore.loginUsername)
+            val serverData = NetworkHelper.getServerMemos(AppStore.loginToken, AppStore.loginUsername)
             if (serverData == null) {
                 onError()
                 return
@@ -158,7 +158,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
             onError()
             return
         }
-        val response = networkApi.syncMemo(AppStore.loginToken, request)
+        val response = NetworkHelper.syncMemo(AppStore.loginToken, request)
         if (!response.first) {
             onError()
             return
@@ -169,7 +169,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
 
     suspend fun pullSchedule() {
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-            val serverData = networkApi.getServerSchedules(AppStore.loginToken, AppStore.loginUsername)
+            val serverData = NetworkHelper.getServerSchedules(AppStore.loginToken, AppStore.loginUsername)
             if (serverData == null) {
                 onError()
                 return
@@ -190,7 +190,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
             onError()
             return
         }
-        val response = networkApi.syncSchedule(AppStore.loginToken, request)
+        val response = NetworkHelper.syncSchedule(AppStore.loginToken, request)
         if (!response.first) {
             onError()
             return

@@ -3,7 +3,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.*
-import api.NetworkApi
 import global.AppTheme
 import constant.RouteConstants
 import moe.tlaster.precompose.PreComposeApp
@@ -24,7 +23,6 @@ import ui.scene.WriteMemoScene
 import ui.scene.detail.DetailScene
 
 val logger = logging("App")
-val networkApi = NetworkApi()
 
 @Composable
 @Preview

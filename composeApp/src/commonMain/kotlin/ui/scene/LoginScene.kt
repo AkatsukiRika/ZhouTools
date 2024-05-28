@@ -31,13 +31,12 @@ import androidx.compose.ui.unit.sp
 import extension.firstCharToCapital
 import global.AppColors
 import constant.RouteConstants
+import helper.NetworkHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import model.request.LoginRequest
 import moe.tlaster.precompose.navigation.Navigator
-import networkApi
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
@@ -49,7 +48,6 @@ import zhoutools.composeapp.generated.resources.please_sign_in
 import zhoutools.composeapp.generated.resources.unknown_error
 import zhoutools.composeapp.generated.resources.username
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun LoginScene(navigator: Navigator) {
     var inputUsername by remember { mutableStateOf("") }
@@ -66,7 +64,7 @@ fun LoginScene(navigator: Navigator) {
             }
 
             val request = LoginRequest(username = inputUsername, password = inputPassword)
-            val response = networkApi.login(request)
+            val response = NetworkHelper.login(request)
             val isSuccess = response.first
             if (!isSuccess) {
                 val errorMsg = response.second

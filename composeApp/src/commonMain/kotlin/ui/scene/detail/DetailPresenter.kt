@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import constant.TimeConstants
 import extension.dayStartTime
+import helper.NetworkHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import logger
 import moe.tlaster.precompose.molecule.collectAction
-import networkApi
 import store.AppStore
 import helper.TimeCardHelper
 import util.TimeUtil
@@ -53,7 +53,7 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
     }
 
     suspend fun initHistoryData() {
-        val serverData = networkApi.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
+        val serverData = NetworkHelper.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
         if (serverData == null) {
             logger.e { "initHistoryData failed: serverData is null" }
             return

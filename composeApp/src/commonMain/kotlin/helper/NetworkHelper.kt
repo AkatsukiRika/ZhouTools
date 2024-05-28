@@ -1,4 +1,4 @@
-package api
+package helper
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -20,27 +20,25 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import model.request.LoginRequest
 import model.records.Memo
 import model.records.Schedule
-import model.request.MemoSyncRequest
 import model.records.TimeCardRecords
+import model.request.LoginRequest
+import model.request.MemoSyncRequest
 import model.request.ScheduleSyncRequest
 import model.request.TimeCardSyncRequest
 import store.AppStore
 
-class NetworkApi {
-    companion object {
-        const val KEY_CODE = "code"
-        const val KEY_MESSAGE = "message"
-        const val KEY_DATA = "data"
-        const val KEY_TOKEN = "token"
-        const val KEY_USERNAME = "username"
-        const val KEY_MEMOS = "memos"
-        const val KEY_SCHEDULES = "schedules"
-        const val KEY_AUTH = "Authorization"
-        const val CODE_SUCCESS = 0
-    }
+object NetworkHelper {
+    private const val KEY_CODE = "code"
+    private const val KEY_MESSAGE = "message"
+    private const val KEY_DATA = "data"
+    private const val KEY_TOKEN = "token"
+    private const val KEY_USERNAME = "username"
+    private const val KEY_MEMOS = "memos"
+    private const val KEY_SCHEDULES = "schedules"
+    private const val KEY_AUTH = "Authorization"
+    private const val CODE_SUCCESS = 0
 
     @OptIn(ExperimentalSerializationApi::class)
     private val httpClient = HttpClient {
