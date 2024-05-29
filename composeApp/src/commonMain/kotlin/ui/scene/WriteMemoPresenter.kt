@@ -6,9 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import helper.MemoHelper
+import helper.effect.EffectHelper
+import helper.effect.MemoEffect
 import kotlinx.coroutines.flow.Flow
 import model.records.Memo
 import moe.tlaster.precompose.molecule.collectAction
+import moe.tlaster.precompose.navigation.Navigator
 
 @Composable
 fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
@@ -38,6 +41,8 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
                 memo?.let {
                     MemoHelper.deleteMemo(it)
                 }
+                EffectHelper.emitMemoEffect(MemoEffect.RefreshData)
+                navigator.goBack()
             }
 
             is WriteMemoAction.Confirm -> {
@@ -49,6 +54,8 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
                         MemoHelper.modifyMemo(it, text, isTodo, isPin)
                     }
                 }
+                EffectHelper.emitMemoEffect(MemoEffect.RefreshData)
+                navigator.goBack()
             }
         }
     }
@@ -67,6 +74,6 @@ sealed interface WriteMemoAction {
     data class BeginEdit(val editMemo: Memo) : WriteMemoAction
     data class SetTodo(val newTodo: Boolean) : WriteMemoAction
     data class SetPin(val newPin: Boolean) : WriteMemoAction
-    data object Delete : WriteMemoAction
-    data class Confirm(val text: String) : WriteMemoAction
+    data class Delete(val navigator: Navigator) : WriteMemoAction
+    data class Confirm(val text: String, val navigator: Navigator) : WriteMemoAction
 }

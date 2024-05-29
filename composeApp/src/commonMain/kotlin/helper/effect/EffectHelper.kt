@@ -9,6 +9,10 @@ object EffectHelper {
         TimeCardEffectObserver()
     }
 
+    private val memoEffectObserver by lazy {
+        MemoEffectObserver()
+    }
+
     private val writeMemoEffectObserver by lazy {
         WriteMemoEffectObserver()
     }
@@ -31,6 +35,16 @@ object EffectHelper {
         } else {
             scope.launch {
                 timeCardEffectObserver.emit(effect)
+            }
+        }
+    }
+
+    fun emitMemoEffect(effect: MemoEffect, scope: CoroutineScope? = null) {
+        if (scope == null) {
+            memoEffectObserver.emitSync(effect)
+        } else {
+            scope.launch {
+                memoEffectObserver.emit(effect)
             }
         }
     }
@@ -78,6 +92,11 @@ object EffectHelper {
     @Composable
     fun observeTimeCardEffect(onEffect: (TimeCardEffect) -> Unit) {
         timeCardEffectObserver.observeComposable(onEffect)
+    }
+
+    @Composable
+    fun observeMemoEffect(onEffect: (MemoEffect) -> Unit) {
+        memoEffectObserver.observeComposable(onEffect)
     }
 
     @Composable

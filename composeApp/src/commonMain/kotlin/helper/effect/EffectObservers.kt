@@ -5,6 +5,8 @@ import model.records.Schedule
 
 class TimeCardEffectObserver : BaseEffectObserver<TimeCardEffect>()
 
+class MemoEffectObserver : BaseEffectObserver<MemoEffect>()
+
 class WriteMemoEffectObserver : BaseEffectObserver<WriteMemoEffect>()
 
 class AddScheduleEffectObserver : BaseEffectObserver<AddScheduleEffect>()
@@ -15,6 +17,10 @@ class DepositEffectObserver : BaseEffectObserver<DepositEffect>()
 
 sealed interface TimeCardEffect {
     data object RefreshTodayState : TimeCardEffect
+}
+
+sealed interface MemoEffect {
+    data object RefreshData : MemoEffect
 }
 
 sealed interface WriteMemoEffect {

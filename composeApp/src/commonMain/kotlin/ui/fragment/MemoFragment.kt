@@ -25,16 +25,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -42,12 +37,13 @@ import androidx.compose.ui.unit.sp
 import constant.RouteConstants
 import extension.clickableNoRipple
 import global.AppColors
+import helper.effect.EffectHelper
+import helper.effect.MemoEffect
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import model.records.Memo
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
@@ -59,19 +55,15 @@ import zhoutools.composeapp.generated.resources.ic_todo_finished
 import zhoutools.composeapp.generated.resources.mark_done
 import zhoutools.composeapp.generated.resources.memo
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MemoFragment(navigator: Navigator) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
-    var updateCount by remember { mutableIntStateOf(0) }
     val (state, channel) = rememberPresenter(keys = listOf(scope)) {
         MemoPresenter(it, onGoEdit = {
             scope.launch {
-                val result = navigator.navigateForResult(RouteConstants.ROUTE_WRITE_MEMO.replace(RouteConstants.PARAM_EDIT, "true"))
-                if (result == true) {
-                    updateCount++
-                }
+                navigator.navigateForResult(RouteConstants.ROUTE_WRITE_MEMO.replace(RouteConstants.PARAM_EDIT, "true"))
             }
         })
     }
@@ -84,9 +76,11 @@ fun MemoFragment(navigator: Navigator) {
         }
     }
 
-    LaunchedEffect(updateCount) {
-        if (updateCount > 0) {
-            channel.trySend(MemoAction.RefreshDisplayList)
+    EffectHelper.observeMemoEffect {
+        when (it) {
+            is MemoEffect.RefreshData -> {
+                channel.trySend(MemoAction.RefreshDisplayList)
+            }
         }
     }
 
@@ -156,7 +150,6 @@ fun MemoFragment(navigator: Navigator) {
 
 @Composable
 private fun MemosLayout(state: MemoState, channel: Channel<MemoAction>, showBottomSpace: Boolean) {
-    val density = LocalDensity.current
     val lazyListState = rememberLazyListState()
 
     LazyColumn(state = lazyListState) {
@@ -181,7 +174,6 @@ private fun MemosLayout(state: MemoState, channel: Channel<MemoAction>, showBott
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun MemoItem(memo: Memo, channel: Channel<MemoAction>) {
     Card(modifier = Modifier
@@ -228,7 +220,6 @@ private fun MemoItem(memo: Memo, channel: Channel<MemoAction>) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun BottomSheetContent(onEdit: () -> Unit, onMarkDone: () -> Unit) {
     Column(

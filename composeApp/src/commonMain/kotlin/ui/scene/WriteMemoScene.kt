@@ -34,7 +34,6 @@ import global.AppColors
 import helper.effect.EffectHelper
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
@@ -45,7 +44,6 @@ import zhoutools.composeapp.generated.resources.pin_to_top
 import zhoutools.composeapp.generated.resources.set_as_todo
 import zhoutools.composeapp.generated.resources.write_memo
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     val (state, channel) = rememberPresenter { WriteMemoPresenter(it) }
@@ -101,8 +99,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
         if (isEdit) {
             OutlinedButton(
                 onClick = {
-                    channel.trySend(WriteMemoAction.Delete)
-                    navigator.goBackWith(result = true)
+                    channel.trySend(WriteMemoAction.Delete(navigator))
                 },
                 modifier = Modifier
                     .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
@@ -121,8 +118,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
 
         Button(
             onClick = {
-                channel.trySend(WriteMemoAction.Confirm(text))
-                navigator.goBackWith(result = true)
+                channel.trySend(WriteMemoAction.Confirm(text, navigator))
             },
             modifier = Modifier
                 .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
@@ -142,7 +138,6 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun SettingsLayout(
     todo: Boolean,
