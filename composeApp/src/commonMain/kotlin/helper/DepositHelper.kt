@@ -4,9 +4,23 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.records.DepositMonth
 import model.records.DepositRecords
+import model.request.DepositSyncRequest
 import store.AppStore
 
 object DepositHelper {
+    fun buildSyncRequest(): DepositSyncRequest? {
+        val months = getMonths()
+        return try {
+            if (AppStore.loginUsername.isEmpty()) {
+                null
+            } else {
+                DepositSyncRequest(username = AppStore.loginUsername, depositMonths = months)
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun getMonths() = try {
         val depositRecords = Json.decodeFromString<DepositRecords>(AppStore.depositMonths)
         depositRecords.months

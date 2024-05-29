@@ -24,6 +24,7 @@ import model.records.DepositMonth
 import model.records.Memo
 import model.records.Schedule
 import model.records.TimeCardRecords
+import model.request.DepositSyncRequest
 import model.request.LoginRequest
 import model.request.MemoSyncRequest
 import model.request.ScheduleSyncRequest
@@ -236,6 +237,30 @@ object NetworkHelper {
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    /**
+     * @return isSuccess to errorMessage
+     */
+    suspend fun syncDepositMonths(token: String, request: DepositSyncRequest): Pair<Boolean, String?> {
+        return try {
+            val bodyText = httpClient.post(getBaseUrl() + "/api/deposit/sync") {
+                contentType(ContentType.Application.Json)
+                header(KEY_AUTH, token)
+                setBody(request)
+            }.bodyAsText()
+            val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
+            val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
+            if (code == CODE_SUCCESS) {
+                true to null
+            } else {
+                val message = jsonObject[KEY_MESSAGE]?.jsonPrimitive?.content
+                false to message
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false to null
         }
     }
 

@@ -29,6 +29,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
+import helper.DepositHelper
 import helper.MemoHelper
 import helper.NetworkHelper
 import helper.ScheduleHelper
@@ -57,6 +58,7 @@ import zhoutools.composeapp.generated.resources.pulling_deposit
 import zhoutools.composeapp.generated.resources.pulling_memo
 import zhoutools.composeapp.generated.resources.pulling_schedule
 import zhoutools.composeapp.generated.resources.pulling_time_card
+import zhoutools.composeapp.generated.resources.pushing_deposit
 import zhoutools.composeapp.generated.resources.pushing_memo
 import zhoutools.composeapp.generated.resources.pushing_schedule
 import zhoutools.composeapp.generated.resources.pushing_time_card
@@ -68,6 +70,7 @@ enum class ProcessState(val value: Int) {
     PUSHING_MEMO(0),
     PUSHING_TIME_CARD(1),
     PUSHING_SCHEDULE(2),
+    PUSHING_DEPOSIT(3),
     PULLING_MEMO(10),
     PULLING_TIME_CARD(11),
     PULLING_SCHEDULE(12),
@@ -219,14 +222,31 @@ fun SyncScene(navigator: Navigator, mode: String) {
         }
     }
 
+    suspend fun pushDepositMonths() {
+        val request = DepositHelper.buildSyncRequest()
+        if (request == null) {
+            onError()
+            return
+        }
+        val response = NetworkHelper.syncDepositMonths(AppStore.loginToken, request)
+        if (!response.first) {
+            onError()
+            return
+        }
+        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+        onSuccess()
+    }
+
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             if (mode == "push") {
                 pushMemo()
-                progressValue = 1 / 3f
+                progressValue = 1 / 4f
                 pushTimeCard()
-                progressValue = 2 / 3f
+                progressValue = 2 / 4f
                 pushSchedule()
+                progressValue = 3 / 4f
+                pushDepositMonths()
                 progressValue = 1f
             } else if (mode == "pull") {
                 pullMemo()
@@ -247,11 +267,14 @@ fun SyncScene(navigator: Navigator, mode: String) {
             if (progressValue >= 0f && ProcessState.PUSHING_MEMO.value !in processStates) {
                 processStates.add(ProcessState.PUSHING_MEMO.value)
             }
-            if (progressValue >= 1 / 3f && ProcessState.PUSHING_TIME_CARD.value !in processStates) {
+            if (progressValue >= 1 / 4f && ProcessState.PUSHING_TIME_CARD.value !in processStates) {
                 processStates.add(ProcessState.PUSHING_TIME_CARD.value)
             }
-            if (progressValue >= 2 / 3f && ProcessState.PUSHING_SCHEDULE.value !in processStates) {
+            if (progressValue >= 2 / 4f && ProcessState.PUSHING_SCHEDULE.value !in processStates) {
                 processStates.add(ProcessState.PUSHING_SCHEDULE.value)
+            }
+            if (progressValue >= 3 / 4f && ProcessState.PUSHING_DEPOSIT.value !in processStates) {
+                processStates.add(ProcessState.PUSHING_DEPOSIT.value)
             }
         } else if (mode == "pull") {
             if (progressValue >= 0f && ProcessState.PULLING_MEMO.value !in processStates) {
@@ -300,6 +323,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
                     ProcessState.PUSHING_MEMO.value -> stringResource(Res.string.pushing_memo)
                     ProcessState.PUSHING_TIME_CARD.value -> stringResource(Res.string.pushing_time_card)
                     ProcessState.PUSHING_SCHEDULE.value -> stringResource(Res.string.pushing_schedule)
+                    ProcessState.PUSHING_DEPOSIT.value -> stringResource(Res.string.pushing_deposit)
                     ProcessState.PULLING_MEMO.value -> stringResource(Res.string.pulling_memo)
                     ProcessState.PULLING_TIME_CARD.value -> stringResource(Res.string.pulling_time_card)
                     ProcessState.PULLING_SCHEDULE.value -> stringResource(Res.string.pulling_schedule)
