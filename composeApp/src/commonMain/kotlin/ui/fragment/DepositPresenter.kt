@@ -48,6 +48,10 @@ fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
                 DepositHelper.removeMonth(month)
                 refreshData()
             }
+
+            is DepositAction.RefreshData -> {
+                refreshData()
+            }
         }
     }
 
@@ -102,4 +106,5 @@ data class DepositDisplayRecord(
 sealed interface DepositAction {
     data class AddMonth(val month: DepositMonth) : DepositAction
     data class RemoveMonth(val month: DepositMonth) : DepositAction
+    data object RefreshData : DepositAction
 }

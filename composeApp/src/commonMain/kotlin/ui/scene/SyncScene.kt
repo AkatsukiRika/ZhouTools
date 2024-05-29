@@ -32,7 +32,7 @@ import global.AppColors
 import helper.MemoHelper
 import helper.NetworkHelper
 import helper.ScheduleHelper
-import helper.effect.EffectObserveHelper
+import helper.effect.EffectHelper
 import helper.effect.TimeCardEffect
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -45,13 +45,15 @@ import logger
 import model.records.MemoRecords
 import model.records.ScheduleRecords
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
 import helper.TimeCardHelper
+import helper.effect.DepositEffect
+import model.records.DepositRecords
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.pull_failed
 import zhoutools.composeapp.generated.resources.pull_success
+import zhoutools.composeapp.generated.resources.pulling_deposit
 import zhoutools.composeapp.generated.resources.pulling_memo
 import zhoutools.composeapp.generated.resources.pulling_schedule
 import zhoutools.composeapp.generated.resources.pulling_time_card
@@ -69,13 +71,13 @@ enum class ProcessState(val value: Int) {
     PULLING_MEMO(10),
     PULLING_TIME_CARD(11),
     PULLING_SCHEDULE(12),
+    PULLING_DEPOSIT(13),
     SYNC_FAILED(20),
     SYNC_SUCCESS(21),
     PULL_FAILED(22),
     PULL_SUCCESS(23)
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun SyncScene(navigator: Navigator, mode: String) {
     var progressValue by remember { mutableFloatStateOf(0f) }
@@ -113,7 +115,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
             AppStore.timeCards = Json.encodeToString(serverData)
             logger.i { "pull success: ${AppStore.timeCards}" }
             AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-            EffectObserveHelper.emitTimeCardEffect(TimeCardEffect.RefreshTodayState)
+            EffectHelper.emitTimeCardEffect(TimeCardEffect.RefreshTodayState)
             onSuccess()
         } else {
             onError()
@@ -199,6 +201,24 @@ fun SyncScene(navigator: Navigator, mode: String) {
         onSuccess()
     }
 
+    suspend fun pullDepositMonths() {
+        if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
+            val serverData = NetworkHelper.getServerDepositMonths(AppStore.loginToken, AppStore.loginUsername)
+            if (serverData == null) {
+                onError()
+                return
+            }
+            val depositRecords = DepositRecords(months = serverData)
+            AppStore.depositMonths = Json.encodeToString(depositRecords)
+            logger.i { "pull success: ${AppStore.depositMonths}" }
+            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+            EffectHelper.emitDepositEffect(DepositEffect.RefreshData)
+            onSuccess()
+        } else {
+            onError()
+        }
+    }
+
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             if (mode == "push") {
@@ -210,10 +230,12 @@ fun SyncScene(navigator: Navigator, mode: String) {
                 progressValue = 1f
             } else if (mode == "pull") {
                 pullMemo()
-                progressValue = 1 / 3f
+                progressValue = 1 / 4f
                 pullTimeCard()
-                progressValue = 2 / 3f
+                progressValue = 2 / 4f
                 pullSchedule()
+                progressValue = 3 / 4f
+                pullDepositMonths()
                 progressValue = 1f
             }
             goBack()
@@ -235,11 +257,14 @@ fun SyncScene(navigator: Navigator, mode: String) {
             if (progressValue >= 0f && ProcessState.PULLING_MEMO.value !in processStates) {
                 processStates.add(ProcessState.PULLING_MEMO.value)
             }
-            if (progressValue >= 1 / 3f && ProcessState.PULLING_TIME_CARD.value !in processStates) {
+            if (progressValue >= 1 / 4f && ProcessState.PULLING_TIME_CARD.value !in processStates) {
                 processStates.add(ProcessState.PULLING_TIME_CARD.value)
             }
-            if (progressValue >= 2 / 3f && ProcessState.PULLING_SCHEDULE.value !in processStates) {
+            if (progressValue >= 2 / 4f && ProcessState.PULLING_SCHEDULE.value !in processStates) {
                 processStates.add(ProcessState.PULLING_SCHEDULE.value)
+            }
+            if (progressValue >= 3 / 4f && ProcessState.PULLING_DEPOSIT.value !in processStates) {
+                processStates.add(ProcessState.PULLING_DEPOSIT.value)
             }
         }
     }
@@ -278,6 +303,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
                     ProcessState.PULLING_MEMO.value -> stringResource(Res.string.pulling_memo)
                     ProcessState.PULLING_TIME_CARD.value -> stringResource(Res.string.pulling_time_card)
                     ProcessState.PULLING_SCHEDULE.value -> stringResource(Res.string.pulling_schedule)
+                    ProcessState.PULLING_DEPOSIT.value -> stringResource(Res.string.pulling_deposit)
                     ProcessState.SYNC_FAILED.value -> stringResource(Res.string.sync_failed)
                     ProcessState.SYNC_SUCCESS.value -> stringResource(Res.string.sync_success)
                     ProcessState.PULL_FAILED.value -> stringResource(Res.string.pull_failed)

@@ -30,7 +30,7 @@ import constant.RouteConstants
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
-import helper.effect.EffectObserveHelper
+import helper.effect.EffectHelper
 import helper.effect.TimeCardEffect
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
@@ -59,7 +59,7 @@ fun TimeCardFragment(
 ) {
     val (state, channel) = rememberPresenter { TimeCardPresenter(actionFlow = it) }
 
-    EffectObserveHelper.observeTimeCardEffect {
+    EffectHelper.observeTimeCardEffect {
         when (it) {
             is TimeCardEffect.RefreshTodayState -> {
                 channel.trySend(TimeCardAction.RefreshTodayState)

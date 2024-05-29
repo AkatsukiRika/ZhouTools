@@ -15,7 +15,7 @@ import extension.getMinute
 import extension.getMonthOfYear
 import extension.getYear
 import helper.ScheduleHelper
-import helper.effect.EffectObserveHelper
+import helper.effect.EffectHelper
 import kotlinx.coroutines.flow.Flow
 import model.records.Schedule
 import moe.tlaster.precompose.molecule.collectAction
@@ -76,7 +76,7 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
         editItem?.let {
             ScheduleHelper.modifySchedule(it, text, startTime, endTime, isAllDay, isMilestone)
         }
-        EffectObserveHelper.emitScheduleEffect(ScheduleEffect.RefreshData)
+        EffectHelper.emitScheduleEffect(ScheduleEffect.RefreshData)
     }
 
     actionFlow.collectAction {

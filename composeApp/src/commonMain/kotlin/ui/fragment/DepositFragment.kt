@@ -57,6 +57,8 @@ import extension.monthStartTime
 import extension.toMoneyDisplayStr
 import extension.toMonthYearString
 import global.AppColors
+import helper.effect.DepositEffect
+import helper.effect.EffectHelper
 import hideSoftwareKeyboard
 import kotlinx.coroutines.launch
 import model.records.DepositMonth
@@ -101,6 +103,14 @@ fun DepositFragment(navigator: Navigator) {
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
             hideSoftwareKeyboard()
+        }
+    }
+
+    EffectHelper.observeDepositEffect {
+        when (it) {
+            is DepositEffect.RefreshData -> {
+                channel.trySend(DepositAction.RefreshData)
+            }
         }
     }
 

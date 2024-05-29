@@ -20,6 +20,7 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import model.records.DepositMonth
 import model.records.Memo
 import model.records.Schedule
 import model.records.TimeCardRecords
@@ -37,6 +38,7 @@ object NetworkHelper {
     private const val KEY_USERNAME = "username"
     private const val KEY_MEMOS = "memos"
     private const val KEY_SCHEDULES = "schedules"
+    private const val KEY_DEPOSIT_MONTHS = "deposit_months"
     private const val KEY_AUTH = "Authorization"
     private const val CODE_SUCCESS = 0
 
@@ -223,6 +225,35 @@ object NetworkHelper {
                     val resultList = mutableListOf<Schedule>()
                     val scheduleJsonArray = data[KEY_SCHEDULES]?.jsonArray
                     scheduleJsonArray?.forEach {
+                        resultList.add(json.decodeFromJsonElement(it))
+                    }
+                    return resultList
+                }
+                null
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun getServerDepositMonths(token: String, username: String): List<DepositMonth>? {
+        return try {
+            val bodyText = httpClient.get(getBaseUrl() + "/api/deposit/get") {
+                header(KEY_AUTH, token)
+                parameter(KEY_USERNAME, username)
+            }.bodyAsText()
+            val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
+            val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
+            if (code == CODE_SUCCESS) {
+                val json = Json { ignoreUnknownKeys = true }
+                val data = jsonObject[KEY_DATA]?.jsonObject
+                if (data != null) {
+                    val resultList = mutableListOf<DepositMonth>()
+                    val depositMonthsJsonArray = data[KEY_DEPOSIT_MONTHS]?.jsonArray
+                    depositMonthsJsonArray?.forEach {
                         resultList.add(json.decodeFromJsonElement(it))
                     }
                     return resultList

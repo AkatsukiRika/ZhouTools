@@ -53,7 +53,7 @@ import extension.dayStartTime
 import extension.toHourMinString
 import global.AppColors
 import helper.ScheduleHelper
-import helper.effect.EffectObserveHelper
+import helper.effect.EffectHelper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
@@ -95,7 +95,7 @@ fun ScheduleFragment(navigator: Navigator) {
 
     fun onEdit() {
         selectItem?.let {
-            EffectObserveHelper.emitAddScheduleEffect(AddScheduleEffect.BeginEdit(schedule = it))
+            EffectHelper.emitAddScheduleEffect(AddScheduleEffect.BeginEdit(schedule = it))
             navigator.navigate(RouteConstants.ROUTE_ADD_SCHEDULE)
             scope.launch {
                 scaffoldState.bottomSheetState.collapse()
@@ -117,7 +117,7 @@ fun ScheduleFragment(navigator: Navigator) {
         refreshData()
     }
 
-    EffectObserveHelper.observeScheduleEffect {
+    EffectHelper.observeScheduleEffect {
         when (it) {
             is ScheduleEffect.RefreshData -> {
                 scheduleList.clear()
@@ -183,7 +183,7 @@ fun ScheduleFragment(navigator: Navigator) {
             )
 
             AddScheduleButton(onClick = {
-                EffectObserveHelper.emitAddScheduleEffect(
+                EffectHelper.emitAddScheduleEffect(
                     AddScheduleEffect.SetDate(
                     year = state.selectDate.first,
                     month = state.selectDate.second,

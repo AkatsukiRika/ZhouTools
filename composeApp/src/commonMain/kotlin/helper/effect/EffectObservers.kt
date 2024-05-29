@@ -11,6 +11,8 @@ class AddScheduleEffectObserver : BaseEffectObserver<AddScheduleEffect>()
 
 class ScheduleEffectObserver : BaseEffectObserver<ScheduleEffect>()
 
+class DepositEffectObserver : BaseEffectObserver<DepositEffect>()
+
 sealed interface TimeCardEffect {
     data object RefreshTodayState : TimeCardEffect
 }
@@ -26,4 +28,8 @@ sealed interface AddScheduleEffect {
 
 sealed interface ScheduleEffect {
     data object RefreshData : ScheduleEffect
+}
+
+sealed interface DepositEffect {
+    data object RefreshData : DepositEffect
 }

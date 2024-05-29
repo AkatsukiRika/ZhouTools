@@ -44,7 +44,7 @@ import extension.getHour
 import extension.getMinute
 import extension.toHourMinString
 import global.AppColors
-import helper.effect.EffectObserveHelper
+import helper.effect.EffectHelper
 import hideSoftwareKeyboard
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -77,7 +77,7 @@ fun AddScheduleScene(navigator: Navigator) {
         mutableStateOf(TimePickerState(0, 0, true))
     }
 
-    EffectObserveHelper.observeAddScheduleEffect {
+    EffectHelper.observeAddScheduleEffect {
         when (it) {
             is AddScheduleEffect.SetDate -> {
                 channel.trySend(AddScheduleAction.SetDate(Triple(it.year, it.month, it.day)))

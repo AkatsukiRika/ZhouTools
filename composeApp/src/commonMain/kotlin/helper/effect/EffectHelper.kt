@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-object EffectObserveHelper {
+object EffectHelper {
     private val timeCardEffectObserver by lazy {
         TimeCardEffectObserver()
     }
@@ -19,6 +19,10 @@ object EffectObserveHelper {
 
     private val scheduleEffectObserver by lazy {
         ScheduleEffectObserver()
+    }
+
+    private val depositEffectObserver by lazy {
+        DepositEffectObserver()
     }
 
     fun emitTimeCardEffect(effect: TimeCardEffect, scope: CoroutineScope? = null) {
@@ -61,6 +65,16 @@ object EffectObserveHelper {
         }
     }
 
+    fun emitDepositEffect(effect: DepositEffect, scope: CoroutineScope? = null) {
+        if (scope == null) {
+            depositEffectObserver.emitSync(effect)
+        } else {
+            scope.launch {
+                depositEffectObserver.emit(effect)
+            }
+        }
+    }
+
     @Composable
     fun observeTimeCardEffect(onEffect: (TimeCardEffect) -> Unit) {
         timeCardEffectObserver.observeComposable(onEffect)
@@ -79,5 +93,10 @@ object EffectObserveHelper {
     @Composable
     fun observeScheduleEffect(onEffect: (ScheduleEffect) -> Unit) {
         scheduleEffectObserver.observeComposable(onEffect)
+    }
+
+    @Composable
+    fun observeDepositEffect(onEffect: (DepositEffect) -> Unit) {
+        depositEffectObserver.observeComposable(onEffect)
     }
 }

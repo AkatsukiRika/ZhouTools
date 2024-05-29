@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import helper.effect.WriteMemoEffect
 import global.AppColors
-import helper.effect.EffectObserveHelper
+import helper.effect.EffectHelper
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -51,7 +51,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     val (state, channel) = rememberPresenter { WriteMemoPresenter(it) }
     var text by remember(state.text) { mutableStateOf(state.text) }
 
-    EffectObserveHelper.observeWriteMemoEffect {
+    EffectHelper.observeWriteMemoEffect {
         when (it) {
             is WriteMemoEffect.BeginEdit -> {
                 if (isEdit) {
