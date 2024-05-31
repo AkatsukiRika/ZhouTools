@@ -48,3 +48,7 @@ actual fun hideSoftwareKeyboard() {
     val window = sharedApp.keyWindow
     window?.endEditing(true)
 }
+
+actual fun setStatusBarColor(colorStr: String, isLight: Boolean) {}
+
+actual fun setNavigationBarColor(colorStr: String, isLight: Boolean) {}

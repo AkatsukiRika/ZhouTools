@@ -7,20 +7,21 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import global.AppColors
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import setNavigationBarColor
+import setStatusBarColor
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.details
 import zhoutools.composeapp.generated.resources.history
 import zhoutools.composeapp.generated.resources.today
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun DetailScene(navigator: Navigator) {
     val (state, channel) = rememberPresenter { DetailPresenter(it) }
@@ -28,6 +29,11 @@ fun DetailScene(navigator: Navigator) {
         DETAIL_TAB_TODAY to stringResource(Res.string.today),
         DETAIL_TAB_HISTORY to stringResource(Res.string.history)
     )
+
+    LaunchedEffect(Unit) {
+        setStatusBarColor("#FFFFFF", isLight = true)
+        setNavigationBarColor("#F4F4F4", isLight = true)
+    }
 
     Column(modifier = Modifier
         .fillMaxSize()

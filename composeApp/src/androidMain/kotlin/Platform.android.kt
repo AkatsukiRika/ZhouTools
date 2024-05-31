@@ -2,7 +2,9 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Color
 import android.os.Build
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -41,5 +43,30 @@ actual fun hideSoftwareKeyboard() {
     val windowToken = currentFocus?.windowToken
     windowToken?.let {
         imeManager.hideSoftInputFromWindow(windowToken, 0)
+    }
+}
+
+actual fun setStatusBarColor(colorStr: String, isLight: Boolean) {
+    val window = MainActivity.window ?: return
+    window.statusBarColor = Color.parseColor(colorStr)
+    if (isLight) {
+        window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+    } else {
+        window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+    }
+}
+
+actual fun setNavigationBarColor(colorStr: String, isLight: Boolean) {
+    val window = MainActivity.window ?: return
+    window.navigationBarColor = Color.parseColor(colorStr)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (isLight) {
+            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        } else {
+            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+        }
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        window.navigationBarDividerColor = Color.parseColor(colorStr)
     }
 }

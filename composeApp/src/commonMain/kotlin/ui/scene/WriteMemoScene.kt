@@ -18,6 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,8 @@ import helper.effect.EffectHelper
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
+import setNavigationBarColor
+import setStatusBarColor
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.confirm
@@ -48,6 +51,11 @@ import zhoutools.composeapp.generated.resources.write_memo
 fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     val (state, channel) = rememberPresenter { WriteMemoPresenter(it) }
     var text by remember(state.text) { mutableStateOf(state.text) }
+
+    LaunchedEffect(Unit) {
+        setStatusBarColor("#FFFFFF", isLight = true)
+        setNavigationBarColor("#F4F4F4", isLight = true)
+    }
 
     EffectHelper.observeWriteMemoEffect {
         when (it) {

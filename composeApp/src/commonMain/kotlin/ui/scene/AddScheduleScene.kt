@@ -27,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,8 +52,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import setNavigationBarColor
+import setStatusBarColor
 import ui.widget.TitleBar
 import ui.widget.VerticalDivider
 import zhoutools.composeapp.generated.resources.Res
@@ -66,7 +68,7 @@ import zhoutools.composeapp.generated.resources.save
 import zhoutools.composeapp.generated.resources.set_as_milestone
 import zhoutools.composeapp.generated.resources.start_time
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun AddScheduleScene(navigator: Navigator) {
     val scope = rememberCoroutineScope()
@@ -75,6 +77,11 @@ fun AddScheduleScene(navigator: Navigator) {
     var text by remember(state.text) { mutableStateOf(state.text) }
     var timePickerState by remember {
         mutableStateOf(TimePickerState(0, 0, true))
+    }
+
+    LaunchedEffect(Unit) {
+        setStatusBarColor("#FFFFFF", isLight = true)
+        setNavigationBarColor("#F4F4F4", isLight = true)
     }
 
     EffectHelper.observeAddScheduleEffect {
@@ -159,7 +166,6 @@ fun AddScheduleScene(navigator: Navigator) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun SettingsLayout(
     state: AddScheduleState,
@@ -301,7 +307,7 @@ private fun SettingsLayout(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalResourceApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 private fun ColumnScope.BottomSheetContent(
     timePickerState: TimePickerState,

@@ -38,3 +38,7 @@ expect fun getAppVersion(): String
 expect fun setClipboardContent(text: String)
 
 expect fun hideSoftwareKeyboard()
+
+expect fun setStatusBarColor(colorStr: String, isLight: Boolean)
+
+expect fun setNavigationBarColor(colorStr: String, isLight: Boolean)

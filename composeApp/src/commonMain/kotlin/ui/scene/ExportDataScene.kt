@@ -38,11 +38,12 @@ import androidx.compose.ui.unit.dp
 import global.AppColors
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import setClipboardContent
+import setNavigationBarColor
+import setStatusBarColor
 import store.AppStore
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
@@ -54,7 +55,6 @@ import zhoutools.composeapp.generated.resources.memo
 import zhoutools.composeapp.generated.resources.schedule
 import zhoutools.composeapp.generated.resources.time_card
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ExportDataScene(navigator: Navigator) {
     var exportType by remember { mutableIntStateOf(ExportType.TIME_CARD.ordinal) }
@@ -65,6 +65,11 @@ fun ExportDataScene(navigator: Navigator) {
     suspend fun copyText() {
         setClipboardContent(text)
         snackbarHostState.showSnackbar(getString(Res.string.copied_to_clipboard))
+    }
+
+    LaunchedEffect(Unit) {
+        setStatusBarColor("#FFFFFF", isLight = true)
+        setNavigationBarColor("#FFFBFE", isLight = true)
     }
 
     LaunchedEffect(exportType) {

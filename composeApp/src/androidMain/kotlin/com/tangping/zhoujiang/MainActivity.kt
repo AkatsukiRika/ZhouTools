@@ -4,6 +4,7 @@ import App
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -13,11 +14,13 @@ class MainActivity : ComponentActivity() {
     companion object {
         @SuppressLint("StaticFieldLeak")
         var context: Context? = null
+        var window: Window? = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context = this
+        MainActivity.window = window
 
         setContent {
             App()

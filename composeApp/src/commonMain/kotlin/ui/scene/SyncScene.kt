@@ -51,6 +51,7 @@ import store.AppStore
 import helper.TimeCardHelper
 import helper.effect.DepositEffect
 import model.records.DepositRecords
+import setStatusBarColor
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.pull_failed
 import zhoutools.composeapp.generated.resources.pull_success
@@ -238,6 +239,8 @@ fun SyncScene(navigator: Navigator, mode: String) {
     }
 
     LaunchedEffect(Unit) {
+        setStatusBarColor("#FFEAE3", isLight = true)
+
         withContext(Dispatchers.IO) {
             if (mode == "push") {
                 pushMemo()

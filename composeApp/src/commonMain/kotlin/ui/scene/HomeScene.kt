@@ -12,6 +12,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -22,6 +23,8 @@ import global.AppColors
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
+import setNavigationBarColor
+import setStatusBarColor
 import ui.fragment.DepositFragment
 import ui.fragment.MemoFragment
 import ui.fragment.ScheduleFragment
@@ -37,6 +40,11 @@ fun HomeScene(navigator: Navigator) {
         scope.launch {
             snackbarHostState.showSnackbar(message)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        setStatusBarColor("#F4F4F4", isLight = true)
+        setNavigationBarColor("#FFFFFF", isLight = true)
     }
 
     Scaffold(
