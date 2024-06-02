@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetScaffoldState
 import androidx.compose.material.BottomSheetValue
@@ -113,7 +115,7 @@ fun AddScheduleScene(navigator: Navigator) {
         sheetPeekHeight = 0.dp,
         modifier = rootModifier
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             TitleBar(
                 navigator = navigator,
                 title = stringResource(if (state.isEdit) Res.string.edit_schedule else Res.string.add_schedule)
@@ -323,7 +325,8 @@ private fun ColumnScope.BottomSheetContent(
 ) {
     val scope = rememberCoroutineScope()
 
-    if (scaffoldState.bottomSheetState.targetValue == BottomSheetValue.Expanded) {
+    if (scaffoldState.bottomSheetState.currentValue == BottomSheetValue.Expanded ||
+        scaffoldState.bottomSheetState.targetValue == BottomSheetValue.Expanded) {
         TimePicker(
             state = timePickerState,
             modifier = Modifier
