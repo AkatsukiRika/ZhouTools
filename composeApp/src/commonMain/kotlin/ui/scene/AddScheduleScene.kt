@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
@@ -47,6 +48,7 @@ import extension.toHourMinString
 import global.AppColors
 import helper.effect.EffectHelper
 import hideSoftwareKeyboard
+import isIOS
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -96,18 +98,22 @@ fun AddScheduleScene(navigator: Navigator) {
         }
     }
 
+    var rootModifier = Modifier
+        .imePadding()
+        .fillMaxSize()
+        .background(AppColors.Background)
+    if (isIOS()) {
+        rootModifier = rootModifier.navigationBarsPadding()
+    }
     BottomSheetScaffold(
         sheetContent = {
             BottomSheetContent(timePickerState, scaffoldState, state, channel)
         },
         scaffoldState = scaffoldState,
-        sheetPeekHeight = 0.dp
+        sheetPeekHeight = 0.dp,
+        modifier = rootModifier
     ) {
-        Column(modifier = Modifier
-            .imePadding()
-            .fillMaxSize()
-            .background(AppColors.Background)
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             TitleBar(
                 navigator = navigator,
                 title = stringResource(if (state.isEdit) Res.string.edit_schedule else Res.string.add_schedule)

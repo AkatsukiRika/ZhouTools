@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import helper.effect.WriteMemoEffect
 import global.AppColors
 import helper.effect.EffectHelper
+import isIOS
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
@@ -67,11 +69,14 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
         }
     }
 
-    Column(modifier = Modifier
+    var rootModifier = Modifier
         .imePadding()
         .fillMaxSize()
         .background(AppColors.Background)
-    ) {
+    if (isIOS()) {
+        rootModifier = rootModifier.navigationBarsPadding()
+    }
+    Column(modifier = rootModifier) {
         TitleBar(
             navigator = navigator,
             title = stringResource(

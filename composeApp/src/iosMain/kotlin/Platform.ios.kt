@@ -8,15 +8,10 @@ import platform.Foundation.NSString
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIApplication
-import platform.UIKit.UIDevice
 import platform.UIKit.UIPasteboard
 import platform.UIKit.endEditing
 
-class IOSPlatform: Platform {
-    override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
-}
-
-actual fun getPlatform(): Platform = IOSPlatform()
+actual fun isIOS(): Boolean = true
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun createDataStore(): DataStore<Preferences>? {

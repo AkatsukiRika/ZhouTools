@@ -3,6 +3,7 @@ package ui.scene.detail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
@@ -11,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import global.AppColors
+import isIOS
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
@@ -35,10 +37,13 @@ fun DetailScene(navigator: Navigator) {
         setNavigationBarColor("#F4F4F4", isLight = true)
     }
 
-    Column(modifier = Modifier
+    var rootModifier = Modifier
         .fillMaxSize()
         .background(AppColors.Background)
-    ) {
+    if (isIOS()) {
+        rootModifier = rootModifier.navigationBarsPadding()
+    }
+    Column(modifier = rootModifier) {
         TitleBar(
             navigator = navigator,
             title = stringResource(Res.string.details)

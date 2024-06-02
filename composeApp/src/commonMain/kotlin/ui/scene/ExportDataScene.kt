@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import global.AppColors
+import isIOS
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
@@ -81,14 +83,18 @@ fun ExportDataScene(navigator: Navigator) {
         }
     }
 
+    var rootModifier = Modifier
+        .imePadding()
+        .fillMaxSize()
+        .background(Color(0xFFFFFBFE))
+    if (isIOS()) {
+        rootModifier = rootModifier.navigationBarsPadding()
+    }
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
-        modifier = Modifier
-            .imePadding()
-            .fillMaxSize()
-            .background(AppColors.Background)
+        modifier = rootModifier
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             val chipColors = FilterChipDefaults.elevatedFilterChipColors(

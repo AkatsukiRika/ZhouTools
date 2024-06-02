@@ -11,11 +11,7 @@ import androidx.datastore.preferences.core.Preferences
 import com.tangping.zhoujiang.MainActivity
 import java.io.File
 
-class AndroidPlatform : Platform {
-    override val name: String = "Android ${Build.VERSION.SDK_INT}"
-}
-
-actual fun getPlatform(): Platform = AndroidPlatform()
+actual fun isIOS(): Boolean = false
 
 actual fun createDataStore(): DataStore<Preferences>? {
     val context = MainActivity.context ?: return null

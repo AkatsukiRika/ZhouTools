@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,8 +21,8 @@ import androidx.compose.ui.unit.sp
 import constant.TabConstants
 import extension.clickableNoRipple
 import global.AppColors
+import isIOS
 import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -36,18 +38,26 @@ import zhoutools.composeapp.generated.resources.schedule
 import zhoutools.composeapp.generated.resources.settings
 import zhoutools.composeapp.generated.resources.time_card
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun BottomBar(
     modifier: Modifier = Modifier,
     selectIndex: Int,
     onSelect: (Int) -> Unit
 ) {
-    Row(
-        modifier = modifier
+    var rootModifier = modifier
+        .fillMaxWidth()
+        .height(58.dp)
+        .background(Color.White)
+    if (isIOS()) {
+        rootModifier = modifier
+            .background(Color.White)
+            .navigationBarsPadding()
             .fillMaxWidth()
             .height(58.dp)
-            .background(Color.White),
+    }
+
+    Row(
+        modifier = rootModifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -109,7 +119,6 @@ fun BottomBar(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun BottomBarItem(index: Int, selectIndex: Int, icon: DrawableResource, name: StringResource, onSelect: (Int) -> Unit) {
     Column(

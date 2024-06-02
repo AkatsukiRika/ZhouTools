@@ -4,9 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,14 +22,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import extension.isValidUrl
 import global.AppColors
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
 import zhoutools.composeapp.generated.resources.Res
@@ -40,21 +36,16 @@ import zhoutools.composeapp.generated.resources.confirm
 import zhoutools.composeapp.generated.resources.server_settings
 import zhoutools.composeapp.generated.resources.server_settings_hint
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun CloudServerDialog(onCancel: () -> Unit, onConfirm: (String) -> Unit) {
-    val density = LocalDensity.current
     var inputUrl by remember { mutableStateOf(AppStore.customServerUrl) }
     val isValidUrl by remember(inputUrl) {
         derivedStateOf { inputUrl.isEmpty() || inputUrl.isValidUrl() }
     }
-    val imeHeight = WindowInsets.ime.getBottom(density)
-    val imeHeightDp = imeHeight / density.density
 
     Dialog(onDismissRequest = {}) {
         Column(modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = imeHeightDp.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
         ) {
             Row(

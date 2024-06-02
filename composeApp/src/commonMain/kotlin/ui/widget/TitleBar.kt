@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -20,19 +21,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import isIOS
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_back
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun TitleBar(navigator: Navigator, title: String) {
-    Row(
-        modifier = Modifier
+    var rootModifier = Modifier
+        .fillMaxWidth()
+        .background(Color.White)
+    if (isIOS()) {
+        rootModifier = Modifier
+            .background(Color.White)
+            .statusBarsPadding()
             .fillMaxWidth()
-            .background(Color.White),
+    }
+
+    Row(
+        modifier = rootModifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.width(12.dp))

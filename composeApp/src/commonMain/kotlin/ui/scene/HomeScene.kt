@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Scaffold
@@ -20,6 +21,7 @@ import constant.TabConstants
 import ui.fragment.SettingsFragment
 import ui.fragment.TimeCardFragment
 import global.AppColors
+import isIOS
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
@@ -47,14 +49,18 @@ fun HomeScene(navigator: Navigator) {
         setNavigationBarColor("#FFFFFF", isLight = true)
     }
 
+    var rootModifier = Modifier
+        .imePadding()
+        .fillMaxSize()
+        .background(AppColors.Background)
+    if (isIOS()) {
+        rootModifier = rootModifier.statusBarsPadding()
+    }
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
-        modifier = Modifier
-            .imePadding()
-            .fillMaxSize()
-            .background(AppColors.Background)
+        modifier = rootModifier
     ) {
         val pagerState = rememberPagerState(initialPage = TabConstants.TAB_TIME_CARD, pageCount = { TabConstants.TAB_COUNT })
 

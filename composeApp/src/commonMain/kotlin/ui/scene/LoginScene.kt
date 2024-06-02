@@ -15,6 +15,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +40,8 @@ import model.request.LoginRequest
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
+import setNavigationBarColor
+import setStatusBarColor
 import store.AppStore
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.login
@@ -87,6 +90,11 @@ fun LoginScene(navigator: Navigator) {
                 }
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        setStatusBarColor("#F4F4F4", isLight = true)
+        setNavigationBarColor("#F4F4F4", isLight = true)
     }
 
     Scaffold(

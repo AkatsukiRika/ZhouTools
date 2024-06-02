@@ -9,13 +9,9 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import okio.Path.Companion.toPath
 
-interface Platform {
-    val name: String
-}
-
 internal const val PREFERENCES_NAME = "zhoutools.preferences_pb"
 
-expect fun getPlatform(): Platform
+expect fun isIOS(): Boolean
 
 internal fun createDataStoreWithDefaults(
     corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
