@@ -107,4 +107,7 @@
     <string name="invalid_deposit_toast">Please fill in valid deposit money amounts.</string>
     <string name="delete_confirm_title">Delete Confirmation</string>
     <string name="delete_confirm_content">Sure to delete the deposit record on %1$s?</string>
+    <string name="time_card_settings">Time Card Settings</string>
+    <string name="min_working_hours">Minimum Working Hours</string>
+    <string name="min_overtime_hours">Minimum Overtime Hours</string>
 </resources>
