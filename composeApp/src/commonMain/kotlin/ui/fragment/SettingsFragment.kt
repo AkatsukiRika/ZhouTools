@@ -35,6 +35,7 @@ import extension.toHourMinString
 import extension.toMonthDayString
 import getAppVersion
 import global.AppColors
+import helper.WorkHoursHelper
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
@@ -324,9 +325,10 @@ private fun TimeCardBottomSheet(onConfirm: () -> Unit) {
         )
 
         HorizontalSeekBar(
-            itemList = listOf("4h", "4.5h", "5h", "5.5h", "6h", "6.5h", "7h", "7.5h", "8h", "8.5h", "9h", "9.5h", "10h", "10.5h", "11h", "11.5h", "12h", "12.5h", "13h", "13.5h", "14h", "14.5h", "15h", "15.5h", "16h"),
+            itemList = WorkHoursHelper.workingHoursMap.keys.toList(),
             itemWidth = 58.dp,
-            modifier = Modifier.padding(bottom = 12.dp, top = 8.dp)
+            modifier = Modifier.padding(bottom = 12.dp, top = 8.dp),
+            defaultSelectItem = WorkHoursHelper.getWorkingHourString(AppStore.minWorkingHours)
         )
 
         Text(
@@ -337,9 +339,10 @@ private fun TimeCardBottomSheet(onConfirm: () -> Unit) {
         )
 
         HorizontalSeekBar(
-            itemList = listOf("0.5h", "1h", "1.5h", "2h", "2.5h", "3h", "3.5h", "4h"),
+            itemList = WorkHoursHelper.overtimeHoursMap.keys.toList(),
             itemWidth = 58.dp,
-            modifier = Modifier.padding(bottom = 12.dp, top = 8.dp)
+            modifier = Modifier.padding(bottom = 12.dp, top = 8.dp),
+            defaultSelectItem = WorkHoursHelper.getOvertimeHourString(AppStore.minOvertimeHours)
         )
 
         Button(

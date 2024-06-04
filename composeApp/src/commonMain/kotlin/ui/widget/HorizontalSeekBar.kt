@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
-import logger
 import org.jetbrains.compose.resources.painterResource
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_arrow_down
@@ -37,8 +36,14 @@ import kotlin.math.roundToInt
 fun HorizontalSeekBar(
     modifier: Modifier = Modifier,
     itemList: List<String>,
-    itemWidth: Dp
+    itemWidth: Dp,
+    defaultSelectItem: String? = null
 ) {
+    fun getDefaultSelectIndex(): Int {
+        val index = itemList.indexOf(defaultSelectItem)
+        return if (index >= 0) index else 0
+    }
+
     val density = LocalDensity.current
     val toPx = { dp: Dp ->
         density.run { dp.toPx() }
@@ -49,13 +54,16 @@ fun HorizontalSeekBar(
     var thisWidth by remember { mutableIntStateOf(0) }
     val lazyListState = rememberLazyListState()
     val paddingHorizontal = thisWidth / 2 - toPx(itemWidth) / 2
-    var selectIndex by remember { mutableIntStateOf(0) }
+    var selectIndex by remember { mutableIntStateOf(getDefaultSelectIndex()) }
+
+    LaunchedEffect(Unit) {
+        lazyListState.scrollToItem(selectIndex)
+    }
 
     LaunchedEffect(lazyListState.firstVisibleItemIndex, lazyListState.firstVisibleItemScrollOffset) {
         lazyListState.apply {
             val totalOffset = firstVisibleItemIndex * toPx(itemWidth) + firstVisibleItemScrollOffset
             selectIndex = (totalOffset / toPx(itemWidth)).roundToInt()
-            logger.d("HorizontalSeekBar") { "firstVisibleItemIndex=$firstVisibleItemIndex, firstVisibleItemScrollOffset=$firstVisibleItemScrollOffset, totalOffset=$totalOffset (${toDp(totalOffset)}), selectIndex=$selectIndex" }
         }
     }
 

@@ -11,6 +11,8 @@ object AppStore : KotStoreModel() {
     var schedules by stringStore(key = "schedules", default = "{}", syncSave = true)
     var depositMonths by stringStore(key = "deposit_months", default = "{}", syncSave = true)
     var lastSync by longStore(key = "last_sync", default = 0L)
+    var minWorkingHours by floatStore(key = "min_working_hours", default = 9.5f)
+    var minOvertimeHours by floatStore(key = "min_overtime_hours", default = 1f)
 
     fun clearCache() {
         customServerUrl = ""
