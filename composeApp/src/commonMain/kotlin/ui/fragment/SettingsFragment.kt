@@ -18,6 +18,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -316,6 +317,9 @@ private fun SettingItem(icon: DrawableResource, name: StringResource, onClick: (
 
 @Composable
 private fun TimeCardBottomSheet(onConfirm: () -> Unit) {
+    var minWorkingHours by remember { mutableFloatStateOf(AppStore.minWorkingHours) }
+    var minOvertimeHours by remember { mutableFloatStateOf(AppStore.minOvertimeHours) }
+
     Column {
         Text(
             text = stringResource(Res.string.min_working_hours),
@@ -329,7 +333,11 @@ private fun TimeCardBottomSheet(onConfirm: () -> Unit) {
             itemWidth = 58.dp,
             modifier = Modifier.padding(bottom = 12.dp, top = 8.dp),
             defaultSelectItem = WorkHoursHelper.getWorkingHourString(AppStore.minWorkingHours)
-        )
+        ) {
+            WorkHoursHelper.workingHoursMap[it]?.let {
+                minWorkingHours = it
+            }
+        }
 
         Text(
             text = stringResource(Res.string.min_overtime_hours),
@@ -343,10 +351,18 @@ private fun TimeCardBottomSheet(onConfirm: () -> Unit) {
             itemWidth = 58.dp,
             modifier = Modifier.padding(bottom = 12.dp, top = 8.dp),
             defaultSelectItem = WorkHoursHelper.getOvertimeHourString(AppStore.minOvertimeHours)
-        )
+        ) {
+            WorkHoursHelper.overtimeHoursMap[it]?.let {
+                minOvertimeHours = it
+            }
+        }
 
         Button(
-            onClick = onConfirm,
+            onClick = {
+                AppStore.minWorkingHours = minWorkingHours
+                AppStore.minOvertimeHours = minOvertimeHours
+                onConfirm()
+            },
             modifier = Modifier
                 .padding(start = 24.dp, end = 24.dp, bottom = 16.dp, top = 8.dp)
                 .fillMaxWidth()
