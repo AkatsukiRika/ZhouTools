@@ -359,8 +359,8 @@ private fun TimeCardBottomSheet(onConfirm: () -> Unit) {
 
         Button(
             onClick = {
-                AppStore.minWorkingHours = minWorkingHours
-                AppStore.minOvertimeHours = minOvertimeHours
+                AppStore.setMinWorkingHoursWithFlow(minWorkingHours)
+                AppStore.setMinOvertimeHoursWithFlow(minOvertimeHours)
                 onConfirm()
             },
             modifier = Modifier

@@ -2,6 +2,7 @@ package store
 
 import PREFERENCES_NAME
 import com.tangping.kotstore.model.KotStoreModel
+import kotlinx.coroutines.runBlocking
 
 object AppStore : KotStoreModel(storeName = PREFERENCES_NAME) {
     var loginToken by stringStore(key = "login_token", default = "")
@@ -22,5 +23,19 @@ object AppStore : KotStoreModel(storeName = PREFERENCES_NAME) {
         schedules = "{}"
         depositMonths = "{}"
         lastSync = 0L
+    }
+
+    fun setMinWorkingHoursWithFlow(hours: Float) {
+        minWorkingHours = hours
+        runBlocking {
+            AppFlowStore.minWorkingHoursFlow.emit(hours)
+        }
+    }
+
+    fun setMinOvertimeHoursWithFlow(hours: Float) {
+        minOvertimeHours = hours
+        runBlocking {
+            AppFlowStore.minOvertimeHoursFlow.emit(hours)
+        }
     }
 }

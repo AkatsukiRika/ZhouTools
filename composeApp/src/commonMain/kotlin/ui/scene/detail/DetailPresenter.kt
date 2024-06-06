@@ -37,9 +37,9 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
         val todayTimeCard = TimeCardHelper.todayTimeCard() ?: 0L
         val todayTimeRun = TimeCardHelper.todayTimeRun() ?: 0L
         val todayTimeWork = if (todayTimeRun == 0L) currentTime - todayTimeCard else todayTimeRun - todayTimeCard
-        val countdownRun = max(0L, TimeCardHelper.MIN_WORKING_TIME - todayTimeWork)
-        val countdownOT = max(0L, TimeCardHelper.MIN_OT_TIME - todayTimeWork)
-        val progress = todayTimeWork.toFloat() / TimeCardHelper.MIN_OT_TIME
+        val countdownRun = max(0L, TimeCardHelper.getMinWorkingTimeMillis().toLong() - todayTimeWork)
+        val countdownOT = max(0L, TimeCardHelper.getMinOvertimeMillis().toLong() - todayTimeWork)
+        val progress = todayTimeWork.toFloat() / TimeCardHelper.getMinOvertimeMillis()
         todayState = DetailTodayState(
             dayStartTime = dayStartTime,
             timeCard = todayTimeCard,
@@ -78,7 +78,7 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
                             timeCard = it.latestTimeCard,
                             timeRun = it.latestTimeRun ?: 0L,
                             timeWork = timeWork,
-                            isOT = timeWork >= TimeCardHelper.MIN_OT_TIME
+                            isOT = timeWork >= TimeCardHelper.getMinOvertimeMillis()
                         )
                         weekDays.add(weekDay)
                         if (weekDay.isOT) {
@@ -105,9 +105,9 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
         val todayTimeCard = TimeCardHelper.todayTimeCard() ?: 0L
         val todayTimeRun = TimeCardHelper.todayTimeRun() ?: 0L
         val todayTimeWork = if (todayTimeRun == 0L) currentTime - todayTimeCard else todayTimeRun - todayTimeCard
-        val countdownRun = max(0L, TimeCardHelper.MIN_WORKING_TIME - todayTimeWork)
-        val countdownOT = max(0L, TimeCardHelper.MIN_OT_TIME - todayTimeWork)
-        val progress = todayTimeWork.toFloat() / TimeCardHelper.MIN_OT_TIME
+        val countdownRun = max(0L, TimeCardHelper.getMinWorkingTimeMillis().toLong() - todayTimeWork)
+        val countdownOT = max(0L, TimeCardHelper.getMinOvertimeMillis().toLong() - todayTimeWork)
+        val progress = todayTimeWork.toFloat() / TimeCardHelper.getMinOvertimeMillis()
         todayState = todayState.copy(
             timeWork = todayTimeWork,
             countdownRun = countdownRun,

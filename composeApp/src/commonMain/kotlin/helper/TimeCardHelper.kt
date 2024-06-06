@@ -2,17 +2,29 @@ package helper
 
 import extension.dayStartTime
 import extension.isBlankJson
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.records.TimeCardDay
 import model.records.TimeCardRecords
 import model.request.TimeCardSyncRequest
+import store.AppFlowStore
 import store.AppStore
 import util.TimeUtil
 
 object TimeCardHelper {
-    const val MIN_WORKING_TIME = ((8 + 1.5) * 60 * 60 * 1000).toLong()
-    const val MIN_OT_TIME = ((9 + 1.5) * 60 * 60 * 1000).toLong()
+    fun getMinWorkingTimeMillis() = runBlocking {
+        val hours = AppFlowStore.minWorkingHoursFlow.first()
+        val millis = hours * 60 * 60 * 1000
+        millis.toLong()
+    }
+
+    fun getMinOvertimeMillis() = runBlocking {
+        val hours = AppFlowStore.minWorkingHoursFlow.first() + AppFlowStore.minOvertimeHoursFlow.first()
+        val millis = hours * 60 * 60 * 1000
+        millis.toLong()
+    }
 
     fun pressTimeCard() {
         val curTime = TimeUtil.currentTimeMillis()

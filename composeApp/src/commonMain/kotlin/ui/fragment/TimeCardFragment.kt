@@ -34,7 +34,6 @@ import helper.effect.EffectHelper
 import helper.effect.TimeCardEffect
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.dialog.ConfirmDialog
@@ -51,7 +50,6 @@ import zhoutools.composeapp.generated.resources.server_data_confirm_title
 import zhoutools.composeapp.generated.resources.time_card
 import zhoutools.composeapp.generated.resources.working_time
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun TimeCardFragment(
     modifier: Modifier = Modifier,
@@ -132,7 +130,6 @@ fun TimeCardFragment(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun TitleLayout(onDetailsClick: () -> Unit) {
     Row(
@@ -163,11 +160,10 @@ fun TitleLayout(onDetailsClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HasTodayCardLayout(workingTime: Long, isRun: Boolean, onRun: () -> Unit) {
-    val isEnoughWork = workingTime >= TimeCardHelper.MIN_WORKING_TIME
-    val isEnoughOT = workingTime >= TimeCardHelper.MIN_OT_TIME
+    val isEnoughWork = workingTime >= TimeCardHelper.getMinWorkingTimeMillis()
+    val isEnoughOT = workingTime >= TimeCardHelper.getMinOvertimeMillis()
 
     Text(
         text = stringResource(Res.string.working_time),
