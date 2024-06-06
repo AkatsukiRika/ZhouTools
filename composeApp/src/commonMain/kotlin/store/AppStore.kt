@@ -1,8 +1,9 @@
 package store
 
-import store.base.KotStoreModel
+import PREFERENCES_NAME
+import com.tangping.kotstore.model.KotStoreModel
 
-object AppStore : KotStoreModel() {
+object AppStore : KotStoreModel(storeName = PREFERENCES_NAME) {
     var loginToken by stringStore(key = "login_token", default = "")
     var loginUsername by stringStore(key = "login_username", default = "")
     var customServerUrl by stringStore(key = "custom_server_url", default = "")

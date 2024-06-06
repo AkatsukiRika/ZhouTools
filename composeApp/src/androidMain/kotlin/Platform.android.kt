@@ -6,19 +6,9 @@ import android.graphics.Color
 import android.os.Build
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import com.tangping.zhoujiang.MainActivity
-import java.io.File
 
 actual fun isIOS(): Boolean = false
-
-actual fun createDataStore(): DataStore<Preferences>? {
-    val context = MainActivity.context ?: return null
-    return createDataStoreWithDefaults {
-        File(context.applicationContext.filesDir, PREFERENCES_NAME).path
-    }
-}
 
 actual fun getAppVersion(): String {
     val context = MainActivity.context ?: return ""

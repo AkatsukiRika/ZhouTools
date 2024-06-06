@@ -1,4 +1,4 @@
-package store
+package com.tangping.kotstore.store
 
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey

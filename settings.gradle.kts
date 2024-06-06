@@ -19,3 +19,4 @@ dependencyResolutionManagement {
 }
 
 include(":composeApp")
+include(":kotStore")

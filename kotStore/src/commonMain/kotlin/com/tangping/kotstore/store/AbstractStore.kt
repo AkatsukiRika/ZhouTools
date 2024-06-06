@@ -1,13 +1,13 @@
-package store
+package com.tangping.kotstore.store
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import com.tangping.kotstore.model.KotStoreModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import store.base.KotStoreModel
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -22,7 +22,7 @@ abstract class AbstractStore<T: Any?> : ReadWriteProperty<KotStoreModel, T> {
         val preferencesKey = getPreferencesKey()
         var value = default
         runBlocking {
-            thisRef.dataStore?.data?.first {
+            thisRef.dataStore.data.first {
                 value = it[preferencesKey] ?: default
                 true
             }
@@ -35,20 +35,20 @@ abstract class AbstractStore<T: Any?> : ReadWriteProperty<KotStoreModel, T> {
     }
 
     private fun saveToStore(
-        dataStore: DataStore<Preferences>?,
+        dataStore: DataStore<Preferences>,
         scope: CoroutineScope,
         preferencesKey: Preferences.Key<T>,
         value: T
     ) {
         if (syncSave) {
             runBlocking {
-                dataStore?.edit { mutablePreferences ->
+                dataStore.edit { mutablePreferences ->
                     mutablePreferences[preferencesKey] = value
                 }
             }
         } else {
             scope.launch {
-                dataStore?.edit { mutablePreferences ->
+                dataStore.edit { mutablePreferences ->
                     mutablePreferences[preferencesKey] = value
                 }
             }

@@ -64,6 +64,8 @@ kotlin {
             api(libs.km.logging)
             // Material3
             implementation(libs.material3)
+            // KotStore
+            implementation(project(":kotStore"))
         }
     }
 }
