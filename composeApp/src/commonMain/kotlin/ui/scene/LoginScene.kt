@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -14,6 +15,7 @@ import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,16 +25,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import extension.firstCharToCapital
 import global.AppColors
 import constant.RouteConstants
 import helper.NetworkHelper
+import isIOS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
@@ -44,6 +50,7 @@ import setNavigationBarColor
 import setStatusBarColor
 import store.AppStore
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.create_account
 import zhoutools.composeapp.generated.resources.login
 import zhoutools.composeapp.generated.resources.login_error_empty
 import zhoutools.composeapp.generated.resources.password
@@ -93,20 +100,27 @@ fun LoginScene(navigator: Navigator) {
     }
 
     LaunchedEffect(Unit) {
-        setStatusBarColor("#F4F4F4", isLight = true)
-        setNavigationBarColor("#F4F4F4", isLight = true)
+        setStatusBarColor("#FFEAE3", isLight = true)
+        setNavigationBarColor("#FFFFFF", isLight = true)
     }
 
+    var rootModifier = Modifier
+        .imePadding()
+        .fillMaxSize()
+        .background(AppColors.Background)
+    if (isIOS()) {
+        rootModifier = rootModifier.navigationBarsPadding()
+    }
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
-        modifier = Modifier
-            .imePadding()
-            .fillMaxSize()
-            .background(AppColors.Background)
+        modifier = rootModifier
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(Brush.verticalGradient(colors = listOf(AppColors.SlightTheme, Color.White)))
+        ) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -164,6 +178,18 @@ fun LoginScene(navigator: Navigator) {
                         text = stringResource(Res.string.login),
                         fontSize = 16.sp,
                         modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+
+                TextButton(
+                    onClick = {
+                        navigator.navigate(RouteConstants.ROUTE_SIGN_UP)
+                    }
+                ) {
+                    Text(
+                        text = stringResource(Res.string.create_account),
+                        color = Color.Gray,
+                        textDecoration = TextDecoration.Underline
                     )
                 }
             }

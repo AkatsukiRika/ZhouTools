@@ -18,6 +18,7 @@ import ui.scene.LoginScene
 import store.AppStore
 import ui.scene.AddScheduleScene
 import ui.scene.ExportDataScene
+import ui.scene.SignUpScene
 import ui.scene.SyncScene
 import ui.scene.WriteMemoScene
 import ui.scene.detail.DetailScene
@@ -63,6 +64,15 @@ fun App() {
             ) {
                 AppTheme {
                     LoginScene(navigator)
+                }
+            }
+
+            scene(
+                route = RouteConstants.ROUTE_SIGN_UP,
+                navTransition = navTransition
+            ) {
+                AppTheme {
+                    SignUpScene(navigator)
                 }
             }
 

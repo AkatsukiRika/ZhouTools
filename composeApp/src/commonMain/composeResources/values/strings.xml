@@ -5,6 +5,11 @@
     <string name="login">Login</string>
     <string name="login_error_empty">Username &amp; password must not be empty!</string>
     <string name="unknown_error">Unknown error occurred!</string>
+    <string name="create_account">Create a new account</string>
+    <string name="registration">Registration</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email">Email</string>
+    <string name="invalid_email_toast">Email address isn't valid.</string>
     <string name="time_card">Time Card</string>
     <string name="settings">Settings</string>
     <string name="logout">Log Out</string>
