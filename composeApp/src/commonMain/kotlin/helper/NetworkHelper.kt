@@ -27,6 +27,7 @@ import model.records.TimeCardRecords
 import model.request.DepositSyncRequest
 import model.request.LoginRequest
 import model.request.MemoSyncRequest
+import model.request.RegisterRequest
 import model.request.ScheduleSyncRequest
 import model.request.TimeCardSyncRequest
 import store.AppStore
@@ -84,6 +85,26 @@ object NetworkHelper {
             e.printStackTrace()
             return false to null
         }
+    }
+
+    /**
+     * @return error message when registration failed; null when registration succeeded.
+     */
+    suspend fun register(request: RegisterRequest) = try {
+        val bodyText = httpClient.post(getBaseUrl() + "/api/signUp") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.bodyAsText()
+        val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
+        val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
+        if (code == CODE_SUCCESS) {
+            null
+        } else {
+            val message = jsonObject[KEY_MESSAGE]?.jsonPrimitive?.content
+            message
+        }
+    } catch (e: Exception) {
+        e.message
     }
 
     /**

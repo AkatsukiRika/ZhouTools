@@ -30,8 +30,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import extension.isValidEmail
 import global.AppColors
+import helper.NetworkHelper
+import hideSoftwareKeyboard
 import isIOS
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import model.request.RegisterRequest
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
@@ -41,8 +47,11 @@ import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.email
 import zhoutools.composeapp.generated.resources.invalid_email_toast
+import zhoutools.composeapp.generated.resources.login_error_empty
 import zhoutools.composeapp.generated.resources.password
 import zhoutools.composeapp.generated.resources.registration
+import zhoutools.composeapp.generated.resources.registration_failed
+import zhoutools.composeapp.generated.resources.registration_success
 import zhoutools.composeapp.generated.resources.sign_up
 import zhoutools.composeapp.generated.resources.username
 
@@ -53,6 +62,7 @@ fun SignUpScene(navigator: Navigator) {
     var inputUsername by remember { mutableStateOf("") }
     var inputEmail by remember { mutableStateOf("") }
     var inputPassword by remember { mutableStateOf("") }
+    var requestInProgress by remember { mutableStateOf(false) }
     var rootModifier = Modifier
         .imePadding()
         .fillMaxSize()
@@ -61,12 +71,63 @@ fun SignUpScene(navigator: Navigator) {
         rootModifier = rootModifier.navigationBarsPadding()
     }
 
+    fun showInvalidEmailToast() {
+        scope.launch {
+            snackbarHostState.showSnackbar(getString(Res.string.invalid_email_toast))
+        }
+    }
+
+    fun showEmptyToast() {
+        scope.launch {
+            snackbarHostState.showSnackbar(getString(Res.string.login_error_empty))
+        }
+    }
+
+    fun showFailToast() {
+        scope.launch {
+            snackbarHostState.showSnackbar(getString(Res.string.registration_failed))
+        }
+    }
+
+    fun showSuccessToast() {
+        scope.launch {
+            snackbarHostState.showSnackbar(getString(Res.string.registration_success))
+        }
+    }
+
+    suspend fun delayGoBack() {
+        delay(1500)
+        navigator.goBack()
+    }
+
     fun signUp() {
-        if (!inputEmail.isValidEmail()) {
-            scope.launch {
-                snackbarHostState.showSnackbar(getString(Res.string.invalid_email_toast))
-            }
+        hideSoftwareKeyboard()
+        if (requestInProgress) {
             return
+        }
+        if (!inputEmail.isValidEmail()) {
+            showInvalidEmailToast()
+            return
+        }
+        if (inputUsername.isBlank() || inputPassword.isBlank()) {
+            showEmptyToast()
+            return
+        }
+        val request = RegisterRequest(
+            username = inputUsername,
+            email = inputEmail,
+            password = inputPassword
+        )
+        scope.launch(Dispatchers.IO) {
+            requestInProgress = true
+            val errorMsg = NetworkHelper.register(request)
+            if (errorMsg != null) {
+                showFailToast()
+                requestInProgress = false
+            } else {
+                showSuccessToast()
+                delayGoBack()
+            }
         }
     }
 

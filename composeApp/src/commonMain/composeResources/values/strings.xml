@@ -7,6 +7,8 @@
     <string name="unknown_error">Unknown error occurred!</string>
     <string name="create_account">Create a new account</string>
     <string name="registration">Registration</string>
+    <string name="registration_failed">Registration failed. Please try again.</string>
+    <string name="registration_success">Account created successfully!</string>
     <string name="sign_up">Sign Up</string>
     <string name="email">Email</string>
     <string name="invalid_email_toast">Email address isn't valid.</string>
