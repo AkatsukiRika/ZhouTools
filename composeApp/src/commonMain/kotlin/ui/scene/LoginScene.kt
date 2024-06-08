@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
@@ -28,9 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,16 +47,18 @@ import kotlinx.coroutines.launch
 import model.request.LoginRequest
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import setNavigationBarColor
 import setStatusBarColor
 import store.AppStore
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.create_account
+import zhoutools.composeapp.generated.resources.ic_zhou
 import zhoutools.composeapp.generated.resources.login
 import zhoutools.composeapp.generated.resources.login_error_empty
 import zhoutools.composeapp.generated.resources.password
-import zhoutools.composeapp.generated.resources.please_sign_in
+import zhoutools.composeapp.generated.resources.title_slogan
 import zhoutools.composeapp.generated.resources.unknown_error
 import zhoutools.composeapp.generated.resources.username
 
@@ -125,10 +129,19 @@ fun LoginScene(navigator: Navigator) {
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_zhou),
+                    contentDescription = null,
+                    modifier = Modifier.height(36.dp),
+                    tint = Color.Unspecified
+                )
+
                 Text(
-                    text = stringResource(Res.string.please_sign_in).uppercase(),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    text = stringResource(Res.string.title_slogan),
+                    color = AppColors.LightGold,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    textAlign = TextAlign.Center,
+                    fontSize = 14.sp
                 )
 
                 TextField(

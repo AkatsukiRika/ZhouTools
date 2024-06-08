@@ -1,5 +1,5 @@
 <resources>
-    <string name="please_sign_in">Please Sign In</string>
+    <string name="title_slogan">A work-life integration tool for modern workers.</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
