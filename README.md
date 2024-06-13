@@ -1,14 +1,45 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# ZhouTools
 
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+> A work-life integration tool for modern workers.
 
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## Information
 
+| | |
+| - | - |
+| **Supported Platforms** | Android 7.0+ / iOS (building from source needed) |
+| **Latest Version** | 1.0.0 |
+| **UI Language** | English |
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Introduction
+
+This software is a mobile cross-platform work-life integration tool developed using the latest version of Compose Multiplatform. It aims to provide modern workers with a one-stop platform for managing **work hours, schedules and countdown days, memos, and monthly savings**. Data can be synchronized to the cloud via the official account system or a self-built server, ensuring 100% recovery of original records when switching devices. The UI is based on Google's Material Design 3, making the interface both beautiful and user-friendly.
+
+### 1. Working Hours
+
+![image](https://www.tang-ping.top/assets/assets/images/downloads/img_ztools_1.png)
+
+Record clock-in and clock-out times, summarize them monthly, and calculate the number of overtime days and the average daily working hours.
+
+### 2. Schedules and Countdown Days
+
+![image](https://www.tang-ping.top/assets/assets/images/downloads/img_ztools_2.png)
+
+Easily edit daily schedules in the calendar view, or create milestones to see how much time remains until a specific date or how much time has passed since that date.
+
+### 3. Memos
+
+![image](https://www.tang-ping.top/assets/assets/images/downloads/img_ztools_3.png)
+
+Add memos, pin important items to the top, or create TO-DO tasks and mark them as completed once done.
+
+### 4. Monthly Savings
+
+![image](https://www.tang-ping.top/assets/assets/images/downloads/img_ztools_4.png)
+
+Record the balance of your savings regularly each month, track your expenses by comparison, and always stay aware of how far you are from reaching your savings goal.
+
+### 5. Settings
+
+![image](https://www.tang-ping.top/assets/assets/images/downloads/img_ztools_5.png)
+
+Adjust the target values for working hours and overtime hours according to the specific regulations of your company. Data can also be synchronized with the official cloud service or a self-built server.
