@@ -5,6 +5,8 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.*
 import global.AppTheme
 import constant.RouteConstants
+import helper.NetworkHelper
+import model.request.LoginRequest
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.SwipeProperties
@@ -137,6 +139,25 @@ fun App() {
 
         LaunchedEffect(Unit) {
             logger.i { "Welcome to Zhou Tools!" }
+            checkLoginValidity()
+        }
+    }
+}
+
+/**
+ * Check login token validity and login again when token is invalid.
+ */
+private suspend fun checkLoginValidity() {
+    logger.i { "checkLoginValidity: loginToken=${AppStore.loginToken}, loginUsername=${AppStore.loginUsername}" }
+    if (AppStore.loginToken.isNotEmpty() && AppStore.loginUsername.isNotEmpty() && AppStore.loginPassword.isNotEmpty()) {
+        val isValid = NetworkHelper.checkTokenValidity(AppStore.loginToken)
+        logger.i { "checkLoginValidity: isValid=$isValid" }
+        if (!isValid) {
+            // login again
+            val loginRequest = LoginRequest(username = AppStore.loginUsername, password = AppStore.loginPassword)
+            val loginResponse = NetworkHelper.login(loginRequest)
+            val isSuccess = loginResponse.first
+            logger.i { "checkLoginValidity: login isSuccess=$isSuccess" }
         }
     }
 }

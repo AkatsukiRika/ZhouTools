@@ -117,7 +117,6 @@ fun SyncScene(navigator: Navigator, mode: String) {
                 return
             }
             AppStore.timeCards = Json.encodeToString(serverData)
-            logger.i { "pull success: ${AppStore.timeCards}" }
             AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
             EffectHelper.emitTimeCardEffect(TimeCardEffect.RefreshTodayState)
             onSuccess()
@@ -150,7 +149,6 @@ fun SyncScene(navigator: Navigator, mode: String) {
             }
             val memoRecords = MemoRecords(memos = serverData.toMutableList())
             AppStore.memos = Json.encodeToString(memoRecords)
-            logger.i { "pull success: ${AppStore.memos}" }
             AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
             onSuccess()
         } else {
@@ -182,7 +180,6 @@ fun SyncScene(navigator: Navigator, mode: String) {
             }
             val scheduleRecords = ScheduleRecords(schedules = serverData.toMutableList())
             AppStore.schedules = Json.encodeToString(scheduleRecords)
-            logger.i { "pull success: ${AppStore.schedules}" }
             AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
             onSuccess()
         } else {
@@ -214,7 +211,6 @@ fun SyncScene(navigator: Navigator, mode: String) {
             }
             val depositRecords = DepositRecords(months = serverData)
             AppStore.depositMonths = Json.encodeToString(depositRecords)
-            logger.i { "pull success: ${AppStore.depositMonths}" }
             AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
             EffectHelper.emitDepositEffect(DepositEffect.RefreshData)
             onSuccess()

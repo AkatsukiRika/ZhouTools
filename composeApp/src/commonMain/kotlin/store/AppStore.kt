@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 object AppStore : KotStoreModel(storeName = PREFERENCES_NAME) {
     var loginToken by stringStore(key = "login_token", default = "")
     var loginUsername by stringStore(key = "login_username", default = "")
+    var loginPassword by stringStore(key = "login_password", default = "")
     var customServerUrl by stringStore(key = "custom_server_url", default = "")
     var timeCards by stringStore(key = "time_cards", default = "{}", syncSave = true)
     var memos by stringStore(key = "memos", default = "{}", syncSave = true)

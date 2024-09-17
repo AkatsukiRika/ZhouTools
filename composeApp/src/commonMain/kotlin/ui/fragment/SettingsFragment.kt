@@ -94,6 +94,7 @@ fun SettingsFragment(
         showLogoutDialog = false
         AppStore.loginToken = ""
         AppStore.loginUsername = ""
+        AppStore.loginPassword = ""
         AppStore.clearCache()
         navigator.navigate(
             route = RouteConstants.ROUTE_LOGIN,

@@ -15,6 +15,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNamingStrategy
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
@@ -41,6 +42,7 @@ object NetworkHelper {
     private const val KEY_MEMOS = "memos"
     private const val KEY_SCHEDULES = "schedules"
     private const val KEY_DEPOSIT_MONTHS = "deposit_months"
+    private const val KEY_IS_VALID = "is_valid"
     private const val KEY_AUTH = "Authorization"
     private const val CODE_SUCCESS = 0
 
@@ -311,6 +313,27 @@ object NetworkHelper {
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    suspend fun checkTokenValidity(token: String): Boolean {
+        return try {
+            val bodyText = httpClient.post(getBaseUrl() + "/api/user/checkValidity") {
+                header(KEY_AUTH, token)
+            }.bodyAsText()
+            val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
+            val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
+            if (code == CODE_SUCCESS) {
+                val data = jsonObject[KEY_DATA]?.jsonObject
+                if (data != null) {
+                    val isValid = data[KEY_IS_VALID]?.jsonPrimitive?.booleanOrNull
+                    return isValid ?: false
+                }
+            }
+            false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
     }
 }

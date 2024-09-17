@@ -92,6 +92,7 @@ fun LoginScene(navigator: Navigator) {
                 if (token != null) {
                     AppStore.loginToken = token
                     AppStore.loginUsername = inputUsername
+                    AppStore.loginPassword = inputPassword
                     scope.launch(Dispatchers.Main) {
                         keyboardController?.hide()
                         navigator.navigate(RouteConstants.ROUTE_HOME)

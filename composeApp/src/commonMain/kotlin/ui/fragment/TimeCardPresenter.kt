@@ -50,7 +50,6 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
         refreshTodayState()
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
             serverData = NetworkHelper.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
-            logger.i { "serverData=$serverData" }
             if (AppStore.timeCards.isBlankJson() && serverData != null) {
                 showDialog = true
             }
