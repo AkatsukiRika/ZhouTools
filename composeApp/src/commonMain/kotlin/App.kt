@@ -158,6 +158,13 @@ private suspend fun checkLoginValidity() {
             val loginResponse = NetworkHelper.login(loginRequest)
             val isSuccess = loginResponse.first
             logger.i { "checkLoginValidity: login isSuccess=$isSuccess" }
+            if (isSuccess) {
+                val token = loginResponse.second
+                logger.i { "checkLoginValidity: new token=$token" }
+                if (token != null) {
+                    AppStore.loginToken = token
+                }
+            }
         }
     }
 }
