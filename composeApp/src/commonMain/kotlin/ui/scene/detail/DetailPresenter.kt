@@ -96,7 +96,7 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
                 weekList.add(week)
             }
 
-            historyState = DetailHistoryState(weekList)
+            historyState = DetailHistoryState(weekList.reversed())
         }
     }
 
