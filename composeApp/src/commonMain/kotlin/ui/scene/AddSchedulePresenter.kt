@@ -15,6 +15,7 @@ import extension.getMinute
 import extension.getMonthOfYear
 import extension.getYear
 import helper.ScheduleHelper
+import helper.SyncHelper
 import helper.effect.EffectHelper
 import kotlinx.coroutines.flow.Flow
 import model.records.Schedule
@@ -114,6 +115,7 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
                 } else {
                     addSchedule()
                 }
+                SyncHelper.autoPushSchedule()
             }
 
             is AddScheduleAction.BeginEdit -> {

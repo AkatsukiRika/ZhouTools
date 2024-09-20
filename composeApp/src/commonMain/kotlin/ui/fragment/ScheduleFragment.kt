@@ -53,6 +53,7 @@ import extension.dayStartTime
 import extension.toHourMinString
 import global.AppColors
 import helper.ScheduleHelper
+import helper.SyncHelper
 import helper.effect.EffectHelper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -60,7 +61,6 @@ import kotlinx.datetime.DayOfWeek
 import model.records.Schedule
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import util.CalendarUtil
@@ -79,7 +79,7 @@ import zhoutools.composeapp.generated.resources.today
 import zhoutools.composeapp.generated.resources.x_days_since
 import zhoutools.composeapp.generated.resources.x_days_until
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScheduleFragment(navigator: Navigator) {
     val scope = rememberCoroutineScope()
@@ -107,6 +107,7 @@ fun ScheduleFragment(navigator: Navigator) {
         selectItem?.let {
             ScheduleHelper.deleteSchedule(it)
             refreshData()
+            SyncHelper.autoPushSchedule()
             scope.launch {
                 scaffoldState.bottomSheetState.collapse()
             }
@@ -115,6 +116,7 @@ fun ScheduleFragment(navigator: Navigator) {
 
     LaunchedEffect(Unit) {
         refreshData()
+        SyncHelper.autoPullSchedule()
     }
 
     EffectHelper.observeScheduleEffect {
@@ -197,7 +199,6 @@ fun ScheduleFragment(navigator: Navigator) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun MonthRow(modifier: Modifier = Modifier, state: ScheduleState, channel: Channel<ScheduleAction>) {
     Row(
@@ -306,7 +307,6 @@ private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>)
     )
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun AddScheduleButton(onClick: () -> Unit) {
     Row(
@@ -365,7 +365,6 @@ private fun ScheduleCardList(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun MilestoneCard(card: Schedule, onClick: () -> Unit) {
     Box(modifier = Modifier
@@ -416,7 +415,6 @@ private fun MilestoneCard(card: Schedule, onClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun NormalCard(card: Schedule, onClick: () -> Unit) {
     Box(modifier = Modifier
@@ -457,7 +455,6 @@ private fun NormalCard(card: Schedule, onClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun BottomSheetContent(onEdit: () -> Unit, onDelete: () -> Unit) {
     Column(
