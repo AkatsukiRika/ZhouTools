@@ -36,7 +36,6 @@ import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import ui.dialog.ConfirmDialog
 import helper.TimeCardHelper
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_details
@@ -45,8 +44,6 @@ import zhoutools.composeapp.generated.resources.ic_work_enough
 import zhoutools.composeapp.generated.resources.ot_run
 import zhoutools.composeapp.generated.resources.press_time_card
 import zhoutools.composeapp.generated.resources.run_now
-import zhoutools.composeapp.generated.resources.server_data_confirm_content
-import zhoutools.composeapp.generated.resources.server_data_confirm_title
 import zhoutools.composeapp.generated.resources.time_card
 import zhoutools.composeapp.generated.resources.working_time
 
@@ -114,19 +111,6 @@ fun TimeCardFragment(
                 }
             )
         }
-    }
-
-    if (state.showDialog) {
-        ConfirmDialog(
-            title = stringResource(Res.string.server_data_confirm_title),
-            content = stringResource(Res.string.server_data_confirm_content),
-            onCancel = {
-                channel.trySend(TimeCardAction.CloseDialog)
-            },
-            onConfirm = {
-                channel.trySend(TimeCardAction.UseServerData)
-            }
-        )
     }
 }
 

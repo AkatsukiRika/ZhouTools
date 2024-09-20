@@ -36,6 +36,7 @@
     <string name="details">Details</string>
     <string name="sync_confirm_title">Sync Confirmation</string>
     <string name="sync_confirm_content">Pull data from server, or push local data to server?</string>
+    <string name="auto_sync">Auto Sync</string>
     <string name="pull">Pull</string>
     <string name="push">Push</string>
     <string name="today">Today</string>

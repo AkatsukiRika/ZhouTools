@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import extension.isBlankJson
 import helper.NetworkHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +26,6 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
     var todayWorkTime by remember { mutableLongStateOf(0L) }
     var todayRunTime by remember { mutableLongStateOf(0L) }
     var serverData by remember { mutableStateOf<TimeCardRecords?>(null) }
-    var showDialog by remember { mutableStateOf(false) }
 
     fun refreshTodayState() {
         todayTimeCard = TimeCardHelper.todayTimeCard() ?: 0L
@@ -41,7 +39,6 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
             AppStore.timeCards = encodeResult
             logger.i { "AppStore.timeCards=${AppStore.timeCards}" }
             refreshTodayState()
-            showDialog = false
         }
     }
 
@@ -50,9 +47,6 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
         refreshTodayState()
         if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
             serverData = NetworkHelper.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
-            if (AppStore.timeCards.isBlankJson() && serverData != null) {
-                showDialog = true
-            }
         }
     }
 
@@ -84,10 +78,6 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
                 }
             }
 
-            is TimeCardAction.CloseDialog -> {
-                showDialog = false
-            }
-
             is TimeCardAction.UseServerData -> {
                 useServerData()
             }
@@ -98,7 +88,7 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
         }
     }
 
-    return TimeCardState(currentTime, todayTimeCard, todayWorkTime, todayRunTime, serverData, showDialog)
+    return TimeCardState(currentTime, todayTimeCard, todayWorkTime, todayRunTime, serverData)
 }
 
 data class TimeCardState(
@@ -106,14 +96,12 @@ data class TimeCardState(
     val todayTimeCard: Long = 0L,
     val todayWorkTime: Long = 0L,
     val todayRunTime: Long = 0L,
-    val serverData: TimeCardRecords? = null,
-    val showDialog: Boolean = false
+    val serverData: TimeCardRecords? = null
 )
 
 sealed interface TimeCardAction {
     data object PressTimeCard : TimeCardAction
     data object Run : TimeCardAction
-    data object CloseDialog : TimeCardAction
     data object UseServerData : TimeCardAction
     data object RefreshTodayState : TimeCardAction
 }

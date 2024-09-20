@@ -3,6 +3,7 @@ package ui.fragment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
+import androidx.compose.material.Switch
+import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +41,7 @@ import getAppVersion
 import global.AppColors
 import helper.WorkHoursHelper
 import kotlinx.coroutines.launch
+import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.PopUpTo
@@ -46,14 +50,17 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import store.AppFlowStore
 import store.AppStore
 import ui.dialog.CloudServerDialog
 import ui.dialog.ConfirmDialog
 import ui.widget.HorizontalSeekBar
 import ui.widget.VerticalDivider
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.auto_sync
 import zhoutools.composeapp.generated.resources.confirm
 import zhoutools.composeapp.generated.resources.export_data
+import zhoutools.composeapp.generated.resources.ic_auto
 import zhoutools.composeapp.generated.resources.ic_export
 import zhoutools.composeapp.generated.resources.ic_logout
 import zhoutools.composeapp.generated.resources.ic_server
@@ -161,6 +168,10 @@ fun SettingsFragment(
             ) {
                 showServerDialog = true
             }
+
+            VerticalDivider()
+
+            AutoSyncItem()
 
             VerticalDivider()
 
@@ -287,6 +298,42 @@ private fun SyncItem(onClick: () -> Unit) {
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun AutoSyncItem() {
+    val isAutoSync = AppFlowStore.autoSyncFlow.collectAsStateWithLifecycle(initial = false).value
+    val scope = rememberCoroutineScope()
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(Res.drawable.ic_auto),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(top = 13.dp, bottom = 12.dp, start = 16.dp, end = 16.dp)
+                .size(26.dp),
+            tint = Color.Unspecified
+        )
+
+        Text(
+            text = stringResource(Res.string.auto_sync),
+            fontSize = 16.sp
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Switch(
+            checked = isAutoSync,
+            onCheckedChange = {
+                AppFlowStore.autoSyncFlow.emitIn(scope, it)
+            },
+            colors = SwitchDefaults.colors(checkedThumbColor = AppColors.Theme, checkedTrackColor = AppColors.LightTheme),
+            modifier = Modifier.padding(end = 12.dp)
+        )
     }
 }
 

@@ -29,28 +29,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
-import helper.DepositHelper
-import helper.MemoHelper
-import helper.NetworkHelper
-import helper.ScheduleHelper
-import helper.effect.EffectHelper
-import helper.effect.TimeCardEffect
+import helper.SyncHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import logger
-import model.records.MemoRecords
-import model.records.ScheduleRecords
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
-import store.AppStore
-import helper.TimeCardHelper
-import helper.effect.DepositEffect
-import model.records.DepositRecords
 import setStatusBarColor
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.pull_failed
@@ -109,152 +94,27 @@ fun SyncScene(navigator: Navigator, mode: String) {
         }
     }
 
-    suspend fun pullTimeCard() {
-        if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-            val serverData = NetworkHelper.getServerTimeCards(AppStore.loginToken, AppStore.loginUsername)
-            if (serverData == null) {
-                onError()
-                return
-            }
-            AppStore.timeCards = Json.encodeToString(serverData)
-            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-            EffectHelper.emitTimeCardEffect(TimeCardEffect.RefreshTodayState)
-            onSuccess()
-        } else {
-            onError()
-        }
-    }
-
-    suspend fun pushTimeCard() {
-        val request = TimeCardHelper.buildSyncRequest()
-        if (request == null) {
-            onError()
-            return
-        }
-        val response = NetworkHelper.sync(AppStore.loginToken, request)
-        if (!response.first) {
-            onError()
-            return
-        }
-        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-        onSuccess()
-    }
-
-    suspend fun pullMemo() {
-        if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-            val serverData = NetworkHelper.getServerMemos(AppStore.loginToken, AppStore.loginUsername)
-            if (serverData == null) {
-                onError()
-                return
-            }
-            val memoRecords = MemoRecords(memos = serverData.toMutableList())
-            AppStore.memos = Json.encodeToString(memoRecords)
-            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-            onSuccess()
-        } else {
-            onError()
-        }
-    }
-
-    suspend fun pushMemo() {
-        val request = MemoHelper.buildSyncRequest()
-        if (request == null) {
-            onError()
-            return
-        }
-        val response = NetworkHelper.syncMemo(AppStore.loginToken, request)
-        if (!response.first) {
-            onError()
-            return
-        }
-        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-        onSuccess()
-    }
-
-    suspend fun pullSchedule() {
-        if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-            val serverData = NetworkHelper.getServerSchedules(AppStore.loginToken, AppStore.loginUsername)
-            if (serverData == null) {
-                onError()
-                return
-            }
-            val scheduleRecords = ScheduleRecords(schedules = serverData.toMutableList())
-            AppStore.schedules = Json.encodeToString(scheduleRecords)
-            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-            onSuccess()
-        } else {
-            onError()
-        }
-    }
-
-    suspend fun pushSchedule() {
-        val request = ScheduleHelper.buildSyncRequest()
-        if (request == null) {
-            onError()
-            return
-        }
-        val response = NetworkHelper.syncSchedule(AppStore.loginToken, request)
-        if (!response.first) {
-            onError()
-            return
-        }
-        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-        onSuccess()
-    }
-
-    suspend fun pullDepositMonths() {
-        if (AppStore.loginToken.isNotBlank() && AppStore.loginUsername.isNotBlank()) {
-            val serverData = NetworkHelper.getServerDepositMonths(AppStore.loginToken, AppStore.loginUsername)
-            if (serverData == null) {
-                onError()
-                return
-            }
-            val depositRecords = DepositRecords(months = serverData)
-            AppStore.depositMonths = Json.encodeToString(depositRecords)
-            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-            EffectHelper.emitDepositEffect(DepositEffect.RefreshData)
-            onSuccess()
-        } else {
-            onError()
-        }
-    }
-
-    suspend fun pushDepositMonths() {
-        val request = DepositHelper.buildSyncRequest()
-        if (request == null) {
-            onError()
-            return
-        }
-        val response = NetworkHelper.syncDepositMonths(AppStore.loginToken, request)
-        if (!response.first) {
-            onError()
-            return
-        }
-        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
-        onSuccess()
-    }
-
     LaunchedEffect(Unit) {
         setStatusBarColor("#FFEAE3", isLight = true)
 
         withContext(Dispatchers.IO) {
             if (mode == "push") {
-                pushMemo()
+                SyncHelper.pushMemo(::onSuccess, ::onError)
                 progressValue = 1 / 4f
-                pushTimeCard()
+                SyncHelper.pushTimeCard(::onSuccess, ::onError)
                 progressValue = 2 / 4f
-                pushSchedule()
+                SyncHelper.pushSchedule(::onSuccess, ::onError)
                 progressValue = 3 / 4f
-                pushDepositMonths()
+                SyncHelper.pushDepositMonths(::onSuccess, ::onError)
                 progressValue = 1f
             } else if (mode == "pull") {
-                pullMemo()
+                SyncHelper.pullMemo(::onSuccess, ::onError)
                 progressValue = 1 / 4f
-                pullTimeCard()
+                SyncHelper.pullTimeCard(::onSuccess, ::onError)
                 progressValue = 2 / 4f
-                pullSchedule()
+                SyncHelper.pullSchedule(::onSuccess, ::onError)
                 progressValue = 3 / 4f
-                pullDepositMonths()
+                SyncHelper.pullDepositMonths(::onSuccess, ::onError)
                 progressValue = 1f
             }
             goBack()
