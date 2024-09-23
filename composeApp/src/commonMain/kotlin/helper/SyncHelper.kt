@@ -7,6 +7,8 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -20,17 +22,26 @@ import store.AppFlowStore
 import store.AppStore
 
 object SyncHelper {
+    private val _isAutoPulling = MutableStateFlow(false)
+    val isAutoPulling: StateFlow<Boolean> = _isAutoPulling
+
+    private val _isAutoPushing = MutableStateFlow(false)
+    val isAutoPushing: StateFlow<Boolean> = _isAutoPushing
+
     @OptIn(DelicateCoroutinesApi::class)
     fun autoPullTimeCard() {
         GlobalScope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
+                _isAutoPulling.value = true
                 pullTimeCard(
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPullTimeCard success" }
+                        _isAutoPulling.value = false
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPullTimeCard error" }
+                        _isAutoPulling.value = false
                     }
                 )
             }
@@ -42,12 +53,15 @@ object SyncHelper {
         GlobalScope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
+                _isAutoPushing.value = true
                 pushTimeCard(
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPushTimeCard success" }
+                        _isAutoPushing.value = false
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPushTimeCard error" }
+                        _isAutoPushing.value = false
                     }
                 )
             }
@@ -59,13 +73,16 @@ object SyncHelper {
         GlobalScope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
+                _isAutoPulling.value = true
                 pullSchedule(
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPullSchedule success" }
                         onSuccess?.invoke()
+                        _isAutoPulling.value = false
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPullSchedule error" }
+                        _isAutoPulling.value = false
                     }
                 )
             }
@@ -77,12 +94,15 @@ object SyncHelper {
         GlobalScope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
+                _isAutoPushing.value = true
                 pushSchedule(
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPushSchedule success" }
+                        _isAutoPushing.value = false
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPushSchedule error" }
+                        _isAutoPushing.value = false
                     }
                 )
             }
@@ -94,13 +114,16 @@ object SyncHelper {
         GlobalScope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
+                _isAutoPulling.value = true
                 pullMemo(
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPullMemo success" }
                         onSuccess?.invoke()
+                        _isAutoPulling.value = false
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPullMemo error" }
+                        _isAutoPulling.value = false
                     }
                 )
             }
@@ -112,12 +135,15 @@ object SyncHelper {
         GlobalScope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
+                _isAutoPushing.value = true
                 pushMemo(
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPushMemo success" }
+                        _isAutoPushing.value = false
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPushMemo error" }
+                        _isAutoPushing.value = false
                     }
                 )
             }
@@ -129,13 +155,16 @@ object SyncHelper {
         GlobalScope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
+                _isAutoPulling.value = true
                 pullDepositMonths(
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPullDeposit success" }
                         onSuccess?.invoke()
+                        _isAutoPulling.value = false
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPullDeposit error" }
+                        _isAutoPulling.value = false
                     }
                 )
             }
@@ -147,12 +176,15 @@ object SyncHelper {
         GlobalScope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
+                _isAutoPushing.value = true
                 pushDepositMonths(
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPushDeposit success" }
+                        _isAutoPushing.value = false
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPushDeposit error" }
+                        _isAutoPushing.value = false
                     }
                 )
             }

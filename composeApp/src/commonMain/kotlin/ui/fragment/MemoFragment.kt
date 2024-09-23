@@ -47,6 +47,7 @@ import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.widget.FragmentHeader
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.edit
 import zhoutools.composeapp.generated.resources.ic_add
@@ -119,14 +120,7 @@ fun MemoFragment(navigator: Navigator) {
                 modifier = Modifier.padding(it),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = stringResource(Res.string.memo).uppercase(),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                        .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
-                )
+                FragmentHeader(title = stringResource(Res.string.memo))
 
                 MemosLayout(state, channel, showBottomSpace = scaffoldState.bottomSheetState.isExpanded)
             }

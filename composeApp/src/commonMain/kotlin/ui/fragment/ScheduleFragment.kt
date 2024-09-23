@@ -63,6 +63,7 @@ import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.widget.FragmentHeader
 import util.CalendarUtil
 import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
@@ -153,14 +154,7 @@ fun ScheduleFragment(navigator: Navigator) {
                 }
             }
         ) {
-            Text(
-                text = stringResource(Res.string.schedule).uppercase(),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
-            )
+            FragmentHeader(title = stringResource(Res.string.schedule))
 
             MonthRow(
                 modifier = Modifier

@@ -118,4 +118,6 @@
     <string name="time_card_settings">Time Card Settings</string>
     <string name="min_working_hours">Minimum Working Hours</string>
     <string name="min_overtime_hours">Minimum Overtime Hours</string>
+    <string name="downloading">Downloading…</string>
+    <string name="uploading">Uploading…</string>
 </resources>

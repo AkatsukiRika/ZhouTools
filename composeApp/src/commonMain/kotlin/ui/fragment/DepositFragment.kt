@@ -70,6 +70,7 @@ import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.dialog.ConfirmDialog
+import ui.widget.FragmentHeader
 import ui.widget.VerticalDivider
 import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
@@ -145,14 +146,7 @@ fun DepositFragment(navigator: Navigator) {
         containerColor = AppColors.Background
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = stringResource(Res.string.deposit).uppercase(),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
-            )
+            FragmentHeader(title = stringResource(Res.string.deposit))
 
             BigCard(state)
 
