@@ -30,7 +30,6 @@ fun TimeCardPresenter(actionFlow: Flow<TimeCardAction>): TimeCardState {
     LaunchedEffect(Unit) {
         // init
         refreshTodayState()
-        SyncHelper.autoPullTimeCard()
     }
 
     LaunchedEffect(Unit) {
