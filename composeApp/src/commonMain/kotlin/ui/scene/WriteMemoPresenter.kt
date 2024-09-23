@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import helper.MemoHelper
+import helper.SyncHelper
 import helper.effect.EffectHelper
 import helper.effect.MemoEffect
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,7 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
                 memo?.let {
                     MemoHelper.deleteMemo(it)
                 }
+                SyncHelper.autoPushMemo()
                 EffectHelper.emitMemoEffect(MemoEffect.RefreshData)
                 navigator.goBack()
             }
@@ -54,6 +56,7 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
                         MemoHelper.modifyMemo(it, text, isTodo, isPin)
                     }
                 }
+                SyncHelper.autoPushMemo()
                 EffectHelper.emitMemoEffect(MemoEffect.RefreshData)
                 navigator.goBack()
             }

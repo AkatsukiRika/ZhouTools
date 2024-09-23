@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import constant.RouteConstants
 import extension.clickableNoRipple
 import global.AppColors
+import helper.SyncHelper
 import helper.effect.EffectHelper
 import helper.effect.MemoEffect
 import kotlinx.coroutines.channels.Channel
@@ -74,6 +75,12 @@ fun MemoFragment(navigator: Navigator) {
         } else {
             scaffoldState.bottomSheetState.collapse()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        SyncHelper.autoPullMemo(onSuccess = {
+            channel.trySend(MemoAction.RefreshDisplayList)
+        })
     }
 
     EffectHelper.observeMemoEffect {

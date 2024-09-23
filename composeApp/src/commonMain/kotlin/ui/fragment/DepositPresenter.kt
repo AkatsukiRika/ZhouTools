@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import extension.toMonthYearString
 import helper.DepositHelper
+import helper.SyncHelper
 import kotlinx.coroutines.flow.Flow
 import model.records.DepositMonth
 import model.records.DepositRecords
@@ -41,11 +42,13 @@ fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
         when (this) {
             is DepositAction.AddMonth -> {
                 DepositHelper.addMonth(month)
+                SyncHelper.autoPushDeposit()
                 refreshData()
             }
 
             is DepositAction.RemoveMonth -> {
                 DepositHelper.removeMonth(month)
+                SyncHelper.autoPushDeposit()
                 refreshData()
             }
 

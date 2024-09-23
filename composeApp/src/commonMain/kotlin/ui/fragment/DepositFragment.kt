@@ -57,6 +57,7 @@ import extension.monthStartTime
 import extension.toMoneyDisplayStr
 import extension.toMonthYearString
 import global.AppColors
+import helper.SyncHelper
 import helper.effect.DepositEffect
 import helper.effect.EffectHelper
 import hideSoftwareKeyboard
@@ -104,6 +105,12 @@ fun DepositFragment(navigator: Navigator) {
         if (scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
             hideSoftwareKeyboard()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        SyncHelper.autoPullDeposit(onSuccess = {
+            channel.trySend(DepositAction.RefreshData)
+        })
     }
 
     EffectHelper.observeDepositEffect {

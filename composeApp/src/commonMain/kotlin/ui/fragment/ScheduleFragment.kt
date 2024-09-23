@@ -116,7 +116,9 @@ fun ScheduleFragment(navigator: Navigator) {
 
     LaunchedEffect(Unit) {
         refreshData()
-        SyncHelper.autoPullSchedule()
+        SyncHelper.autoPullSchedule(onSuccess = {
+            refreshData()
+        })
     }
 
     EffectHelper.observeScheduleEffect {

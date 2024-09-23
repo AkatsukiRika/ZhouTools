@@ -55,13 +55,14 @@ object SyncHelper {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun autoPullSchedule() {
+    fun autoPullSchedule(onSuccess: (() -> Unit)? = null) {
         GlobalScope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
                 pullSchedule(
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPullSchedule success" }
+                        onSuccess?.invoke()
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPullSchedule error" }
@@ -82,6 +83,76 @@ object SyncHelper {
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPushSchedule error" }
+                    }
+                )
+            }
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun autoPullMemo(onSuccess: (() -> Unit)? = null) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val isAutoSync = AppFlowStore.autoSyncFlow.first()
+            if (isAutoSync) {
+                pullMemo(
+                    onSuccess = {
+                        logger.i("SyncHelper") { "autoPullMemo success" }
+                        onSuccess?.invoke()
+                    },
+                    onError = {
+                        logger.i("SyncHelper") { "autoPullMemo error" }
+                    }
+                )
+            }
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun autoPushMemo() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val isAutoSync = AppFlowStore.autoSyncFlow.first()
+            if (isAutoSync) {
+                pushMemo(
+                    onSuccess = {
+                        logger.i("SyncHelper") { "autoPushMemo success" }
+                    },
+                    onError = {
+                        logger.i("SyncHelper") { "autoPushMemo error" }
+                    }
+                )
+            }
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun autoPullDeposit(onSuccess: (() -> Unit)? = null) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val isAutoSync = AppFlowStore.autoSyncFlow.first()
+            if (isAutoSync) {
+                pullDepositMonths(
+                    onSuccess = {
+                        logger.i("SyncHelper") { "autoPullDeposit success" }
+                        onSuccess?.invoke()
+                    },
+                    onError = {
+                        logger.i("SyncHelper") { "autoPullDeposit error" }
+                    }
+                )
+            }
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun autoPushDeposit() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val isAutoSync = AppFlowStore.autoSyncFlow.first()
+            if (isAutoSync) {
+                pushDepositMonths(
+                    onSuccess = {
+                        logger.i("SyncHelper") { "autoPushDeposit success" }
+                    },
+                    onError = {
+                        logger.i("SyncHelper") { "autoPushDeposit error" }
                     }
                 )
             }
