@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import helper.MemoHelper
+import helper.SyncHelper
 import helper.effect.EffectHelper
 import helper.effect.WriteMemoEffect
 import kotlinx.coroutines.flow.Flow
@@ -49,6 +50,7 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
             is MemoAction.MarkDone -> {
                 curMemo?.let {
                     MemoHelper.markDone(it, !it.isTodoFinished)
+                    SyncHelper.autoPushMemo()
                     curMemo = it.copy(isTodoFinished = !it.isTodoFinished)
                     displayList = MemoHelper.getDisplayList()
                 }
