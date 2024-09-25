@@ -7,8 +7,18 @@
 | | |
 | - | - |
 | **Supported Platforms** | Android 7.0+ / iOS (building from source needed) |
-| **Latest Version** | 1.0.0 |
+| **Latest Version** | 1.1.0 |
 | **UI Language** | English |
+
+## Update Notes
+
+### Version 1.1.0
+
+- Login tokens are refreshed on launch to prevent expiration during data synchronization.
+
+- `Time Card > History` now displays historical data in reverse order, making it easier to view.
+
+- Introduce `Auto Sync` switch, enabling automatic data synchronization with the cloud, eliminating the need for manual operation (manual sync feature is still retained).
 
 ## Introduction
 
