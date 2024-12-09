@@ -3,6 +3,7 @@ package ui.fragment
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.DatePicker
@@ -34,6 +36,7 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,6 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -224,17 +229,38 @@ private fun BigCard(state: DepositState) {
         backgroundColor = Color.White,
         elevation = 4.dp
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(12.dp))
+        Box(modifier = Modifier.fillMaxWidth()) {
+            val density = LocalDensity.current
+            val toDp = { px: Float ->
+                density.run { px.toDp() }
+            }
+            var height by remember { mutableIntStateOf(0) }
 
-            Text(text = stringResource(Res.string.current_deposit_amount))
+            LinearProgressIndicator(
+                progress = state.progress,
+                color = AppColors.LightGold.copy(alpha = 0.5f),
+                backgroundColor = Color.Transparent,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(toDp(height.toFloat()))
+            )
 
-            Text(annotatedAmountString)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onSizeChanged {
+                        height = it.height
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Text(text = stringResource(Res.string.current_deposit_amount))
+
+                Text(annotatedAmountString)
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
     }
 }

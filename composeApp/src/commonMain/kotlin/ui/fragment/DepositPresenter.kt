@@ -2,7 +2,9 @@ package ui.fragment
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,13 +16,16 @@ import kotlinx.coroutines.flow.Flow
 import model.records.DepositMonth
 import model.records.DepositRecords
 import moe.tlaster.precompose.molecule.collectAction
+import store.AppFlowStore
 import ui.fragment.DepositState.Companion.toDeque
 import util.TimeUtil
 
 @Composable
 fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
     var currentAmount by remember { mutableLongStateOf(0L) }
+    var progress by remember { mutableFloatStateOf(0f) }
     var displayDeque by remember { mutableStateOf(ArrayDeque<DepositDisplayRecord>()) }
+    val depositGoal = AppFlowStore.totalDepositGoalFlow.collectAsState(initial = 0L).value
 
     fun refreshData() {
         val depositMonths = DepositHelper.getMonths()
@@ -36,6 +41,14 @@ fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
 
     LaunchedEffect(Unit) {
         refreshData()
+    }
+
+    LaunchedEffect(depositGoal) {
+        progress = if (depositGoal == 0L) {
+            0f
+        } else {
+            currentAmount.toFloat() / (depositGoal.toFloat() * 100)
+        }
     }
 
     actionFlow.collectAction {
@@ -58,11 +71,12 @@ fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
         }
     }
 
-    return DepositState(currentAmount, displayDeque)
+    return DepositState(currentAmount, progress, displayDeque)
 }
 
 data class DepositState(
     val currentAmount: Long = 0L,
+    val progress: Float = 0f,
     val displayDeque: ArrayDeque<DepositDisplayRecord> = ArrayDeque()
 ) {
     companion object {
