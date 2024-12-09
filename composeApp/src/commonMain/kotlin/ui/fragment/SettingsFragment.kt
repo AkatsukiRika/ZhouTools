@@ -54,18 +54,22 @@ import store.AppFlowStore
 import store.AppStore
 import ui.dialog.CloudServerDialog
 import ui.dialog.ConfirmDialog
+import ui.dialog.DepositGoalDialog
 import ui.widget.HorizontalSeekBar
 import ui.widget.VerticalDivider
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.auto_sync
 import zhoutools.composeapp.generated.resources.confirm
+import zhoutools.composeapp.generated.resources.deposit_goal
 import zhoutools.composeapp.generated.resources.export_data
 import zhoutools.composeapp.generated.resources.ic_auto
+import zhoutools.composeapp.generated.resources.ic_deposit_goal
 import zhoutools.composeapp.generated.resources.ic_export
 import zhoutools.composeapp.generated.resources.ic_logout
 import zhoutools.composeapp.generated.resources.ic_server
 import zhoutools.composeapp.generated.resources.ic_sync
 import zhoutools.composeapp.generated.resources.ic_time_card
+import zhoutools.composeapp.generated.resources.invalid_number
 import zhoutools.composeapp.generated.resources.invalid_url_toast
 import zhoutools.composeapp.generated.resources.last_sync_x
 import zhoutools.composeapp.generated.resources.logout
@@ -96,6 +100,7 @@ fun SettingsFragment(
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showSyncDialog by remember { mutableStateOf(false) }
     var showServerDialog by remember { mutableStateOf(false) }
+    var showDepositGoalDialog by remember { mutableStateOf(false) }
 
     fun logout() {
         showLogoutDialog = false
@@ -158,6 +163,15 @@ fun SettingsFragment(
                 name = Res.string.export_data
             ) {
                 navigator.navigate(RouteConstants.ROUTE_EXPORT)
+            }
+
+            VerticalDivider()
+
+            SettingItem(
+                icon = Res.drawable.ic_deposit_goal,
+                name = Res.string.deposit_goal
+            ) {
+                showDepositGoalDialog = true
             }
 
             VerticalDivider()
@@ -232,6 +246,24 @@ fun SettingsFragment(
                     } else {
                         AppStore.customServerUrl = it
                     }
+                }
+            }
+        )
+    }
+
+    if (showDepositGoalDialog) {
+        DepositGoalDialog(
+            onCancel = {
+                showDepositGoalDialog = false
+            },
+            onConfirm = {
+                showDepositGoalDialog = false
+                if (it == null) {
+                    scope.launch {
+                        showSnackbar(getString(Res.string.invalid_number))
+                    }
+                } else {
+                    AppStore.setTotalDepositGoalWithFlow(it)
                 }
             }
         )

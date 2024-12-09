@@ -16,6 +16,7 @@ object AppStore : KotStoreModel(storeName = PREFERENCES_NAME) {
     var lastSync by longStore(key = "last_sync", default = 0L)
     var minWorkingHours by floatStore(key = "min_working_hours", default = 9.5f)
     var minOvertimeHours by floatStore(key = "min_overtime_hours", default = 1f)
+    var totalDepositGoal by longStore(key = "total_deposit_goal", default = 0L)
 
     fun clearCache() {
         customServerUrl = ""
@@ -37,6 +38,13 @@ object AppStore : KotStoreModel(storeName = PREFERENCES_NAME) {
         minOvertimeHours = hours
         runBlocking {
             AppFlowStore.minOvertimeHoursFlow.emit(hours)
+        }
+    }
+
+    fun setTotalDepositGoalWithFlow(goal: Long) {
+        totalDepositGoal = goal
+        runBlocking {
+            AppFlowStore.totalDepositGoalFlow.emit(goal)
         }
     }
 }

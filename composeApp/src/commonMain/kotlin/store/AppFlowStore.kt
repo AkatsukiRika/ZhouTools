@@ -7,4 +7,5 @@ object AppFlowStore : KotStoreFlowModel<AppFlowStore>(storeName = FLOW_PREFERENC
     val minWorkingHoursFlow by floatFlowStore(key = "min_working_hours_flow", default = 9.5f)
     val minOvertimeHoursFlow by floatFlowStore(key = "min_overtime_hours_flow", default = 1f)
     val autoSyncFlow by booleanFlowStore(key = "auto_sync_flow", default = false)
+    val totalDepositGoalFlow by longFlowStore(key = "total_deposit_goal_flow", default = 0L)
 }
