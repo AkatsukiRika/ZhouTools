@@ -24,5 +24,8 @@ data class Schedule(
     @SerialName("is_all_day")
     var isAllDay: Boolean = false,
     @SerialName("is_milestone")
-    var isMilestone: Boolean = false
+    var isMilestone: Boolean = false,
+    @Serializable(with = DoubleToLongSerializer::class)
+    @SerialName("milestone_goal")
+    var milestoneGoal: Long = 0L
 )
