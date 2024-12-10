@@ -2,8 +2,10 @@ package ui.scene
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,8 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetScaffoldState
@@ -38,11 +43,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import extension.clickableNoRipple
 import helper.effect.AddScheduleEffect
 import extension.getHour
 import extension.getMinute
@@ -66,8 +77,10 @@ import zhoutools.composeapp.generated.resources.add_schedule
 import zhoutools.composeapp.generated.resources.all_day
 import zhoutools.composeapp.generated.resources.confirm
 import zhoutools.composeapp.generated.resources.date
+import zhoutools.composeapp.generated.resources.days
 import zhoutools.composeapp.generated.resources.edit_schedule
 import zhoutools.composeapp.generated.resources.end_time
+import zhoutools.composeapp.generated.resources.milestone_goal
 import zhoutools.composeapp.generated.resources.save
 import zhoutools.composeapp.generated.resources.set_as_milestone
 import zhoutools.composeapp.generated.resources.start_time
@@ -181,7 +194,12 @@ private fun SettingsLayout(
     onShowBottomSheet: () -> Unit,
     onSetPickerTime: (hour: Int, minute: Int) -> Unit
 ) {
+    var milestoneGoalStr by remember { mutableStateOf("") }
+
     Column(modifier = Modifier
+        .clickableNoRipple {
+            hideSoftwareKeyboard()
+        }
         .fillMaxWidth()
         .padding(all = 16.dp)
         .clip(RoundedCornerShape(12.dp))
@@ -311,6 +329,65 @@ private fun SettingsLayout(
                 },
                 colors = SwitchDefaults.colors(checkedThumbColor = AppColors.Theme, checkedTrackColor = AppColors.LightTheme)
             )
+        }
+
+        if (state.isMilestone) {
+            VerticalDivider()
+
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(Res.string.milestone_goal),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Box(
+                    modifier = Modifier
+                        .alignByBaseline()
+                        .width(IntrinsicSize.Min),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    BasicTextField(
+                        value = milestoneGoalStr,
+                        onValueChange = {
+                            milestoneGoalStr = it
+                        },
+                        singleLine = true,
+                        textStyle = TextStyle(
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.End,
+                            color = if (milestoneGoalStr.toIntOrNull() != null) Color.Unspecified else AppColors.Red
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        cursorBrush = SolidColor(AppColors.Theme)
+                    )
+
+                    if (milestoneGoalStr.isEmpty()) {
+                        // Placeholder to make sure cursor is in right position
+                        Text(
+                            text = "0",
+                            fontSize = 16.sp,
+                            color = Color.Transparent,
+                            modifier = Modifier.alpha(0f)
+                        )
+                    }
+                }
+
+                Text(
+                    text = stringResource(Res.string.days),
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .alignByBaseline()
+                        .padding(start = 4.dp)
+                )
+            }
         }
     }
 }
