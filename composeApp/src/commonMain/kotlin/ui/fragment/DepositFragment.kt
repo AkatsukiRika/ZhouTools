@@ -50,7 +50,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -83,6 +82,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.dialog.ConfirmDialog
 import ui.widget.FragmentHeader
+import ui.widget.ShimmerProgressBar
 import ui.widget.VerticalDivider
 import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
@@ -244,40 +244,13 @@ private fun BigCard(state: DepositState) {
             var height by remember { mutableIntStateOf(0) }
             var width by remember { mutableIntStateOf(0) }
 
-            val infiniteTransition = rememberInfiniteTransition()
-            val animatedOffset by infiniteTransition.animateFloat(
-                initialValue = -1f,
-                targetValue = 2f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(3000),
-                    repeatMode = RepeatMode.Restart
-                )
-            )
-
-            LinearProgressIndicator(
+            ShimmerProgressBar(
                 progress = state.progress,
                 color = AppColors.LightGold.copy(alpha = 0.5f),
                 backgroundColor = Color.Transparent,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(toDp(height.toFloat()))
-            )
-
-            // Infinite transition
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.3f)
-                    .height(toDp(height.toFloat()))
-                    .offset(x = with(LocalDensity.current) { (animatedOffset * width).toDp() })
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0f),
-                                Color.White.copy(alpha = 0.3f),
-                                Color.White.copy(alpha = 0f)
-                            )
-                        )
-                    )
             )
 
             Column(
