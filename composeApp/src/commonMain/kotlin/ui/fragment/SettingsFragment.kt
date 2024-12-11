@@ -246,6 +246,8 @@ fun SettingsFragment(
                     } else {
                         AppStore.customServerUrl = it
                     }
+                } else {
+                    AppStore.customServerUrl = ""
                 }
             }
         )
