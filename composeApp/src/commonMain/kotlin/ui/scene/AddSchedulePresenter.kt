@@ -39,6 +39,7 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
     var isMilestone by remember { mutableStateOf(false) }
     var timeEditType by remember { mutableStateOf<TimeEditType?>(null) }
     var isEdit by remember { mutableStateOf(false) }
+    var milestoneGoalMillis by remember { mutableLongStateOf(0L) }
     var editItem by remember { mutableStateOf<Schedule?>(null) }
 
     fun setDate(dateTriple: Triple<Int, Int, Int>) {
@@ -59,6 +60,7 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
         endTime = schedule.endingTime
         isAllDay = schedule.isAllDay
         isMilestone = schedule.isMilestone
+        milestoneGoalMillis = schedule.milestoneGoal
     }
 
     fun addSchedule() {
@@ -68,14 +70,15 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
             startingTime = startTime,
             endingTime = endTime,
             isAllDay = isAllDay,
-            isMilestone = isMilestone
+            isMilestone = isMilestone,
+            milestoneGoal = milestoneGoalMillis
         )
         ScheduleHelper.addSchedule(schedule)
     }
 
     fun editSchedule() {
         editItem?.let {
-            ScheduleHelper.modifySchedule(it, text, startTime, endTime, isAllDay, isMilestone)
+            ScheduleHelper.modifySchedule(it, text, startTime, endTime, isAllDay, isMilestone, milestoneGoalMillis)
         }
         EffectHelper.emitScheduleEffect(ScheduleEffect.RefreshData)
     }
@@ -110,6 +113,7 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
 
             is AddScheduleAction.Confirm -> {
                 text = this.text
+                milestoneGoalMillis = this.milestoneGoalMillis
                 if (isEdit) {
                     editSchedule()
                 } else {
@@ -125,7 +129,7 @@ fun AddSchedulePresenter(actionFlow: Flow<AddScheduleAction>): AddScheduleState 
         }
     }
 
-    return AddScheduleState(year, monthOfYear, dayOfMonth, text, startTime, endTime, isAllDay, isMilestone, timeEditType, isEdit)
+    return AddScheduleState(year, monthOfYear, dayOfMonth, text, startTime, endTime, isAllDay, isMilestone, timeEditType, isEdit, milestoneGoalMillis)
 }
 
 data class AddScheduleState(
@@ -138,7 +142,8 @@ data class AddScheduleState(
     val isAllDay: Boolean,
     val isMilestone: Boolean,
     val timeEditType: TimeEditType?,
-    val isEdit: Boolean
+    val isEdit: Boolean,
+    val milestoneGoalMillis: Long
 ) {
     suspend fun getDateString(): String {
         if (monthOfYear - 1 in CalendarUtil.getMonthNamesNonComposable().indices) {
@@ -156,6 +161,6 @@ sealed interface AddScheduleAction {
     data class SetStartTime(val hour: Int, val minute: Int) : AddScheduleAction
     data class SetEndTime(val hour: Int, val minute: Int) : AddScheduleAction
     data class SetTimeEditType(val editType: TimeEditType) : AddScheduleAction
-    data class Confirm(val text: String) : AddScheduleAction
+    data class Confirm(val text: String, val milestoneGoalMillis: Long) : AddScheduleAction
     data class BeginEdit(val schedule: Schedule) : AddScheduleAction
 }

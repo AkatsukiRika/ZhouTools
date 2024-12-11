@@ -30,6 +30,8 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
@@ -52,9 +54,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import extension.clickableNoRipple
+import extension.daysToMillis
 import helper.effect.AddScheduleEffect
 import extension.getHour
 import extension.getMinute
+import extension.toDays
 import extension.toHourMinString
 import global.AppColors
 import helper.effect.EffectHelper
@@ -65,6 +69,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import setNavigationBarColor
 import setStatusBarColor
@@ -78,6 +83,7 @@ import zhoutools.composeapp.generated.resources.date
 import zhoutools.composeapp.generated.resources.days
 import zhoutools.composeapp.generated.resources.edit_schedule
 import zhoutools.composeapp.generated.resources.end_time
+import zhoutools.composeapp.generated.resources.invalid_number
 import zhoutools.composeapp.generated.resources.milestone_goal
 import zhoutools.composeapp.generated.resources.save
 import zhoutools.composeapp.generated.resources.set_as_milestone
@@ -87,12 +93,14 @@ import zhoutools.composeapp.generated.resources.start_time
 @Composable
 fun AddScheduleScene(navigator: Navigator) {
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val (state, channel) = rememberPresenter { AddSchedulePresenter(it) }
     val scaffoldState = rememberBottomSheetScaffoldState()
     var text by remember(state.text) { mutableStateOf(state.text) }
     var timePickerState by remember {
         mutableStateOf(TimePickerState(0, 0, true))
     }
+    var milestoneGoalStr by remember(state.milestoneGoalMillis) { mutableStateOf(state.milestoneGoalMillis.toDays().toString()) }
 
     LaunchedEffect(Unit) {
         setStatusBarColor("#FFFFFF", isLight = true)
@@ -121,6 +129,9 @@ fun AddScheduleScene(navigator: Navigator) {
     BottomSheetScaffold(
         sheetContent = {
             BottomSheetContent(timePickerState, scaffoldState, state, channel)
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         },
         scaffoldState = scaffoldState,
         sheetPeekHeight = 0.dp,
@@ -152,7 +163,7 @@ fun AddScheduleScene(navigator: Navigator) {
             )
 
             SettingsLayout(
-                state, channel,
+                state, channel, milestoneGoalStr,
                 onShowBottomSheet = {
                     scope.launch {
                         scaffoldState.bottomSheetState.expand()
@@ -160,12 +171,21 @@ fun AddScheduleScene(navigator: Navigator) {
                 },
                 onSetPickerTime = { hour, minute ->
                     timePickerState = TimePickerState(initialHour = hour, initialMinute = minute, is24Hour = true)
+                },
+                onSetMilestoneGoalStr = {
+                    milestoneGoalStr = it
                 }
             )
 
             Button(
                 onClick = {
-                    channel.trySend(AddScheduleAction.Confirm(text))
+                    if (milestoneGoalStr.toLongOrNull() == null) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(getString(Res.string.invalid_number))
+                        }
+                        return@Button
+                    }
+                    channel.trySend(AddScheduleAction.Confirm(text, milestoneGoalStr.daysToMillis()))
                     navigator.goBack()
                 },
                 modifier = Modifier
@@ -189,11 +209,11 @@ fun AddScheduleScene(navigator: Navigator) {
 private fun SettingsLayout(
     state: AddScheduleState,
     channel: Channel<AddScheduleAction>,
+    milestoneGoalStr: String,
     onShowBottomSheet: () -> Unit,
-    onSetPickerTime: (hour: Int, minute: Int) -> Unit
+    onSetPickerTime: (hour: Int, minute: Int) -> Unit,
+    onSetMilestoneGoalStr: (String) -> Unit
 ) {
-    var milestoneGoalStr by remember { mutableStateOf("") }
-
     Column(modifier = Modifier
         .clickableNoRipple {
             hideSoftwareKeyboard()
@@ -353,13 +373,13 @@ private fun SettingsLayout(
                     BasicTextField(
                         value = milestoneGoalStr,
                         onValueChange = {
-                            milestoneGoalStr = it
+                            onSetMilestoneGoalStr(it)
                         },
                         singleLine = true,
                         textStyle = TextStyle(
                             fontSize = 16.sp,
                             textAlign = TextAlign.End,
-                            color = if (milestoneGoalStr.toIntOrNull() != null) Color.Unspecified else AppColors.Red
+                            color = if (milestoneGoalStr.toLongOrNull() != null) Color.Unspecified else AppColors.Red
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         cursorBrush = SolidColor(AppColors.Theme)

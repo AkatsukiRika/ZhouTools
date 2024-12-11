@@ -30,7 +30,15 @@ object ScheduleHelper {
         saveSchedules(schedules)
     }
 
-    fun modifySchedule(schedule: Schedule, text: String, startingTime: Long, endingTime: Long, isAllDay: Boolean, isMilestone: Boolean) {
+    fun modifySchedule(
+        schedule: Schedule,
+        text: String,
+        startingTime: Long,
+        endingTime: Long,
+        isAllDay: Boolean,
+        isMilestone: Boolean,
+        milestoneGoal: Long
+    ) {
         val schedules = getSchedules()
         val match = schedules.find { it == schedule }
         match?.let {
@@ -39,6 +47,7 @@ object ScheduleHelper {
             it.endingTime = endingTime
             it.isAllDay = isAllDay
             it.isMilestone = isMilestone
+            it.milestoneGoal = milestoneGoal
         }
         saveSchedules(schedules)
     }

@@ -52,6 +52,14 @@ fun Long.toHourMinString(utc: Boolean = false): String {
     return "${localDateTime.hour.toString().padStart(2, '0')}:${localDateTime.minute.toString().padStart(2, '0')}"
 }
 
+fun Long.toDays(): Int {
+    return (this / (1000 * 60 * 60 * 24)).toInt()
+}
+
+fun String.daysToMillis(): Long {
+    return this.toLong() * 1000 * 60 * 60 * 24
+}
+
 fun Long.getHour(): Int {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
