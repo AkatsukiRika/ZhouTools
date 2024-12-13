@@ -126,4 +126,5 @@
     <string name="invalid_number">Invalid number.</string>
     <string name="milestone_goal">Milestone Goal</string>
     <string name="days">Day(s)</string>
+    <string name="goals">Goals</string>
 </resources>

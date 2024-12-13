@@ -28,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -47,9 +48,10 @@ import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import ui.widget.FragmentHeader
+import ui.widget.AutoSyncIndicator
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.edit
+import zhoutools.composeapp.generated.resources.goals
 import zhoutools.composeapp.generated.resources.ic_add
 import zhoutools.composeapp.generated.resources.ic_pin
 import zhoutools.composeapp.generated.resources.ic_todo
@@ -120,7 +122,32 @@ fun MemoFragment(navigator: Navigator) {
                 modifier = Modifier.padding(it),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                FragmentHeader(title = stringResource(Res.string.memo))
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.memo).uppercase(),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier.clickable {}
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    AutoSyncIndicator()
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Text(
+                        text = stringResource(Res.string.goals).uppercase(),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable {}
+                            .alpha(0.2f)
+                    )
+                }
 
                 MemosLayout(state, channel, showBottomSpace = scaffoldState.bottomSheetState.isExpanded)
             }
