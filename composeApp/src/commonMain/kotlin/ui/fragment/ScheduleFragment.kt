@@ -24,6 +24,7 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
@@ -371,9 +372,10 @@ private fun MilestoneCard(card: Schedule, onClick: () -> Unit) {
             onClick()
         }
     ) {
+        val todayStartTime = TimeUtil.currentTimeMillis().dayStartTime()
+        val diffDays = (todayStartTime - card.dayStartTime) / TimeConstants.DAY_MILLIS
+
         Column(modifier = Modifier.fillMaxSize()) {
-            val todayStartTime = TimeUtil.currentTimeMillis().dayStartTime()
-            val diffDays = (todayStartTime - card.dayStartTime) / TimeConstants.DAY_MILLIS
             val headerText = when {
                 diffDays > 0 -> stringResource(Res.string.x_days_since, diffDays)
                 diffDays < 0 -> stringResource(Res.string.x_days_until, -diffDays)
@@ -408,6 +410,13 @@ private fun MilestoneCard(card: Schedule, onClick: () -> Unit) {
             tint = Color.Unspecified,
             contentDescription = null
         )
+
+        if (diffDays > 0 && card.milestoneGoal > 0) {
+            LinearProgressIndicator(
+                progress = (diffDays * TimeConstants.DAY_MILLIS) / card.milestoneGoal.toFloat(),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
