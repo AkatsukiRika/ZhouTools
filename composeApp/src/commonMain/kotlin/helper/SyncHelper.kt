@@ -3,10 +3,10 @@ package helper
 import helper.effect.DepositEffect
 import helper.effect.EffectHelper
 import helper.effect.TimeCardEffect
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -22,15 +22,16 @@ import store.AppFlowStore
 import store.AppStore
 
 object SyncHelper {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     private val _isAutoPulling = MutableStateFlow(false)
     val isAutoPulling: StateFlow<Boolean> = _isAutoPulling
 
     private val _isAutoPushing = MutableStateFlow(false)
     val isAutoPushing: StateFlow<Boolean> = _isAutoPushing
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun autoPullTimeCard() {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
                 _isAutoPulling.value = true
@@ -48,9 +49,8 @@ object SyncHelper {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun autoPushTimeCard() {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
                 _isAutoPushing.value = true
@@ -68,9 +68,8 @@ object SyncHelper {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun autoPullSchedule(onSuccess: (() -> Unit)? = null) {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
                 _isAutoPulling.value = true
@@ -89,9 +88,8 @@ object SyncHelper {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun autoPushSchedule() {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
                 _isAutoPushing.value = true
@@ -109,9 +107,8 @@ object SyncHelper {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun autoPullMemo(onSuccess: (() -> Unit)? = null) {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
                 _isAutoPulling.value = true
@@ -130,9 +127,8 @@ object SyncHelper {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun autoPushMemo() {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
                 _isAutoPushing.value = true
@@ -150,9 +146,8 @@ object SyncHelper {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun autoPullDeposit(onSuccess: (() -> Unit)? = null) {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
                 _isAutoPulling.value = true
@@ -171,9 +166,8 @@ object SyncHelper {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun autoPushDeposit() {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
                 _isAutoPushing.value = true
