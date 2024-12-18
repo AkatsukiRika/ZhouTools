@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,10 +36,11 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
     var curMemo by remember { mutableStateOf<Memo?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var mode by remember { mutableIntStateOf(MODE_MEMO) }
-    val goalList = mutableStateListOf<Goal>()
+    var goalList by remember { mutableStateOf(emptyList<Goal>()) }
 
     fun initGoalList() {
-        goalList.clear()
+        val tempGoalList = mutableListOf<Goal>()
+        tempGoalList.clear()
 
         // Deposit Goal
         val depositMonths = DepositHelper.getMonths()
@@ -48,7 +48,7 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
         deque.firstOrNull()?.let {
             val currentDeposit = it.currentAmount + it.extraDeposit
             val goalDeposit = AppStore.totalDepositGoal * 100L
-            goalList.add(Goal(GOAL_TYPE_DEPOSIT, currentDeposit, goalDeposit))
+            tempGoalList.add(Goal(GOAL_TYPE_DEPOSIT, currentDeposit, goalDeposit))
         }
 
         // Time Goals
@@ -57,11 +57,12 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
             val todayStartTime = TimeUtil.currentTimeMillis().dayStartTime()
             val diffTime = todayStartTime - schedule.dayStartTime
             if (diffTime > 0 && schedule.milestoneGoal > 0) {
-                goalList.add(Goal(GOAL_TYPE_TIME, diffTime, schedule.milestoneGoal))
+                tempGoalList.add(Goal(GOAL_TYPE_TIME, diffTime, schedule.milestoneGoal))
             }
         }
 
-        logger.i { "goalList: ${goalList.toList()}" }
+        goalList = tempGoalList
+        logger.i { "goalList: $goalList" }
     }
 
     fun clickMemoItem(memo: Memo) {
@@ -115,12 +116,15 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
             }
 
             is MemoAction.SwitchMode -> {
+                if (newMode != mode) {
+                    showBottomSheet = false
+                }
                 mode = newMode
             }
         }
     }
 
-    return MemoState(displayList, curMemo, showBottomSheet, mode, goalList)
+    return MemoState(displayList, curMemo, showBottomSheet, mode, goalList.toList())
 }
 
 data class MemoState(

@@ -25,31 +25,44 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import constant.RouteConstants
 import extension.clickableNoRipple
+import extension.roundToDecimalPlaces
+import extension.toDays
+import extension.toMoneyDisplayStr
 import global.AppColors
 import helper.SyncHelper
 import helper.effect.EffectHelper
 import helper.effect.MemoEffect
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import model.records.GOAL_TYPE_DEPOSIT
+import model.records.Goal
 import model.records.Memo
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.AutoSyncIndicator
+import ui.widget.ShimmerProgressBar
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.days
 import zhoutools.composeapp.generated.resources.edit
 import zhoutools.composeapp.generated.resources.goals
 import zhoutools.composeapp.generated.resources.ic_add
@@ -155,11 +168,15 @@ fun MemoFragment(navigator: Navigator) {
                     )
                 }
 
-                MemosLayout(state, channel, showBottomSpace = scaffoldState.bottomSheetState.isExpanded)
+                if (state.mode == MODE_MEMO) {
+                    MemosLayout(state, channel, showBottomSpace = scaffoldState.bottomSheetState.isExpanded)
+                } else {
+                    GoalsLayout(state, channel, showBottomSpace = scaffoldState.bottomSheetState.isExpanded)
+                }
             }
         }
 
-        if (scaffoldState.bottomSheetState.isCollapsed && scaffoldState.bottomSheetState.targetValue == scaffoldState.bottomSheetState.currentValue) {
+        if (state.mode == MODE_MEMO && scaffoldState.bottomSheetState.isCollapsed && scaffoldState.bottomSheetState.targetValue == scaffoldState.bottomSheetState.currentValue) {
             FloatingActionButton(
                 backgroundColor = AppColors.Theme,
                 onClick = {
@@ -209,6 +226,23 @@ private fun MemosLayout(state: MemoState, channel: Channel<MemoAction>, showBott
 }
 
 @Composable
+private fun GoalsLayout(state: MemoState, channel: Channel<MemoAction>, showBottomSpace: Boolean) {
+    val lazyListState = rememberLazyListState()
+
+    LazyColumn(state = lazyListState) {
+        items(state.goalList) { goal ->
+            GoalItem(goal, channel)
+        }
+
+        if (showBottomSpace) {
+            item {
+                Spacer(modifier = Modifier.height(148.dp))
+            }
+        }
+    }
+}
+
+@Composable
 private fun MemoItem(memo: Memo, channel: Channel<MemoAction>) {
     Card(modifier = Modifier
         .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
@@ -250,6 +284,78 @@ private fun MemoItem(memo: Memo, channel: Channel<MemoAction>) {
                         .align(Alignment.BottomEnd)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun GoalItem(goal: Goal, channel: Channel<MemoAction>) {
+    Card(modifier = Modifier
+        .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(8.dp))
+    ) {
+        var height by remember { mutableIntStateOf(0) }
+
+        Box(modifier = Modifier.onSizeChanged {
+            height = it.height
+        }) {
+            val progress = goal.getProgress()
+
+            ShimmerProgressBar(
+                progress = progress,
+                color = if (goal.type == GOAL_TYPE_DEPOSIT) AppColors.LightGold.copy(0.5f) else AppColors.LightTheme.copy(0.5f),
+                backgroundColor = Color.Transparent,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(with(LocalDensity.current) {
+                        height.toDp()
+                    })
+            )
+
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier
+                    .padding(all = 10.dp)
+                    .align(Alignment.CenterStart)
+            ) {
+                val currentValueStr = if (goal.type == GOAL_TYPE_DEPOSIT) {
+                    goal.currentValue.toMoneyDisplayStr()
+                } else {
+                    goal.currentValue.toDays().toString()
+                }
+
+                val goalValueStr = if (goal.type == GOAL_TYPE_DEPOSIT) {
+                    goal.goalValue.toMoneyDisplayStr()
+                } else {
+                    "${goal.goalValue.toDays()} ${stringResource(Res.string.days)}"
+                }
+
+                Text(
+                    text = currentValueStr,
+                    color = Color.Black,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp,
+                    lineHeight = 18.sp
+                )
+
+                Text(
+                    text = " / $goalValueStr",
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp
+                )
+            }
+
+            Text(
+                text = "${(progress * 100).roundToDecimalPlaces(4)}%",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(all = 10.dp)
+                    .align(Alignment.CenterEnd),
+                color = Color.DarkGray,
+                fontSize = 20.sp
+            )
         }
     }
 }

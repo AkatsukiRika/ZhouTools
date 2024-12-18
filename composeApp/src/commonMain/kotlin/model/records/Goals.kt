@@ -8,4 +8,8 @@ data class Goal(
     val type: Int,
     val currentValue: Long = 0L,
     val goalValue: Long = 0L
-)
+) {
+    fun getProgress(): Float {
+        return currentValue.toFloat() / goalValue
+    }
+}
