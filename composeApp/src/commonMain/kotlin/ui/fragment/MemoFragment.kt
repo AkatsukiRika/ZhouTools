@@ -129,8 +129,12 @@ fun MemoFragment(navigator: Navigator) {
                     Text(
                         text = stringResource(Res.string.memo).uppercase(),
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        modifier = Modifier.clickable {}
+                        fontWeight = if (state.mode == MODE_MEMO) FontWeight.ExtraBold else FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable {
+                                channel.trySend(MemoAction.SwitchMode(MODE_MEMO))
+                            }
+                            .alpha(if (state.mode == MODE_MEMO) 1f else 0.2f)
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -142,10 +146,12 @@ fun MemoFragment(navigator: Navigator) {
                     Text(
                         text = stringResource(Res.string.goals).uppercase(),
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = if (state.mode == MODE_GOALS) FontWeight.ExtraBold else FontWeight.Bold,
                         modifier = Modifier
-                            .clickable {}
-                            .alpha(0.2f)
+                            .clickable {
+                                channel.trySend(MemoAction.SwitchMode(MODE_GOALS))
+                            }
+                            .alpha(if (state.mode == MODE_GOALS) 1f else 0.2f)
                     )
                 }
 
