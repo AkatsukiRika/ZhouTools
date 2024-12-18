@@ -48,7 +48,9 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
         deque.firstOrNull()?.let {
             val currentDeposit = it.currentAmount + it.extraDeposit
             val goalDeposit = AppStore.totalDepositGoal * 100L
-            tempGoalList.add(Goal(GOAL_TYPE_DEPOSIT, currentDeposit, goalDeposit))
+            if (goalDeposit > 0) {
+                tempGoalList.add(Goal(GOAL_TYPE_DEPOSIT, currentDeposit, goalDeposit))
+            }
         }
 
         // Time Goals
