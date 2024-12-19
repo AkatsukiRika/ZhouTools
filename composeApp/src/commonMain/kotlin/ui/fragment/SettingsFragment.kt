@@ -39,6 +39,7 @@ import extension.toHourMinString
 import extension.toMonthDayString
 import getAppVersion
 import global.AppColors
+import helper.SyncHelper
 import helper.WorkHoursHelper
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
@@ -108,6 +109,7 @@ fun SettingsFragment(
         AppStore.loginUsername = ""
         AppStore.loginPassword = ""
         AppStore.clearCache()
+        SyncHelper.clearPulledFlags()
         navigator.navigate(
             route = RouteConstants.ROUTE_LOGIN,
             options = NavOptions(

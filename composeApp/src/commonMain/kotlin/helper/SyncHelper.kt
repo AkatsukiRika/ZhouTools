@@ -30,7 +30,23 @@ object SyncHelper {
     private val _isAutoPushing = MutableStateFlow(false)
     val isAutoPushing: StateFlow<Boolean> = _isAutoPushing
 
+    // Pulling will be done only once per app launch
+    private var isTimeCardPulled = false
+    private var isSchedulePulled = false
+    private var isMemoPulled = false
+    private var isDepositPulled = false
+
+    fun clearPulledFlags() {
+        isTimeCardPulled = false
+        isSchedulePulled = false
+        isMemoPulled = false
+        isDepositPulled = false
+    }
+
     fun autoPullTimeCard() {
+        if (isTimeCardPulled) {
+            return
+        }
         scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
@@ -45,6 +61,7 @@ object SyncHelper {
                         _isAutoPulling.value = false
                     }
                 )
+                isTimeCardPulled = true
             }
         }
     }
@@ -69,6 +86,9 @@ object SyncHelper {
     }
 
     fun autoPullSchedule(onSuccess: (() -> Unit)? = null) {
+        if (isSchedulePulled) {
+            return
+        }
         scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
@@ -84,6 +104,7 @@ object SyncHelper {
                         _isAutoPulling.value = false
                     }
                 )
+                isSchedulePulled = true
             }
         }
     }
@@ -108,6 +129,9 @@ object SyncHelper {
     }
 
     fun autoPullMemo(onSuccess: (() -> Unit)? = null) {
+        if (isMemoPulled) {
+            return
+        }
         scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
@@ -123,6 +147,7 @@ object SyncHelper {
                         _isAutoPulling.value = false
                     }
                 )
+                isMemoPulled = true
             }
         }
     }
@@ -147,6 +172,9 @@ object SyncHelper {
     }
 
     fun autoPullDeposit(onSuccess: (() -> Unit)? = null) {
+        if (isDepositPulled) {
+            return
+        }
         scope.launch(Dispatchers.IO) {
             val isAutoSync = AppFlowStore.autoSyncFlow.first()
             if (isAutoSync) {
@@ -162,6 +190,7 @@ object SyncHelper {
                         _isAutoPulling.value = false
                     }
                 )
+                isDepositPulled = true
             }
         }
     }
