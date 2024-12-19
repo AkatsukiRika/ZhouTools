@@ -4,13 +4,25 @@
 
 ## Information
 
-| | |
-| - | - |
+| |                                                  |
+| - |--------------------------------------------------|
 | **Supported Platforms** | Android 7.0+ / iOS (building from source needed) |
-| **Latest Version** | 1.1.0 |
-| **UI Language** | English |
+| **Latest Version** | 1.2.0                                            |
+| **UI Language** | English                                          |
 
 ## Update Notes
+
+### Version 1.2.0
+
+- Deposit Goal: It's now possible to set a total deposit goal and track your progress.
+
+- Milestone Goal: You can now set a milestone goal and see how many days remain until the target date.
+
+- `Memo > Goals` Section: Visualizes your deposit and milestone goals in one place.
+
+- Improved Data Synchronization: Redundant data synchronization operations are reduced to improve efficiency.
+
+- Improved slide-back gesture for iOS devices.
 
 ### Version 1.1.0
 
