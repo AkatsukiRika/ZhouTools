@@ -53,6 +53,7 @@ import helper.effect.MemoEffect
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import model.records.GOAL_TYPE_DEPOSIT
+import model.records.GOAL_TYPE_TIME
 import model.records.Goal
 import model.records.Memo
 import moe.tlaster.precompose.molecule.rememberPresenter
@@ -66,7 +67,9 @@ import zhoutools.composeapp.generated.resources.days
 import zhoutools.composeapp.generated.resources.edit
 import zhoutools.composeapp.generated.resources.goals
 import zhoutools.composeapp.generated.resources.ic_add
+import zhoutools.composeapp.generated.resources.ic_deposit_goal
 import zhoutools.composeapp.generated.resources.ic_pin
+import zhoutools.composeapp.generated.resources.ic_time_card
 import zhoutools.composeapp.generated.resources.ic_todo
 import zhoutools.composeapp.generated.resources.ic_todo_finished
 import zhoutools.composeapp.generated.resources.mark_done
@@ -230,7 +233,33 @@ private fun GoalsLayout(state: MemoState, channel: Channel<MemoAction>, showBott
     val lazyListState = rememberLazyListState()
 
     LazyColumn(state = lazyListState) {
-        items(state.goalList) { goal ->
+        item {
+            Icon(
+                painter = painterResource(Res.drawable.ic_deposit_goal),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 20.dp, bottom = 12.dp)
+                    .size(28.dp),
+                tint = Color.Gray
+            )
+        }
+
+        items(state.goalList.filter { it.type == GOAL_TYPE_DEPOSIT }) { goal ->
+            GoalItem(goal, channel)
+        }
+
+        item {
+            Icon(
+                painter = painterResource(Res.drawable.ic_time_card),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 20.dp, bottom = 8.dp)
+                    .size(28.dp),
+                tint = Color.Gray
+            )
+        }
+
+        items(state.goalList.filter { it.type == GOAL_TYPE_TIME }) { goal ->
             GoalItem(goal, channel)
         }
 
