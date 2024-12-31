@@ -1,10 +1,5 @@
 package ui.fragment
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,19 +10,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
-import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.DatePicker
@@ -63,6 +57,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import constant.RouteConstants
 import extension.clickableNoRipple
 import extension.monthStartTime
 import extension.toMoneyDisplayStr
@@ -98,6 +93,7 @@ import zhoutools.composeapp.generated.resources.delete_confirm_title
 import zhoutools.composeapp.generated.resources.deposit
 import zhoutools.composeapp.generated.resources.extra_deposit
 import zhoutools.composeapp.generated.resources.ic_add
+import zhoutools.composeapp.generated.resources.ic_details
 import zhoutools.composeapp.generated.resources.invalid_deposit_toast
 import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
@@ -158,7 +154,19 @@ fun DepositFragment(navigator: Navigator) {
         containerColor = AppColors.Background
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            FragmentHeader(title = stringResource(Res.string.deposit))
+            FragmentHeader(title = stringResource(Res.string.deposit)) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_details),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .clickable {
+                            navigator.navigate(RouteConstants.ROUTE_DEPOSIT_STATS)
+                        }
+                )
+            }
 
             BigCard(state)
 

@@ -19,6 +19,7 @@ import ui.scene.HomeScene
 import ui.scene.LoginScene
 import store.AppStore
 import ui.scene.AddScheduleScene
+import ui.scene.DepositStatsScene
 import ui.scene.ExportDataScene
 import ui.scene.SignUpScene
 import ui.scene.SyncScene
@@ -133,6 +134,15 @@ fun App() {
             ) {
                 AppTheme {
                     ExportDataScene(navigator)
+                }
+            }
+
+            scene(
+                route = RouteConstants.ROUTE_DEPOSIT_STATS,
+                navTransition = navTransition
+            ) {
+                AppTheme {
+                    DepositStatsScene(navigator)
                 }
             }
         }
