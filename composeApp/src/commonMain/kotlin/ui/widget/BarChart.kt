@@ -88,16 +88,16 @@ fun <T : Number> BarChart(
             drawLine(
                 color = axisColor,
                 start = Offset(0f, startY + actualChartHeight),
-                end = Offset(size.width - arrowSize, startY + actualChartHeight),
+                end = Offset(size.width, startY + actualChartHeight),
                 strokeWidth = with(density) { 2.dp.toPx() }
             )
             
             // X Axis Arrow
             drawPath(
                 path = androidx.compose.ui.graphics.Path().apply {
-                    moveTo(size.width, startY + actualChartHeight)
-                    lineTo(size.width - arrowSize, startY + actualChartHeight - arrowSize/2)
-                    lineTo(size.width - arrowSize, startY + actualChartHeight + arrowSize/2)
+                    moveTo(size.width + arrowSize, startY + actualChartHeight)
+                    lineTo(size.width, startY + actualChartHeight - arrowSize/2)
+                    lineTo(size.width, startY + actualChartHeight + arrowSize/2)
                     close()
                 },
                 color = axisColor
