@@ -15,13 +15,13 @@ import ui.widget.BarData
 @Composable
 fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsState {
     var depositMonths by remember { mutableStateOf(listOf<DepositMonth>()) }
-    var totalDepositBarData by remember { mutableStateOf(listOf<BarData<Long>>()) }
+    var totalDepositBarData by remember { mutableStateOf(listOf<BarData<Float>>()) }
 
     fun initTotalDepositBar() {
-        val barData = mutableListOf<BarData<Long>>()
+        val barData = mutableListOf<BarData<Float>>()
         depositMonths.forEach {
             val monthStr = it.monthStartTime.toMonthYearString()
-            val value = it.currentAmount + it.extraDeposit
+            val value = (it.currentAmount + it.extraDeposit) / 100f
             barData.add(BarData(
                 value = value,
                 label = monthStr
@@ -43,7 +43,7 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
 }
 
 data class DepositStatsState(
-    val totalDepositBarData: List<BarData<Long>> = emptyList()
+    val totalDepositBarData: List<BarData<Float>> = emptyList()
 )
 
 sealed interface DepositStatsAction
