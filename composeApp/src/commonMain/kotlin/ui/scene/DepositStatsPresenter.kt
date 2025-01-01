@@ -11,6 +11,7 @@ import helper.DepositHelper
 import kotlinx.coroutines.flow.Flow
 import model.records.DepositMonth
 import ui.widget.BarData
+import kotlin.math.roundToInt
 
 @Composable
 fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsState {
@@ -24,7 +25,8 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
             val value = (it.currentAmount + it.extraDeposit) / 100f
             barData.add(BarData(
                 value = value,
-                label = monthStr
+                label = monthStr,
+                valueToString = { value.roundToInt().toString() }
             ))
         }
         totalDepositBarData = barData

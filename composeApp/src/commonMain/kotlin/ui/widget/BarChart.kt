@@ -25,7 +25,8 @@ import global.AppColors
 data class BarData<T : Number>(
     val value: T,
     val label: String,
-    val color: Color = AppColors.Theme
+    val color: Color = AppColors.Theme,
+    val valueToString: () -> String = { value.toString() }
 )
 
 @Composable
@@ -62,20 +63,44 @@ fun <T : Number> BarChart(
             val startY = topPadding
             val actualChartHeight = size.height - topPadding - bottomPadding
 
+            val arrowSize = 10.dp.toPx()
+
             // Y Axis
             drawLine(
                 color = axisColor,
-                start = Offset(0f, startY),
+                start = Offset(0f, arrowSize),
                 end = Offset(0f, startY + actualChartHeight),
                 strokeWidth = with(density) { 2.dp.toPx() }
+            )
+            
+            // Y Axis Arrow
+            drawPath(
+                path = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(0f, 0f)
+                    lineTo(-arrowSize / 2, arrowSize)
+                    lineTo(arrowSize / 2, arrowSize)
+                    close()
+                },
+                color = axisColor
             )
 
             // X Axis
             drawLine(
                 color = axisColor,
                 start = Offset(0f, startY + actualChartHeight),
-                end = Offset(size.width, startY + actualChartHeight),
+                end = Offset(size.width - arrowSize, startY + actualChartHeight),
                 strokeWidth = with(density) { 2.dp.toPx() }
+            )
+            
+            // X Axis Arrow
+            drawPath(
+                path = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(size.width, startY + actualChartHeight)
+                    lineTo(size.width - arrowSize, startY + actualChartHeight - arrowSize/2)
+                    lineTo(size.width - arrowSize, startY + actualChartHeight + arrowSize/2)
+                    close()
+                },
+                color = axisColor
             )
 
             data.forEachIndexed { index, barData ->
@@ -94,7 +119,7 @@ fun <T : Number> BarChart(
                 )
 
                 // Draw values above each bar
-                val valueText = barData.value.toString()
+                val valueText = barData.valueToString()
                 val valueLayoutResult = textMeasurer.measure(
                     text = valueText,
                     style = TextStyle(
