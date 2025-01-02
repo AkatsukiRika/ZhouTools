@@ -6,7 +6,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import extension.toMonthYearString
+import global.AppColors
 import helper.DepositHelper
 import kotlinx.coroutines.flow.Flow
 import model.records.DepositMonth
@@ -21,11 +23,13 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
         val barData = mutableListOf<BarData<Float>>()
         depositMonths.forEach {
             val monthStr = it.monthStartTime.toMonthYearString()
-            val value = (it.currentAmount + it.extraDeposit) / 100f
+            val partValues = LinkedHashMap<Color, Float>()
+            partValues[AppColors.Theme] = it.currentAmount / 100f
+            partValues[AppColors.LightGold] = it.extraDeposit / 100f
             barData.add(BarData(
-                value = value,
+                values = partValues,
                 label = monthStr,
-                valueToString = { value.toInt().toString() }
+                valueToString = { t -> t.toInt().toString() }
             ))
         }
         totalDepositBarData = barData

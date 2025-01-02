@@ -23,11 +23,22 @@ import androidx.compose.ui.unit.sp
 import global.AppColors
 
 data class BarData<T : Number>(
-    val value: T,
+    val values: LinkedHashMap<Color, T>,
     val label: String,
     val color: Color = AppColors.Theme,
-    val valueToString: () -> String = { value.toString() }
-)
+    val valueToString: (T) -> String
+) {
+    fun getTotalValue(): T {
+        val sum = values.values.sumOf { it.toDouble() }
+        return when (values.values.firstOrNull()) {
+            is Int -> sum.toInt() as T
+            is Long -> sum.toLong() as T
+            is Float -> sum.toFloat() as T
+            is Double -> sum as T
+            else -> throw IllegalArgumentException("Unsupported type")
+        }
+    }
+}
 
 @Composable
 fun <T : Number> BarChart(
@@ -56,7 +67,7 @@ fun <T : Number> BarChart(
         ) {
             val barWidthPx = barWidth.toPx()
             val spacingPx = barSpacing.toPx()
-            val maxValue = data.maxOfOrNull { it.value.toDouble() } ?: 0.0
+            val maxValue = data.maxOfOrNull { it.getTotalValue().toDouble() } ?: 0.0
 
             val topPadding = 30.dp.toPx()
             val bottomPadding = 30.dp.toPx()
@@ -104,22 +115,28 @@ fun <T : Number> BarChart(
             )
 
             data.forEachIndexed { index, barData ->
+                val totalValue = barData.getTotalValue()
                 val barHeight = if (maxValue > 0) {
-                    (barData.value.toDouble() / maxValue * actualChartHeight).toFloat()
+                    totalValue.toFloat() / maxValue.toFloat() * actualChartHeight
                 } else {
                     0f
                 }
                 val x = spacingPx + index * (barWidthPx + spacingPx)
 
-                // Draw bars
-                drawRect(
-                    color = barData.color,
-                    topLeft = Offset(x, startY + actualChartHeight - barHeight),
-                    size = Size(barWidthPx, barHeight)
-                )
+                // Draw stacked bars
+                var currentHeight = 0f
+                barData.values.forEach { (color, value) ->
+                    val partHeight = (value.toDouble() / maxValue * actualChartHeight).toFloat()
+                    drawRect(
+                        color = color,
+                        topLeft = Offset(x, startY + actualChartHeight - currentHeight - partHeight),
+                        size = Size(barWidthPx, partHeight)
+                    )
+                    currentHeight += partHeight
+                }
 
                 // Draw values above each bar
-                val valueText = barData.valueToString()
+                val valueText = barData.valueToString(totalValue)
                 val valueLayoutResult = textMeasurer.measure(
                     text = valueText,
                     style = TextStyle(
