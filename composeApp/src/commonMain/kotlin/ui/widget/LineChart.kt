@@ -11,48 +11,40 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-data class BarData<T : Number>(
+data class LineData<T : Number>(
     val values: LinkedHashMap<Color, T>,
     val label: String,
     val valueToString: (T) -> String
-) {
-    fun getTotalValue(): T {
-        val sum = values.values.sumOf { it.toDouble() }
-        return when (values.values.firstOrNull()) {
-            is Int -> sum.toInt() as T
-            is Long -> sum.toLong() as T
-            is Float -> sum.toFloat() as T
-            is Double -> sum as T
-            else -> throw IllegalArgumentException("Unsupported type")
-        }
-    }
-}
+)
 
 @Composable
-fun <T : Number> BarChart(
+fun <T : Number> LineChart(
     modifier: Modifier = Modifier,
-    data: List<BarData<T>>,
-    barWidth: Dp = 40.dp,
-    barSpacing: Dp = 20.dp,
+    data: List<LineData<T>>,
+    pointRadius: Dp = 4.dp,
+    lineWidth: Dp = 2.dp,
+    pointSpacing: Dp = 40.dp,
     chartHeight: Dp = 200.dp,
     axisColor: Color = Color.Gray,
     textColor: Color = Color.DarkGray
 ) {
+    if (data.isEmpty()) {
+        return
+    }
+
     val scrollState = rememberScrollState()
-    val totalWidth = remember(data.size, barWidth, barSpacing) {
-        val barsWidth = barWidth * data.size
-        val spacingWidth = barSpacing * (data.size + 1)
-        barsWidth + spacingWidth
+    val totalWidth = remember(data.size, pointSpacing) {
+        pointSpacing * (data.size + 1)
     }
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
@@ -63,15 +55,15 @@ fun <T : Number> BarChart(
             .width(totalWidth)
             .height(chartHeight + 40.dp)
         ) {
-            val barWidthPx = barWidth.toPx()
-            val spacingPx = barSpacing.toPx()
-            val maxValue = data.maxOfOrNull { it.getTotalValue().toDouble() } ?: 0.0
+            val spacingPx = pointSpacing.toPx()
+            val maxValue = data.maxOfOrNull {
+                it.values.values.maxOf { value -> value.toDouble() }
+            } ?: 0.0
 
             val topPadding = 30.dp.toPx()
             val bottomPadding = 30.dp.toPx()
             val startY = topPadding
             val actualChartHeight = size.height - topPadding - bottomPadding
-
             val arrowSize = 10.dp.toPx()
 
             // Y Axis
@@ -81,10 +73,10 @@ fun <T : Number> BarChart(
                 end = Offset(0f, startY + actualChartHeight),
                 strokeWidth = with(density) { 2.dp.toPx() }
             )
-            
+
             // Y Axis Arrow
             drawPath(
-                path = androidx.compose.ui.graphics.Path().apply {
+                path = Path().apply {
                     moveTo(0f, 0f)
                     lineTo(-arrowSize / 2, arrowSize)
                     lineTo(arrowSize / 2, arrowSize)
@@ -100,10 +92,10 @@ fun <T : Number> BarChart(
                 end = Offset(size.width, startY + actualChartHeight),
                 strokeWidth = with(density) { 2.dp.toPx() }
             )
-            
+
             // X Axis Arrow
             drawPath(
-                path = androidx.compose.ui.graphics.Path().apply {
+                path = Path().apply {
                     moveTo(size.width + arrowSize, startY + actualChartHeight)
                     lineTo(size.width, startY + actualChartHeight - arrowSize/2)
                     lineTo(size.width, startY + actualChartHeight + arrowSize/2)
@@ -112,61 +104,86 @@ fun <T : Number> BarChart(
                 color = axisColor
             )
 
-            data.forEachIndexed { index, barData ->
-                val totalValue = barData.getTotalValue()
-                val barHeight = if (maxValue > 0) {
-                    totalValue.toFloat() / maxValue.toFloat() * actualChartHeight
-                } else {
-                    0f
+            // Draw lines for every color
+            data.first().values.keys.forEach { color ->
+                val points = data.mapIndexed { index, lineData ->
+                    val x = spacingPx + index * spacingPx
+                    val value = lineData.values[color] ?: return@forEach
+                    val y = if (maxValue > 0) {
+                        startY + actualChartHeight - (value.toDouble() / maxValue * actualChartHeight).toFloat()
+                    } else {
+                        startY + actualChartHeight
+                    }
+                    Offset(x, y)
                 }
-                val x = spacingPx + index * (barWidthPx + spacingPx)
 
-                // Draw stacked bars
-                var currentHeight = 0f
-                barData.values.forEach { (color, value) ->
-                    val partHeight = (value.toDouble() / maxValue * actualChartHeight).toFloat()
-                    drawRect(
+                // Draw Line
+                for (i in 0 until points.size - 1) {
+                    drawLine(
                         color = color,
-                        topLeft = Offset(x, startY + actualChartHeight - currentHeight - partHeight),
-                        size = Size(barWidthPx, partHeight)
+                        start = points[i],
+                        end = points[i + 1],
+                        strokeWidth = lineWidth.toPx()
                     )
-                    currentHeight += partHeight
                 }
 
-                // Draw values above each bar
-                val valueText = barData.valueToString(totalValue)
-                val valueLayoutResult = textMeasurer.measure(
-                    text = valueText,
-                    style = TextStyle(
-                        color = textColor,
-                        fontSize = 12.sp
+                // Draw points on the line
+                points.forEach { point ->
+                    drawCircle(
+                        color = color,
+                        radius = pointRadius.toPx(),
+                        center = point
                     )
-                )
-                
-                drawText(
-                    textLayoutResult = valueLayoutResult,
-                    topLeft = Offset(
-                        x = x + (barWidthPx - valueLayoutResult.size.width) / 2,
-                        y = startY + actualChartHeight - barHeight - 20.dp.toPx()
-                    )
-                )
+                }
+            }
+
+            // Draw labels and values
+            data.forEachIndexed { index, lineData ->
+                val x = spacingPx + index * spacingPx
+                val y = startY + actualChartHeight
 
                 // Draw labels on X axis
                 val labelLayoutResult = textMeasurer.measure(
-                    text = barData.label,
+                    text = lineData.label,
                     style = TextStyle(
                         color = textColor,
                         fontSize = 12.sp
                     )
                 )
-                
+
                 drawText(
                     textLayoutResult = labelLayoutResult,
                     topLeft = Offset(
-                        x = x + (barWidthPx - labelLayoutResult.size.width) / 2,
-                        y = startY + actualChartHeight + 10.dp.toPx()
+                        x = x - labelLayoutResult.size.width / 2,
+                        y = y + 10.dp.toPx()
                     )
                 )
+
+                // Draw values
+                lineData.values.forEach { (_, value) ->
+                    val valueText = lineData.valueToString(value)
+                    val valueLayoutResult = textMeasurer.measure(
+                        text = valueText,
+                        style = TextStyle(
+                            color = textColor,
+                            fontSize = 12.sp
+                        )
+                    )
+
+                    val valueY = if (maxValue > 0) {
+                        y - (value.toDouble() / maxValue * actualChartHeight).toFloat()
+                    } else {
+                        y
+                    }
+
+                    drawText(
+                        textLayoutResult = valueLayoutResult,
+                        topLeft = Offset(
+                            x = x - valueLayoutResult.size.width / 2,
+                            y = valueY - 20.dp.toPx()
+                        )
+                    )
+                }
             }
         }
     }

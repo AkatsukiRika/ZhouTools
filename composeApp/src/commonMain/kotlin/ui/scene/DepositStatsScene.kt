@@ -21,8 +21,10 @@ import org.jetbrains.compose.resources.stringResource
 import setNavigationBarColor
 import setStatusBarColor
 import ui.widget.BarChart
+import ui.widget.LineChart
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.stats
 import zhoutools.composeapp.generated.resources.total_deposit
 
@@ -60,6 +62,22 @@ fun DepositStatsScene(navigator: Navigator) {
         BarChart(
             modifier = Modifier.padding(top = 16.dp),
             data = state.totalDepositBarData
+        )
+
+        Text(
+            text = stringResource(Res.string.monthly_income),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(horizontal = 16.dp)
+                .padding(top = 32.dp)
+        )
+
+        LineChart(
+            modifier = Modifier.padding(top = 16.dp),
+            data = state.incomeLineData,
+            pointSpacing = 64.dp
         )
     }
 }

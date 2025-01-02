@@ -13,11 +13,13 @@ import helper.DepositHelper
 import kotlinx.coroutines.flow.Flow
 import model.records.DepositMonth
 import ui.widget.BarData
+import ui.widget.LineData
 
 @Composable
 fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsState {
     var depositMonths by remember { mutableStateOf(listOf<DepositMonth>()) }
     var totalDepositBarData by remember { mutableStateOf(listOf<BarData<Float>>()) }
+    var incomeLineData by remember { mutableStateOf(listOf<LineData<Float>>()) }
 
     fun initTotalDepositBar() {
         val barData = mutableListOf<BarData<Float>>()
@@ -35,20 +37,38 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
         totalDepositBarData = barData
     }
 
+    fun initIncomeLineChart() {
+        val lineData = mutableListOf<LineData<Float>>()
+        depositMonths.forEach {
+            val monthStr = it.monthStartTime.toMonthYearString()
+            val values = LinkedHashMap<Color, Float>().apply {
+                put(AppColors.Theme, it.monthlyIncome / 100f)
+            }
+            lineData.add(LineData(
+                values = values,
+                label = monthStr,
+                valueToString = { t -> t.toInt().toString() }
+            ))
+        }
+        incomeLineData = lineData
+    }
+
     fun initData() {
         depositMonths = DepositHelper.getMonths().sortedBy { it.monthStartTime }
         initTotalDepositBar()
+        initIncomeLineChart()
     }
 
     LaunchedEffect(Unit) {
         initData()
     }
 
-    return DepositStatsState(totalDepositBarData)
+    return DepositStatsState(totalDepositBarData, incomeLineData)
 }
 
 data class DepositStatsState(
-    val totalDepositBarData: List<BarData<Float>> = emptyList()
+    val totalDepositBarData: List<BarData<Float>> = emptyList(),
+    val incomeLineData: List<LineData<Float>> = emptyList()
 )
 
 sealed interface DepositStatsAction
