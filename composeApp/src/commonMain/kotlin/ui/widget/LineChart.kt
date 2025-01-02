@@ -35,6 +35,8 @@ fun <T : Number> LineChart(
     lineWidth: Dp = 2.dp,
     pointSpacing: Dp = 40.dp,
     chartHeight: Dp = 200.dp,
+    contentMarginStart: Dp = 40.dp,
+    contentMarginEnd: Dp = 20.dp,
     axisColor: Color = Color.Gray,
     textColor: Color = Color.DarkGray
 ) {
@@ -44,7 +46,7 @@ fun <T : Number> LineChart(
 
     val scrollState = rememberScrollState()
     val totalWidth = remember(data.size, pointSpacing) {
-        pointSpacing * (data.size + 1)
+        pointSpacing * data.size + contentMarginEnd
     }
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
@@ -107,7 +109,7 @@ fun <T : Number> LineChart(
             // Draw lines for every color
             data.first().values.keys.forEach { color ->
                 val points = data.mapIndexed { index, lineData ->
-                    val x = spacingPx + index * spacingPx
+                    val x = contentMarginStart.toPx() + index * spacingPx
                     val value = lineData.values[color] ?: return@forEach
                     val y = if (maxValue > 0) {
                         startY + actualChartHeight - (value.toDouble() / maxValue * actualChartHeight).toFloat()
@@ -139,7 +141,7 @@ fun <T : Number> LineChart(
 
             // Draw labels and values
             data.forEachIndexed { index, lineData ->
-                val x = spacingPx + index * spacingPx
+                val x = contentMarginStart.toPx() + index * spacingPx
                 val y = startY + actualChartHeight
 
                 // Draw labels on X axis
