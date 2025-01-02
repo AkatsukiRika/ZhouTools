@@ -1,5 +1,7 @@
 package global
 
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 object AppColors {
@@ -13,4 +15,11 @@ object AppColors {
     val DarkGreen = Color(0xFF41B06E)
     val Red = Color(0xFFC40C0C)
     val LightGold = Color(0xFFE1B84C)
+
+    @Composable
+    fun getChipColors() = FilterChipDefaults.elevatedFilterChipColors(
+        containerColor = SlightTheme,
+        selectedContainerColor = Theme,
+        selectedLabelColor = Color.White
+    )
 }

@@ -19,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material3.ElevatedFilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -97,11 +96,7 @@ fun ExportDataScene(navigator: Navigator) {
         modifier = rootModifier
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            val chipColors = FilterChipDefaults.elevatedFilterChipColors(
-                containerColor = AppColors.SlightTheme,
-                selectedContainerColor = AppColors.Theme,
-                selectedLabelColor = Color.White
-            )
+            val chipColors = AppColors.getChipColors()
 
             TitleBar(
                 navigator = navigator,

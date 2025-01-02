@@ -48,6 +48,10 @@ fun <T : Number> BarChart(
     axisColor: Color = Color.Gray,
     textColor: Color = Color.DarkGray
 ) {
+    if (data.isEmpty()) {
+        return
+    }
+
     val scrollState = rememberScrollState()
     val totalWidth = remember(data.size, barWidth, barSpacing) {
         val barsWidth = barWidth * data.size

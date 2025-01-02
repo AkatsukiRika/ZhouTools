@@ -8,8 +8,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Text
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
+import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -19,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
 import isIOS
+import kotlinx.coroutines.channels.Channel
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
@@ -54,6 +59,14 @@ fun DepositStatsScene(navigator: Navigator) {
         )
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            item {
+                FilterRow(
+                    modifier = Modifier.padding(top = 4.dp),
+                    state = state,
+                    channel = channel
+                )
+            }
+
             item {
                 Text(
                     text = stringResource(Res.string.total_deposit),
@@ -98,6 +111,31 @@ fun DepositStatsScene(navigator: Navigator) {
             item {
                 Spacer(modifier = Modifier.height(24.dp))
             }
+        }
+    }
+}
+
+@Composable
+private fun FilterRow(modifier: Modifier = Modifier, state: DepositStatsState, channel: Channel<DepositStatsAction>) {
+    LazyRow(modifier = modifier) {
+        item {
+            Spacer(modifier = Modifier.width(16.dp))
+        }
+
+        items(state.filterOptions.keys.toList()) {
+            ElevatedFilterChip(
+                selected = state.filterOptions[it] ?: false,
+                onClick = {
+                    val currentSelected = state.filterOptions[it] ?: false
+                    channel.trySend(DepositStatsAction.SelectOption(it, !currentSelected))
+                },
+                label = {
+                    Text(text = it)
+                },
+                colors = AppColors.getChipColors()
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
         }
     }
 }
