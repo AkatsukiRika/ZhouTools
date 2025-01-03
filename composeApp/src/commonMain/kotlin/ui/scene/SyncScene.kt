@@ -36,7 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
-import setStatusBarColor
+import ui.widget.BaseImmersiveScene
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.pull_failed
 import zhoutools.composeapp.generated.resources.pull_success
@@ -95,8 +95,6 @@ fun SyncScene(navigator: Navigator, mode: String) {
     }
 
     LaunchedEffect(Unit) {
-        setStatusBarColor("#FFEAE3", isLight = true)
-
         withContext(Dispatchers.IO) {
             if (mode == "push") {
                 SyncHelper.pushMemo(::onSuccess, ::onError)
@@ -151,76 +149,81 @@ fun SyncScene(navigator: Navigator, mode: String) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(colors = listOf(AppColors.SlightTheme, Color.White))),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    BaseImmersiveScene(
+        statusBarColorStr = "#FFEAE3",
+        navigationBarColorStr = ""
     ) {
-        Box(
-            modifier = Modifier.size(200.dp),
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.verticalGradient(colors = listOf(AppColors.SlightTheme, Color.White))),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            CircularProgressIndicator(
-                progress = { progressState },
-                trackColor = AppColors.Divider,
-                modifier = Modifier.fillMaxSize(),
-                strokeWidth = 8.dp
-            )
+            Box(
+                modifier = Modifier.size(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    progress = { progressState },
+                    trackColor = AppColors.Divider,
+                    modifier = Modifier.fillMaxSize(),
+                    strokeWidth = 8.dp
+                )
 
-            Text(
-                text = "${(progressState * 100).roundToInt()}%",
-                fontSize = 64.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+                Text(
+                    text = "${(progressState * 100).roundToInt()}%",
+                    fontSize = 64.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-        val annotatedString = buildAnnotatedString {
-            processStates.forEach {
-                val text = when (it) {
-                    ProcessState.PUSHING_MEMO.value -> stringResource(Res.string.pushing_memo)
-                    ProcessState.PUSHING_TIME_CARD.value -> stringResource(Res.string.pushing_time_card)
-                    ProcessState.PUSHING_SCHEDULE.value -> stringResource(Res.string.pushing_schedule)
-                    ProcessState.PUSHING_DEPOSIT.value -> stringResource(Res.string.pushing_deposit)
-                    ProcessState.PULLING_MEMO.value -> stringResource(Res.string.pulling_memo)
-                    ProcessState.PULLING_TIME_CARD.value -> stringResource(Res.string.pulling_time_card)
-                    ProcessState.PULLING_SCHEDULE.value -> stringResource(Res.string.pulling_schedule)
-                    ProcessState.PULLING_DEPOSIT.value -> stringResource(Res.string.pulling_deposit)
-                    ProcessState.SYNC_FAILED.value -> stringResource(Res.string.sync_failed)
-                    ProcessState.SYNC_SUCCESS.value -> stringResource(Res.string.sync_success)
-                    ProcessState.PULL_FAILED.value -> stringResource(Res.string.pull_failed)
-                    ProcessState.PULL_SUCCESS.value -> stringResource(Res.string.pull_success)
-                    else -> ""
-                }
-                val textColor = if (it in listOf(ProcessState.SYNC_FAILED.value, ProcessState.PULL_FAILED.value)) {
-                    AppColors.Red
-                } else if (it in listOf(ProcessState.SYNC_SUCCESS.value, ProcessState.PULL_SUCCESS.value)) {
-                    AppColors.DarkGreen
-                } else {
-                    Color.Black.copy(alpha = 0.6f)
-                }
-                withStyle(SpanStyle(color = textColor)) {
-                    appendLine(text)
+            val annotatedString = buildAnnotatedString {
+                processStates.forEach {
+                    val text = when (it) {
+                        ProcessState.PUSHING_MEMO.value -> stringResource(Res.string.pushing_memo)
+                        ProcessState.PUSHING_TIME_CARD.value -> stringResource(Res.string.pushing_time_card)
+                        ProcessState.PUSHING_SCHEDULE.value -> stringResource(Res.string.pushing_schedule)
+                        ProcessState.PUSHING_DEPOSIT.value -> stringResource(Res.string.pushing_deposit)
+                        ProcessState.PULLING_MEMO.value -> stringResource(Res.string.pulling_memo)
+                        ProcessState.PULLING_TIME_CARD.value -> stringResource(Res.string.pulling_time_card)
+                        ProcessState.PULLING_SCHEDULE.value -> stringResource(Res.string.pulling_schedule)
+                        ProcessState.PULLING_DEPOSIT.value -> stringResource(Res.string.pulling_deposit)
+                        ProcessState.SYNC_FAILED.value -> stringResource(Res.string.sync_failed)
+                        ProcessState.SYNC_SUCCESS.value -> stringResource(Res.string.sync_success)
+                        ProcessState.PULL_FAILED.value -> stringResource(Res.string.pull_failed)
+                        ProcessState.PULL_SUCCESS.value -> stringResource(Res.string.pull_success)
+                        else -> ""
+                    }
+                    val textColor = if (it in listOf(ProcessState.SYNC_FAILED.value, ProcessState.PULL_FAILED.value)) {
+                        AppColors.Red
+                    } else if (it in listOf(ProcessState.SYNC_SUCCESS.value, ProcessState.PULL_SUCCESS.value)) {
+                        AppColors.DarkGreen
+                    } else {
+                        Color.Black.copy(alpha = 0.6f)
+                    }
+                    withStyle(SpanStyle(color = textColor)) {
+                        appendLine(text)
+                    }
                 }
             }
-        }
 
-        val longestAnnotatedString = buildAnnotatedString {
-            repeat(8) {
-                withStyle(SpanStyle(color = AppColors.DarkGreen)) {
-                    appendLine(stringResource(Res.string.pulling_schedule))
+            val longestAnnotatedString = buildAnnotatedString {
+                repeat(8) {
+                    withStyle(SpanStyle(color = AppColors.DarkGreen)) {
+                        appendLine(stringResource(Res.string.pulling_schedule))
+                    }
                 }
             }
-        }
 
-        Box(modifier = Modifier.padding(top = 64.dp)) {
-            Text(text = annotatedString)
+            Box(modifier = Modifier.padding(top = 64.dp)) {
+                Text(text = annotatedString)
 
-            Text(
-                text = longestAnnotatedString,
-                modifier = Modifier.alpha(0f)
-            )
+                Text(
+                    text = longestAnnotatedString,
+                    modifier = Modifier.alpha(0f)
+                )
+            }
         }
     }
 }

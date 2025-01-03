@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -16,7 +15,6 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +30,6 @@ import extension.isValidEmail
 import global.AppColors
 import helper.NetworkHelper
 import hideSoftwareKeyboard
-import isIOS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
@@ -41,8 +38,7 @@ import model.request.RegisterRequest
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
-import setNavigationBarColor
-import setStatusBarColor
+import ui.widget.BaseImmersiveScene
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.email
@@ -63,13 +59,6 @@ fun SignUpScene(navigator: Navigator) {
     var inputEmail by remember { mutableStateOf("") }
     var inputPassword by remember { mutableStateOf("") }
     var requestInProgress by remember { mutableStateOf(false) }
-    var rootModifier = Modifier
-        .imePadding()
-        .fillMaxSize()
-        .background(AppColors.Background)
-    if (isIOS()) {
-        rootModifier = rootModifier.navigationBarsPadding()
-    }
 
     fun showInvalidEmailToast() {
         scope.launch {
@@ -131,95 +120,91 @@ fun SignUpScene(navigator: Navigator) {
         }
     }
 
-    LaunchedEffect(Unit) {
-        setStatusBarColor("#FFFFFF", isLight = true)
-        setNavigationBarColor("#F4F4F4", isLight = true)
-    }
-
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
-        modifier = rootModifier
+    BaseImmersiveScene(modifier = Modifier
+        .imePadding()
+        .fillMaxSize()
+        .background(AppColors.Background)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TitleBar(
-                navigator = navigator,
-                title = stringResource(Res.string.registration)
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            TextField(
-                value = inputUsername,
-                onValueChange = {
-                    inputUsername = it
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp),
-                maxLines = 1,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                label = {
-                    Text(
-                        text = stringResource(Res.string.username),
-                        fontSize = 16.sp
-                    )
-                }
-            )
-
-            TextField(
-                value = inputEmail,
-                onValueChange = {
-                    inputEmail = it
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
-                maxLines = 1,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                isError = !inputEmail.isValidEmail(),
-                label = {
-                    Text(
-                        text = stringResource(Res.string.email),
-                        fontSize = 16.sp
-                    )
-                }
-            )
-
-            TextField(
-                value = inputPassword,
-                onValueChange = {
-                    inputPassword = it
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
-                maxLines = 1,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                label = {
-                    Text(
-                        text = stringResource(Res.string.password),
-                        fontSize = 16.sp
-                    )
-                },
-                visualTransformation = PasswordVisualTransformation()
-            )
-
-            Button(
-                onClick = ::signUp,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 32.dp)
-            ) {
-                Text(
-                    text = stringResource(Res.string.sign_up),
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(horizontal = 8.dp)
+        Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                TitleBar(
+                    navigator = navigator,
+                    title = stringResource(Res.string.registration)
                 )
-            }
 
-            Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f))
+
+                TextField(
+                    value = inputUsername,
+                    onValueChange = {
+                        inputUsername = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp),
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    label = {
+                        Text(
+                            text = stringResource(Res.string.username),
+                            fontSize = 16.sp
+                        )
+                    }
+                )
+
+                TextField(
+                    value = inputEmail,
+                    onValueChange = {
+                        inputEmail = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    isError = !inputEmail.isValidEmail(),
+                    label = {
+                        Text(
+                            text = stringResource(Res.string.email),
+                            fontSize = 16.sp
+                        )
+                    }
+                )
+
+                TextField(
+                    value = inputPassword,
+                    onValueChange = {
+                        inputPassword = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    label = {
+                        Text(
+                            text = stringResource(Res.string.password),
+                            fontSize = 16.sp
+                        )
+                    },
+                    visualTransformation = PasswordVisualTransformation()
+                )
+
+                Button(
+                    onClick = ::signUp,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 32.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.sign_up),
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
     }
 }

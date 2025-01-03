@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -19,7 +18,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,7 +38,6 @@ import extension.firstCharToCapital
 import global.AppColors
 import constant.RouteConstants
 import helper.NetworkHelper
-import isIOS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
@@ -49,9 +46,8 @@ import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import setNavigationBarColor
-import setStatusBarColor
 import store.AppStore
+import ui.widget.BaseImmersiveScene
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.create_account
 import zhoutools.composeapp.generated.resources.ic_zhou
@@ -104,107 +100,99 @@ fun LoginScene(navigator: Navigator) {
         }
     }
 
-    LaunchedEffect(Unit) {
-        setStatusBarColor("#FFEAE3", isLight = true)
-        setNavigationBarColor("#FFFFFF", isLight = true)
-    }
-
-    var rootModifier = Modifier
-        .imePadding()
-        .fillMaxSize()
-        .background(AppColors.Background)
-    if (isIOS()) {
-        rootModifier = rootModifier.navigationBarsPadding()
-    }
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
-        modifier = rootModifier
-    ) {
-        Box(modifier = Modifier
+    BaseImmersiveScene(
+        statusBarColorStr = "#FFEAE3",
+        navigationBarColorStr = "#FFFFFF",
+        modifier = Modifier
+            .imePadding()
             .fillMaxSize()
-            .background(Brush.verticalGradient(colors = listOf(AppColors.SlightTheme, Color.White)))
-        ) {
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
+            .background(AppColors.Background)
+    ) {
+        Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.verticalGradient(colors = listOf(AppColors.SlightTheme, Color.White)))
             ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_zhou),
-                    contentDescription = null,
-                    modifier = Modifier.height(36.dp),
-                    tint = Color.Unspecified
-                )
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_zhou),
+                        contentDescription = null,
+                        modifier = Modifier.height(36.dp),
+                        tint = Color.Unspecified
+                    )
 
-                Text(
-                    text = stringResource(Res.string.title_slogan),
-                    color = AppColors.LightGold,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    textAlign = TextAlign.Center,
-                    fontSize = 14.sp
-                )
+                    Text(
+                        text = stringResource(Res.string.title_slogan),
+                        color = AppColors.LightGold,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp
+                    )
 
-                TextField(
-                    value = inputUsername,
-                    onValueChange = {
-                        inputUsername = it
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 32.dp),
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    label = {
+                    TextField(
+                        value = inputUsername,
+                        onValueChange = {
+                            inputUsername = it
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, top = 32.dp),
+                        maxLines = 1,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        label = {
+                            Text(
+                                text = stringResource(Res.string.username),
+                                fontSize = 16.sp
+                            )
+                        }
+                    )
+
+                    TextField(
+                        value = inputPassword,
+                        onValueChange = {
+                            inputPassword = it
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                        maxLines = 1,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        label = {
+                            Text(
+                                text = stringResource(Res.string.password),
+                                fontSize = 16.sp
+                            )
+                        },
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+
+                    Button(
+                        onClick = {
+                            login()
+                        },
+                        modifier = Modifier.padding(top = 32.dp)
+                    ) {
                         Text(
-                            text = stringResource(Res.string.username),
-                            fontSize = 16.sp
+                            text = stringResource(Res.string.login),
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
-                )
 
-                TextField(
-                    value = inputPassword,
-                    onValueChange = {
-                        inputPassword = it
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    label = {
+                    TextButton(
+                        onClick = {
+                            navigator.navigate(RouteConstants.ROUTE_SIGN_UP)
+                        }
+                    ) {
                         Text(
-                            text = stringResource(Res.string.password),
-                            fontSize = 16.sp
+                            text = stringResource(Res.string.create_account),
+                            color = Color.Gray,
+                            textDecoration = TextDecoration.Underline
                         )
-                    },
-                    visualTransformation = PasswordVisualTransformation()
-                )
-
-                Button(
-                    onClick = {
-                        login()
-                    },
-                    modifier = Modifier.padding(top = 32.dp)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.login),
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                }
-
-                TextButton(
-                    onClick = {
-                        navigator.navigate(RouteConstants.ROUTE_SIGN_UP)
                     }
-                ) {
-                    Text(
-                        text = stringResource(Res.string.create_account),
-                        color = Color.Gray,
-                        textDecoration = TextDecoration.Underline
-                    )
                 }
             }
         }

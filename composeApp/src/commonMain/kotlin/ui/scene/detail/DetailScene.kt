@@ -3,21 +3,17 @@ package ui.scene.detail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import global.AppColors
-import isIOS
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
-import setNavigationBarColor
-import setStatusBarColor
+import ui.widget.BaseImmersiveScene
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.details
@@ -32,47 +28,41 @@ fun DetailScene(navigator: Navigator) {
         DETAIL_TAB_HISTORY to stringResource(Res.string.history)
     )
 
-    LaunchedEffect(Unit) {
-        setStatusBarColor("#FFFFFF", isLight = true)
-        setNavigationBarColor("#F4F4F4", isLight = true)
-    }
-
-    var rootModifier = Modifier
+    BaseImmersiveScene(modifier = Modifier
         .fillMaxSize()
         .background(AppColors.Background)
-    if (isIOS()) {
-        rootModifier = rootModifier.navigationBarsPadding()
-    }
-    Column(modifier = rootModifier) {
-        TitleBar(
-            navigator = navigator,
-            title = stringResource(Res.string.details)
-        )
+    ) {
+        Column {
+            TitleBar(
+                navigator = navigator,
+                title = stringResource(Res.string.details)
+            )
 
-        TabRow(
-            selectedTabIndex = state.tab,
-            backgroundColor = Color.White,
-            contentColor = AppColors.Theme
-        ) {
-            tabs.forEach {
-                val index = it.key
-                val title = it.value
-                Tab(
-                    selected = state.tab == index,
-                    onClick = {
-                        channel.trySend(DetailAction.ChangeTab(index))
-                    },
-                    text = {
-                        Text(text = title)
-                    }
-                )
+            TabRow(
+                selectedTabIndex = state.tab,
+                backgroundColor = Color.White,
+                contentColor = AppColors.Theme
+            ) {
+                tabs.forEach {
+                    val index = it.key
+                    val title = it.value
+                    Tab(
+                        selected = state.tab == index,
+                        onClick = {
+                            channel.trySend(DetailAction.ChangeTab(index))
+                        },
+                        text = {
+                            Text(text = title)
+                        }
+                    )
+                }
             }
-        }
 
-        if (state.tab == DETAIL_TAB_HISTORY) {
-            HistoryFragment(state.historyState)
-        } else {
-            TodayFragment(state.todayState)
+            if (state.tab == DETAIL_TAB_HISTORY) {
+                HistoryFragment(state.historyState)
+            } else {
+                TodayFragment(state.todayState)
+            }
         }
     }
 }

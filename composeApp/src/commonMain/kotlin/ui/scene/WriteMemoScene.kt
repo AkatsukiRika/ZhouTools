@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -19,7 +18,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,12 +32,10 @@ import androidx.compose.ui.unit.sp
 import helper.effect.WriteMemoEffect
 import global.AppColors
 import helper.effect.EffectHelper
-import isIOS
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
-import setNavigationBarColor
-import setStatusBarColor
+import ui.widget.BaseImmersiveScene
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.confirm
@@ -54,11 +50,6 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     val (state, channel) = rememberPresenter { WriteMemoPresenter(it) }
     var text by remember(state.text) { mutableStateOf(state.text) }
 
-    LaunchedEffect(Unit) {
-        setStatusBarColor("#FFFFFF", isLight = true)
-        setNavigationBarColor("#F4F4F4", isLight = true)
-    }
-
     EffectHelper.observeWriteMemoEffect {
         when (it) {
             is WriteMemoEffect.BeginEdit -> {
@@ -69,85 +60,84 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
         }
     }
 
-    var rootModifier = Modifier
+    BaseImmersiveScene(modifier = Modifier
         .imePadding()
         .fillMaxSize()
         .background(AppColors.Background)
-    if (isIOS()) {
-        rootModifier = rootModifier.navigationBarsPadding()
-    }
-    Column(modifier = rootModifier) {
-        TitleBar(
-            navigator = navigator,
-            title = stringResource(
-                if (isEdit) Res.string.edit_memo else Res.string.write_memo
+    ) {
+        Column {
+            TitleBar(
+                navigator = navigator,
+                title = stringResource(
+                    if (isEdit) Res.string.edit_memo else Res.string.write_memo
+                )
             )
-        )
 
-        TextField(
-            value = text,
-            onValueChange = {
-                text = it
-            },
-            modifier = Modifier
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .fillMaxWidth()
-                .weight(1f)
-                .clip(RoundedCornerShape(12.dp)),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                backgroundColor = Color.White
+            TextField(
+                value = text,
+                onValueChange = {
+                    text = it
+                },
+                modifier = Modifier
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp)),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    backgroundColor = Color.White
+                )
             )
-        )
 
-        SettingsLayout(
-            state.isTodo,
-            { channel.trySend(WriteMemoAction.SetTodo(it)) },
-            state.isPin,
-            { channel.trySend(WriteMemoAction.SetPin(it)) }
-        )
+            SettingsLayout(
+                state.isTodo,
+                { channel.trySend(WriteMemoAction.SetTodo(it)) },
+                state.isPin,
+                { channel.trySend(WriteMemoAction.SetPin(it)) }
+            )
 
-        if (isEdit) {
-            OutlinedButton(
+            if (isEdit) {
+                OutlinedButton(
+                    onClick = {
+                        channel.trySend(WriteMemoAction.Delete(navigator))
+                    },
+                    modifier = Modifier
+                        .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    enabled = text.isNotEmpty()
+                ) {
+                    Text(
+                        text = stringResource(Res.string.delete).uppercase(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp
+                    )
+                }
+            }
+
+            Button(
                 onClick = {
-                    channel.trySend(WriteMemoAction.Delete(navigator))
+                    channel.trySend(WriteMemoAction.Confirm(text, navigator))
                 },
                 modifier = Modifier
                     .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
                     .fillMaxWidth()
-                    .height(54.dp),
-                shape = RoundedCornerShape(16.dp),
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(16.dp)),
                 enabled = text.isNotEmpty()
             ) {
                 Text(
-                    text = stringResource(Res.string.delete).uppercase(),
+                    text = stringResource(Res.string.confirm).uppercase(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp
                 )
             }
-        }
 
-        Button(
-            onClick = {
-                channel.trySend(WriteMemoAction.Confirm(text, navigator))
-            },
-            modifier = Modifier
-                .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
-                .fillMaxWidth()
-                .height(54.dp)
-                .clip(RoundedCornerShape(16.dp)),
-            enabled = text.isNotEmpty()
-        ) {
-            Text(
-                text = stringResource(Res.string.confirm).uppercase(),
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
-            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 

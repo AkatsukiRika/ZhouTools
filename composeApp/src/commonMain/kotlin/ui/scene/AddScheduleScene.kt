@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,7 +62,6 @@ import extension.toHourMinString
 import global.AppColors
 import helper.effect.EffectHelper
 import hideSoftwareKeyboard
-import isIOS
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -71,8 +69,7 @@ import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
-import setNavigationBarColor
-import setStatusBarColor
+import ui.widget.BaseImmersiveScene
 import ui.widget.TitleBar
 import ui.widget.VerticalDivider
 import zhoutools.composeapp.generated.resources.Res
@@ -102,11 +99,6 @@ fun AddScheduleScene(navigator: Navigator) {
     }
     var milestoneGoalStr by remember(state.milestoneGoalMillis) { mutableStateOf(state.milestoneGoalMillis.toDays().toString()) }
 
-    LaunchedEffect(Unit) {
-        setStatusBarColor("#FFFFFF", isLight = true)
-        setNavigationBarColor("#F4F4F4", isLight = true)
-    }
-
     EffectHelper.observeAddScheduleEffect {
         when (it) {
             is AddScheduleEffect.SetDate -> {
@@ -119,87 +111,85 @@ fun AddScheduleScene(navigator: Navigator) {
         }
     }
 
-    var rootModifier = Modifier
+    BaseImmersiveScene(modifier = Modifier
         .imePadding()
         .fillMaxSize()
         .background(AppColors.Background)
-    if (isIOS()) {
-        rootModifier = rootModifier.navigationBarsPadding()
-    }
-    BottomSheetScaffold(
-        sheetContent = {
-            BottomSheetContent(timePickerState, scaffoldState, state, channel)
-        },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = 0.dp,
-        modifier = rootModifier
     ) {
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-            TitleBar(
-                navigator = navigator,
-                title = stringResource(if (state.isEdit) Res.string.edit_schedule else Res.string.add_schedule)
-            )
-
-            TextField(
-                value = text,
-                onValueChange = {
-                    text = it
-                },
-                modifier = Modifier
-                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp)),
-                colors = TextFieldDefaults.textFieldColors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    backgroundColor = Color.White
-                ),
-                minLines = 3,
-                maxLines = 3
-            )
-
-            SettingsLayout(
-                state, channel, milestoneGoalStr,
-                onShowBottomSheet = {
-                    scope.launch {
-                        scaffoldState.bottomSheetState.expand()
-                    }
-                },
-                onSetPickerTime = { hour, minute ->
-                    timePickerState = TimePickerState(initialHour = hour, initialMinute = minute, is24Hour = true)
-                },
-                onSetMilestoneGoalStr = {
-                    milestoneGoalStr = it
-                }
-            )
-
-            Button(
-                onClick = {
-                    if (milestoneGoalStr.toLongOrNull() == null) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(getString(Res.string.invalid_number))
-                        }
-                        return@Button
-                    }
-                    channel.trySend(AddScheduleAction.Confirm(text, milestoneGoalStr.daysToMillis()))
-                    navigator.goBack()
-                },
-                modifier = Modifier
-                    .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
-                    .fillMaxWidth()
-                    .height(54.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                enabled = text.isNotEmpty()
-            ) {
-                Text(
-                    text = stringResource(Res.string.confirm).uppercase(),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
+        BottomSheetScaffold(
+            sheetContent = {
+                BottomSheetContent(timePickerState, scaffoldState, state, channel)
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            },
+            scaffoldState = scaffoldState,
+            sheetPeekHeight = 0.dp
+        ) {
+            Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                TitleBar(
+                    navigator = navigator,
+                    title = stringResource(if (state.isEdit) Res.string.edit_schedule else Res.string.add_schedule)
                 )
+
+                TextField(
+                    value = text,
+                    onValueChange = {
+                        text = it
+                    },
+                    modifier = Modifier
+                        .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp)),
+                    colors = TextFieldDefaults.textFieldColors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        backgroundColor = Color.White
+                    ),
+                    minLines = 3,
+                    maxLines = 3
+                )
+
+                SettingsLayout(
+                    state, channel, milestoneGoalStr,
+                    onShowBottomSheet = {
+                        scope.launch {
+                            scaffoldState.bottomSheetState.expand()
+                        }
+                    },
+                    onSetPickerTime = { hour, minute ->
+                        timePickerState = TimePickerState(initialHour = hour, initialMinute = minute, is24Hour = true)
+                    },
+                    onSetMilestoneGoalStr = {
+                        milestoneGoalStr = it
+                    }
+                )
+
+                Button(
+                    onClick = {
+                        if (milestoneGoalStr.toLongOrNull() == null) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(getString(Res.string.invalid_number))
+                            }
+                            return@Button
+                        }
+                        channel.trySend(AddScheduleAction.Confirm(text, milestoneGoalStr.daysToMillis()))
+                        navigator.goBack()
+                    },
+                    modifier = Modifier
+                        .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
+                        .fillMaxWidth()
+                        .height(54.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    enabled = text.isNotEmpty()
+                ) {
+                    Text(
+                        text = stringResource(Res.string.confirm).uppercase(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp
+                    )
+                }
             }
         }
     }
