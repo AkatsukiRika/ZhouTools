@@ -19,7 +19,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
+import store.CurrentProcessStore
 
 data class BarData<T : Number>(
     val values: LinkedHashMap<Color, T>,
@@ -52,18 +55,24 @@ fun <T : Number> BarChart(
         return
     }
 
+    val density = LocalDensity.current
+    val screenWidthPixels = CurrentProcessStore.screenWidthPixels.collectAsStateWithLifecycle().value
     val scrollState = rememberScrollState()
-    val totalWidth = remember(data.size, barWidth, barSpacing) {
+    val canvasPaddingStart = 16.dp
+    val canvasPaddingEnd = 24.dp
+    val totalWidth = remember(data.size, barWidth, barSpacing, screenWidthPixels) {
         val barsWidth = barWidth * data.size
         val spacingWidth = barSpacing * (data.size + 1)
-        barsWidth + spacingWidth
+        val screenWidth = with(density) {
+            screenWidthPixels.toDp()
+        }
+        max(screenWidth - canvasPaddingStart - canvasPaddingEnd, barsWidth + spacingWidth)
     }
-    val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
 
     Row(modifier = modifier.horizontalScroll(scrollState)) {
         Canvas(modifier = Modifier
-            .padding(start = 16.dp, end = 24.dp)
+            .padding(start = canvasPaddingStart, end = canvasPaddingEnd)
             .width(totalWidth)
             .height(chartHeight + 40.dp)
         ) {

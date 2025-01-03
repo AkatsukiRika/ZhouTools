@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import constant.TabConstants
 import ui.fragment.SettingsFragment
 import ui.fragment.TimeCardFragment
@@ -22,6 +23,7 @@ import global.AppColors
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.Navigator
+import store.CurrentProcessStore
 import ui.fragment.DepositFragment
 import ui.fragment.MemoFragment
 import ui.fragment.ScheduleFragment
@@ -60,6 +62,9 @@ fun HomeScene(navigator: Navigator) {
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
+                        .onSizeChanged {
+                            CurrentProcessStore.screenWidthPixels.value = it.width
+                        }
                 ) {
                     when (it) {
                         TabConstants.TAB_TIME_CARD -> TimeCardFragment(

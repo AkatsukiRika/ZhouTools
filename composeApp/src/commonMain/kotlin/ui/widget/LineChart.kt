@@ -19,7 +19,10 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
+import store.CurrentProcessStore
 
 data class LineData<T : Number>(
     val values: LinkedHashMap<Color, T>,
@@ -44,16 +47,25 @@ fun <T : Number> LineChart(
         return
     }
 
-    val scrollState = rememberScrollState()
-    val totalWidth = remember(data.size, pointSpacing) {
-        pointSpacing * data.size + contentMarginEnd
-    }
     val density = LocalDensity.current
+    val screenWidthPixels = CurrentProcessStore.screenWidthPixels.collectAsStateWithLifecycle().value
+    val scrollState = rememberScrollState()
+    val canvasPaddingStart = 16.dp
+    val canvasPaddingEnd = 24.dp
+    val totalWidth = remember(data.size, pointSpacing, screenWidthPixels) {
+        val screenWidth = with(density) {
+            screenWidthPixels.toDp()
+        }
+        max(
+            screenWidth - canvasPaddingStart - canvasPaddingEnd,
+            pointSpacing * data.size + contentMarginEnd
+        )
+    }
     val textMeasurer = rememberTextMeasurer()
 
     Row(modifier = modifier.horizontalScroll(scrollState)) {
         Canvas(modifier = Modifier
-            .padding(start = 16.dp, end = 24.dp)
+            .padding(start = canvasPaddingStart, end = canvasPaddingEnd)
             .width(totalWidth)
             .height(chartHeight + 40.dp)
         ) {
