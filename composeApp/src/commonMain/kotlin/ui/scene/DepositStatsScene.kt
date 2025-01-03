@@ -26,10 +26,12 @@ import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.BarChart
 import ui.widget.BaseImmersiveScene
+import ui.widget.EmptyLayout
 import ui.widget.LineChart
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.monthly_income
+import zhoutools.composeapp.generated.resources.no_data
 import zhoutools.composeapp.generated.resources.stats
 import zhoutools.composeapp.generated.resources.total_deposit
 
@@ -57,44 +59,11 @@ fun DepositStatsScene(navigator: Navigator) {
                 }
 
                 item {
-                    Text(
-                        text = stringResource(Res.string.total_deposit),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(top = 16.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                item {
-                    BarChart(
-                        modifier = Modifier.padding(top = 16.dp),
-                        data = state.totalDepositBarData
-                    )
-                }
-
-                item {
-                    Text(
-                        text = stringResource(Res.string.monthly_income),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(top = 32.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                item {
-                    LineChart(
-                        modifier = Modifier.padding(top = 16.dp),
-                        data = state.incomeLineData,
-                        pointSpacing = 64.dp
-                    )
+                    if (state.totalDepositBarData.isEmpty() && state.incomeLineData.isEmpty()) {
+                        EmptyLayout(description = stringResource(Res.string.no_data))
+                    } else {
+                        MainCharts(state)
+                    }
                 }
 
                 item {
@@ -102,6 +71,44 @@ fun DepositStatsScene(navigator: Navigator) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MainCharts(state: DepositStatsState) {
+    Column {
+        Text(
+            text = stringResource(Res.string.total_deposit),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp),
+            textAlign = TextAlign.Center
+        )
+
+        BarChart(
+            modifier = Modifier.padding(top = 16.dp),
+            data = state.totalDepositBarData
+        )
+
+        Text(
+            text = stringResource(Res.string.monthly_income),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(top = 32.dp),
+            textAlign = TextAlign.Center
+        )
+
+        LineChart(
+            modifier = Modifier.padding(top = 16.dp),
+            data = state.incomeLineData,
+            pointSpacing = 64.dp
+        )
     }
 }
 

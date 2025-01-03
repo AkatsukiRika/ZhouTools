@@ -2,7 +2,6 @@ package ui.scene.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +18,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -32,12 +30,11 @@ import extension.isBlankJson
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
+import ui.widget.EmptyLayout
 import zhoutools.composeapp.generated.resources.Res
-import zhoutools.composeapp.generated.resources.ic_empty
 import zhoutools.composeapp.generated.resources.ic_history_overtime
 import zhoutools.composeapp.generated.resources.ic_history_run
 import zhoutools.composeapp.generated.resources.ic_working
@@ -46,31 +43,10 @@ import zhoutools.composeapp.generated.resources.time_card
 import zhoutools.composeapp.generated.resources.time_run
 import zhoutools.composeapp.generated.resources.working_time
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HistoryFragment(state: DetailHistoryState) {
     if (state.weekList.isEmpty() || AppStore.timeCards.isBlankJson()) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 64.dp)
-                .alpha(0.5f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_empty),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(64.dp)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = stringResource(Res.string.no_history_data),
-                fontSize = 16.sp
-            )
-        }
+        EmptyLayout(description = stringResource(Res.string.no_history_data))
     } else {
         WeekList(state)
     }
@@ -103,7 +79,6 @@ private fun WeekList(state: DetailHistoryState) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun DayItem(day: DetailHistoryWeekDay) {
     Row(

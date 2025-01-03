@@ -49,6 +49,7 @@
     <string name="run">Run</string>
     <string name="no_today_data">No today's data yet</string>
     <string name="no_history_data">No history data yet</string>
+    <string name="no_data">No data yet</string>
     <string name="version_x">Version %1$s</string>
     <string name="memo">Memo</string>
     <string name="write_memo">Write Memo</string>

@@ -43,7 +43,7 @@ fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
         refreshData()
     }
 
-    LaunchedEffect(depositGoal) {
+    LaunchedEffect(depositGoal, currentAmount) {
         progress = if (depositGoal == 0L) {
             0f
         } else {
