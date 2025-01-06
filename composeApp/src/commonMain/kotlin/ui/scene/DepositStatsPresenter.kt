@@ -3,6 +3,7 @@ package ui.scene
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -17,16 +18,24 @@ import moe.tlaster.precompose.molecule.collectAction
 import ui.widget.BarData
 import ui.widget.LineData
 
+const val VALUE_MODE_FULL = 0
+const val VALUE_MODE_DIFF1 = 1      // Diff with the first data in group
+const val VALUE_MODE_DIFF2 = 2      // Diff with the previous data
+const val VALUE_MODE_NONE = 3
+const val VALUE_MODE_COUNT = 4
+
 @Composable
 fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsState {
     var depositMonths by remember { mutableStateOf(listOf<DepositMonth>()) }
     var totalDepositBarData by remember { mutableStateOf(listOf<BarData<Float>>()) }
     var incomeLineData by remember { mutableStateOf(listOf<LineData<Float>>()) }
     var filterOptions by remember { mutableStateOf(LinkedHashMap<String, Boolean>()) }
+    var valueMode by remember { mutableIntStateOf(VALUE_MODE_FULL) }
 
     fun initTotalDepositBar() {
         val barData = mutableListOf<BarData<Float>>()
-        depositMonths.forEach {
+        var firstValue = 0f
+        depositMonths.forEachIndexed { index, it ->
             val monthStr = it.monthStartTime.toMonthYearString()
             val partValues = LinkedHashMap<Color, Float>()
             partValues[AppColors.Theme] = it.currentAmount / 100f
@@ -34,7 +43,35 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
             barData.add(BarData(
                 values = partValues,
                 label = monthStr,
-                valueToString = { t -> t.toInt().toString() }
+                valueToString = { value ->
+                    when (valueMode) {
+                        VALUE_MODE_NONE -> ""
+                        VALUE_MODE_DIFF1 -> {
+                            if (index == 0) {
+                                firstValue = value
+                                "0"
+                            } else {
+                                val intValue = (value - firstValue).toInt()
+                                intValue.toString()
+                            }
+                        }
+                        VALUE_MODE_DIFF2 -> {
+                            if (index == 0) {
+                                "0"
+                            } else {
+                                val intValue = (value - barData[index - 1].getTotalValue()).toInt()
+                                if (intValue > 0) {
+                                    "+$intValue"
+                                } else {
+                                    intValue.toString()
+                                }
+                            }
+                        }
+                        else -> {
+                            value.toInt().toString()
+                        }
+                    }
+                }
             ))
         }
         totalDepositBarData = barData
@@ -96,6 +133,11 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
         refreshData(DepositHelper.getMonths().filter { selectedYears.contains(it.monthStartTime.getYear()) })
     }
 
+    fun toggleValueMode() {
+        valueMode = (valueMode + 1) % VALUE_MODE_COUNT
+        initTotalDepositBar()
+    }
+
     LaunchedEffect(Unit) {
         initData()
     }
@@ -105,18 +147,24 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
             is DepositStatsAction.SelectOption -> {
                 onSelectOption(option, select)
             }
+
+            is DepositStatsAction.ToggleValueMode -> {
+                toggleValueMode()
+            }
         }
     }
 
-    return DepositStatsState(totalDepositBarData, incomeLineData, filterOptions)
+    return DepositStatsState(totalDepositBarData, incomeLineData, filterOptions, valueMode)
 }
 
 data class DepositStatsState(
     val totalDepositBarData: List<BarData<Float>> = emptyList(),
     val incomeLineData: List<LineData<Float>> = emptyList(),
-    val filterOptions: LinkedHashMap<String, Boolean> = LinkedHashMap()
+    val filterOptions: LinkedHashMap<String, Boolean> = LinkedHashMap(),
+    val valueMode: Int = VALUE_MODE_FULL
 )
 
 sealed interface DepositStatsAction {
     data class SelectOption(val option: String, val select: Boolean) : DepositStatsAction
+    data object ToggleValueMode : DepositStatsAction
 }

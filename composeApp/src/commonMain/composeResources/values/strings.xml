@@ -130,4 +130,9 @@
     <string name="days">Day(s)</string>
     <string name="goals">Goals</string>
     <string name="stats">Statistics</string>
+    <string name="value_mode">Value Display Mode</string>
+    <string name="value_mode_full">Full</string>
+    <string name="value_mode_diff1">Difference (A)</string>
+    <string name="value_mode_diff2">Difference (B)</string>
+    <string name="value_mode_none">None</string>
 </resources>

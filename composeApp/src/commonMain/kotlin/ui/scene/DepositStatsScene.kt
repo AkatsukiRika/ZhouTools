@@ -1,6 +1,7 @@
 package ui.scene
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,11 +15,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,6 +43,11 @@ import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.no_data
 import zhoutools.composeapp.generated.resources.stats
 import zhoutools.composeapp.generated.resources.total_deposit
+import zhoutools.composeapp.generated.resources.value_mode
+import zhoutools.composeapp.generated.resources.value_mode_diff1
+import zhoutools.composeapp.generated.resources.value_mode_diff2
+import zhoutools.composeapp.generated.resources.value_mode_full
+import zhoutools.composeapp.generated.resources.value_mode_none
 
 @Composable
 fun DepositStatsScene(navigator: Navigator) {
@@ -67,7 +76,7 @@ fun DepositStatsScene(navigator: Navigator) {
                     if (state.totalDepositBarData.isEmpty() && state.incomeLineData.isEmpty()) {
                         EmptyLayout(description = stringResource(Res.string.no_data))
                     } else {
-                        MainCharts(state)
+                        MainCharts(state, channel)
                     }
                 }
 
@@ -80,7 +89,7 @@ fun DepositStatsScene(navigator: Navigator) {
 }
 
 @Composable
-private fun MainCharts(state: DepositStatsState) {
+private fun MainCharts(state: DepositStatsState, channel: Channel<DepositStatsAction>) {
     Column {
         Text(
             text = stringResource(Res.string.total_deposit),
@@ -102,6 +111,8 @@ private fun MainCharts(state: DepositStatsState) {
             modifier = Modifier.padding(top = 16.dp),
             data = state.totalDepositBarData
         )
+
+        SettingsLayout(state = state, channel = channel)
 
         Text(
             text = stringResource(Res.string.monthly_income),
@@ -160,6 +171,46 @@ private fun FilterRow(modifier: Modifier = Modifier, state: DepositStatsState, c
             )
 
             Spacer(modifier = Modifier.width(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun SettingsLayout(modifier: Modifier = Modifier, state: DepositStatsState, channel: Channel<DepositStatsAction>) {
+    Column(modifier = modifier
+        .fillMaxWidth()
+        .padding(start = 16.dp, end = 16.dp, top = 24.dp)
+        .clip(RoundedCornerShape(12.dp))
+        .background(Color.White)
+    ) {
+        val valueModeStr = when (state.valueMode) {
+            VALUE_MODE_NONE -> stringResource(Res.string.value_mode_none)
+            VALUE_MODE_DIFF1 -> stringResource(Res.string.value_mode_diff1)
+            VALUE_MODE_DIFF2 -> stringResource(Res.string.value_mode_diff2)
+            else -> stringResource(Res.string.value_mode_full)
+        }
+
+        Row(
+            modifier = Modifier
+                .clickable {
+                    channel.trySend(DepositStatsAction.ToggleValueMode)
+                }
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.value_mode),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = valueModeStr,
+                fontSize = 16.sp
+            )
         }
     }
 }
