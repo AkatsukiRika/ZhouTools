@@ -70,6 +70,8 @@ import util.TimeUtil
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.add_schedule
 import zhoutools.composeapp.generated.resources.all_day
+import zhoutools.composeapp.generated.resources.day_off
+import zhoutools.composeapp.generated.resources.day_work
 import zhoutools.composeapp.generated.resources.delete
 import zhoutools.composeapp.generated.resources.edit
 import zhoutools.composeapp.generated.resources.ic_add
@@ -281,27 +283,49 @@ private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>)
             }
 
             items(state.currMonthDays) {
-                val isToday = state.isToday(dayOfMonth = it.first)
-                val isSelect = state.isSelect(dayOfMonth = it.first)
-
-                Text(
-                    text = "${it.first}",
-                    fontSize = if (isSelect) 18.sp else 14.sp,
-                    fontWeight = if (isSelect) FontWeight.ExtraBold else FontWeight.Normal,
-                    modifier = Modifier
-                        .clickable {
-                            channel.trySend(ScheduleAction.SelectDay(
-                                Triple(state.currYear, state.currMonthOfYear, it.first)
-                            ))
-                        }
-                        .background(if (isToday) AppColors.Theme else Color.Transparent)
-                        .padding(8.dp),
-                    textAlign = TextAlign.Center,
-                    color = if (isToday) Color.White else Color.Black
-                )
+                CurrentMonthDay(state, it.first, channel)
             }
         }
     )
+}
+
+@Composable
+private fun CurrentMonthDay(state: ScheduleState, dayOfMonth: Int, channel: Channel<ScheduleAction>) {
+    val isToday = state.isToday(dayOfMonth)
+    val isSelect = state.isSelect(dayOfMonth)
+    val isHoliday = state.isHoliday(dayOfMonth)
+
+    Box(modifier = Modifier
+        .clickable {
+            channel.trySend(ScheduleAction.SelectDay(
+                Triple(state.currYear, state.currMonthOfYear, dayOfMonth)
+            ))
+        }
+        .background(if (isToday) AppColors.Theme else Color.Transparent)
+    ) {
+        Text(
+            text = "$dayOfMonth",
+            fontSize = if (isSelect) 18.sp else 14.sp,
+            fontWeight = if (isSelect) FontWeight.ExtraBold else FontWeight.Normal,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(8.dp),
+            textAlign = TextAlign.Center,
+            color = if (isToday) Color.White else Color.Black
+        )
+
+        if (isHoliday != CalendarUtil.NOT_HOLIDAY) {
+            // Text in Material3 comes with no default padding
+            androidx.compose.material3.Text(
+                text = stringResource(
+                    if (isHoliday == CalendarUtil.WORK_DAY) Res.string.day_work else Res.string.day_off
+                ).uppercase(),
+                modifier = Modifier.align(Alignment.BottomCenter),
+                fontSize = 9.sp,
+                color = Color.Gray
+            )
+        }
+    }
 }
 
 @Composable

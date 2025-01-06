@@ -44,6 +44,7 @@ object NetworkHelper {
     private const val KEY_DEPOSIT_MONTHS = "deposit_months"
     private const val KEY_IS_VALID = "is_valid"
     private const val KEY_AUTH = "Authorization"
+    private const val KEY_YEAR = "year"
     private const val CODE_SUCCESS = 0
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -257,6 +258,23 @@ object NetworkHelper {
             } else {
                 null
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun getHolidays(year: Int): JsonObject? {
+        return try {
+            val bodyText = httpClient.get(getBaseUrl() + "/api/schedule/holidays") {
+                parameter(KEY_YEAR, year)
+            }.bodyAsText()
+            val jsonObject = Json.parseToJsonElement(bodyText) as JsonObject
+            val code = jsonObject[KEY_CODE]?.jsonPrimitive?.intOrNull
+            if (code == CODE_SUCCESS) {
+                return jsonObject[KEY_DATA]?.jsonObject
+            }
+            null
         } catch (e: Exception) {
             e.printStackTrace()
             null

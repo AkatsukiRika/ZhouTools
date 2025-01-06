@@ -39,3 +39,9 @@ fun Long.toMoneyDisplayStr() = when {
         "${beforePoint}.${afterPointStr}"
     }
 }
+
+fun Int.toTwoDigits() = if (this < 10) {
+    "0$this"
+} else {
+    this.toString()
+}

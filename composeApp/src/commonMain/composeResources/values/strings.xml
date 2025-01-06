@@ -135,4 +135,6 @@
     <string name="value_mode_diff1">Difference (A)</string>
     <string name="value_mode_diff2">Difference (B)</string>
     <string name="value_mode_none">None</string>
+    <string name="day_work">Work</string>
+    <string name="day_off">Off</string>
 </resources>

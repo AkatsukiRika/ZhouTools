@@ -1,11 +1,26 @@
 package util
 
 import androidx.compose.runtime.Composable
+import extension.getYear
+import extension.toTwoDigits
+import helper.NetworkHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
@@ -31,6 +46,36 @@ import zhoutools.composeapp.generated.resources.september
 import kotlin.math.abs
 
 object CalendarUtil {
+    const val NOT_HOLIDAY = 0
+    const val DAY_OFF = 1
+    const val WORK_DAY = 2
+
+    const val KEY_IS_OFF_DAY = "isOffDay"
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val holidayMap = MutableStateFlow(mapOf<Int, JsonObject>())
+
+    init {
+        coroutineScope.launch(Dispatchers.IO) {
+            fetchHolidayMap()
+        }
+    }
+
+    /**
+     * @param year null for current year
+     */
+    private suspend fun fetchHolidayMap(year: Int? = null) {
+        val currentYear = TimeUtil.currentTimeMillis().getYear()
+        val useYear = year ?: currentYear
+        val holidays = NetworkHelper.getHolidays(useYear)
+        if (holidays != null) {
+            holidayMap.update {
+                it + (useYear to holidays)
+            }
+        }
+    }
+
     @Composable
     fun getWeekDays(): List<String> = listOf(
         stringResource(Res.string.sunday),
@@ -88,5 +133,18 @@ object CalendarUtil {
         return resultList
     }
 
+    fun isHoliday(year: Int, month: Int, day: Int): Int {
+        runCatching {
+            val dateStr = "${year}-${month.toTwoDigits()}-${day.toTwoDigits()}"
+            val holidays = holidayMap.value[year] ?: return NOT_HOLIDAY
+            val holiday = holidays[dateStr]?.jsonObject ?: return NOT_HOLIDAY
+            val isOffDay = holiday[KEY_IS_OFF_DAY]?.jsonPrimitive?.booleanOrNull
+            return if (isOffDay == true) DAY_OFF else WORK_DAY
+        }.onFailure {
+            it.printStackTrace()
+        }
+        return NOT_HOLIDAY
+    }
 
+    fun getHolidayMap(): StateFlow<Map<Int, JsonObject>> = holidayMap
 }

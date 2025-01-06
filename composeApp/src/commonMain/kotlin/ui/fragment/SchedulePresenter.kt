@@ -2,6 +2,7 @@ package ui.fragment
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +23,7 @@ fun SchedulePresenter(actionFlow: Flow<ScheduleAction>): ScheduleState {
     var currMonthDays by remember { mutableStateOf<List<Pair<Int, DayOfWeek>>>(emptyList()) }
     var prevMonthDays by remember { mutableStateOf<List<Pair<Int, DayOfWeek>>>(emptyList()) }
     var selectDate by remember { mutableStateOf(Triple(0, 1, 1)) }
+    val holidayMap = CalendarUtil.getHolidayMap().collectAsState().value
 
     fun refreshMonthDays() {
         val monthDays = CalendarUtil.getMonthDays(currYear, currMonthOfYear)
@@ -66,6 +68,12 @@ fun SchedulePresenter(actionFlow: Flow<ScheduleAction>): ScheduleState {
         init()
     }
 
+    LaunchedEffect(holidayMap) {
+        if (holidayMap.isNotEmpty()) {
+            refreshMonthDays()
+        }
+    }
+
     actionFlow.collectAction {
         when (this) {
             is ScheduleAction.GoPrevMonth -> {
@@ -107,6 +115,8 @@ data class ScheduleState(
     fun isSelect(dayOfMonth: Int): Boolean {
         return selectDate.first == currYear && selectDate.second == currMonthOfYear && selectDate.third == dayOfMonth
     }
+
+    fun isHoliday(dayOfMonth: Int) = CalendarUtil.isHoliday(currYear, currMonthOfYear, dayOfMonth)
 }
 
 sealed interface ScheduleAction {
