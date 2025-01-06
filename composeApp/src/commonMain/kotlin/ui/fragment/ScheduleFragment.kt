@@ -59,6 +59,7 @@ import helper.effect.EffectHelper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
+import model.calendar.MonthDay
 import model.records.Schedule
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
@@ -250,7 +251,7 @@ private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>)
         content = {
             var prevMonthDays = 0
             if (state.currMonthDays.isNotEmpty()) {
-                val firstDayOfWeek = state.currMonthDays.first().second
+                val firstDayOfWeek = state.currMonthDays.first().dayOfWeek
                 prevMonthDays = if (firstDayOfWeek == DayOfWeek.SUNDAY) {
                     0
                 } else {
@@ -271,7 +272,7 @@ private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>)
             items(prevMonthDays) {
                 val prevIndex = state.prevMonthDays.lastIndex - (prevMonthDays - it - 1)
                 val prevMonthDay = if (prevIndex in state.prevMonthDays.indices) {
-                    state.prevMonthDays[prevIndex].first
+                    state.prevMonthDays[prevIndex].day
                 } else 0
                 Text(
                     text = "$prevMonthDay",
@@ -283,28 +284,28 @@ private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>)
             }
 
             items(state.currMonthDays) {
-                CurrentMonthDay(state, it.first, channel)
+                CurrentMonthDay(state, it, channel)
             }
         }
     )
 }
 
 @Composable
-private fun CurrentMonthDay(state: ScheduleState, dayOfMonth: Int, channel: Channel<ScheduleAction>) {
-    val isToday = state.isToday(dayOfMonth)
-    val isSelect = state.isSelect(dayOfMonth)
-    val isHoliday = state.isHoliday(dayOfMonth)
+private fun CurrentMonthDay(state: ScheduleState, dayOfMonth: MonthDay, channel: Channel<ScheduleAction>) {
+    val isToday = state.isToday(dayOfMonth.day)
+    val isSelect = state.isSelect(dayOfMonth.day)
+    val isHoliday = dayOfMonth.isHoliday
 
     Box(modifier = Modifier
         .clickable {
             channel.trySend(ScheduleAction.SelectDay(
-                Triple(state.currYear, state.currMonthOfYear, dayOfMonth)
+                Triple(state.currYear, state.currMonthOfYear, dayOfMonth.day)
             ))
         }
         .background(if (isToday) AppColors.Theme else Color.Transparent)
     ) {
         Text(
-            text = "$dayOfMonth",
+            text = "${dayOfMonth.day}",
             fontSize = if (isSelect) 18.sp else 14.sp,
             fontWeight = if (isSelect) FontWeight.ExtraBold else FontWeight.Normal,
             modifier = Modifier
@@ -322,7 +323,7 @@ private fun CurrentMonthDay(state: ScheduleState, dayOfMonth: Int, channel: Chan
                 ).uppercase(),
                 modifier = Modifier.align(Alignment.BottomCenter),
                 fontSize = 9.sp,
-                color = Color.Gray
+                color = if (isToday) Color.White else Color.Gray
             )
         }
     }

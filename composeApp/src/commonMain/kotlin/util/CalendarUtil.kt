@@ -65,7 +65,7 @@ object CalendarUtil {
     /**
      * @param year null for current year
      */
-    private suspend fun fetchHolidayMap(year: Int? = null) {
+    suspend fun fetchHolidayMap(year: Int? = null) {
         val currentYear = TimeUtil.currentTimeMillis().getYear()
         val useYear = year ?: currentYear
         val holidays = NetworkHelper.getHolidays(useYear)
