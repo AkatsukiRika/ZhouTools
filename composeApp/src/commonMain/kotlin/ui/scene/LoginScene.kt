@@ -106,7 +106,8 @@ fun LoginScene(navigator: Navigator) {
         modifier = Modifier
             .imePadding()
             .fillMaxSize()
-            .background(AppColors.Background)
+            .background(AppColors.Background),
+        navigationBarPadding = false
     ) {
         Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
             Box(modifier = Modifier

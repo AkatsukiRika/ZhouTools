@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -60,10 +61,12 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
         }
     }
 
-    BaseImmersiveScene(modifier = Modifier
-        .imePadding()
-        .fillMaxSize()
-        .background(AppColors.Background)
+    BaseImmersiveScene(
+        modifier = Modifier
+            .imePadding()
+            .fillMaxSize()
+            .background(AppColors.Background),
+        navigationBarPadding = false
     ) {
         Column {
             TitleBar(
@@ -123,7 +126,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
                     channel.trySend(WriteMemoAction.Confirm(text, navigator))
                 },
                 modifier = Modifier
-                    .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
+                    .padding(start = 24.dp, end = 24.dp, bottom = 48.dp)
                     .fillMaxWidth()
                     .height(54.dp)
                     .clip(RoundedCornerShape(16.dp)),
@@ -135,8 +138,6 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
                     fontSize = 24.sp
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import isIOS
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import zhoutools.composeapp.generated.resources.Res
@@ -29,15 +28,10 @@ import zhoutools.composeapp.generated.resources.ic_back
 
 @Composable
 fun TitleBar(navigator: Navigator, title: String) {
-    var rootModifier = Modifier
-        .fillMaxWidth()
+    val rootModifier = Modifier
         .background(Color.White)
-    if (isIOS()) {
-        rootModifier = Modifier
-            .background(Color.White)
-            .statusBarsPadding()
-            .fillMaxWidth()
-    }
+        .statusBarsPadding()
+        .fillMaxWidth()
 
     Row(
         modifier = rootModifier,

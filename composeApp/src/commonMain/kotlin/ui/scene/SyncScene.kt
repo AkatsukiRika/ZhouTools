@@ -149,10 +149,7 @@ fun SyncScene(navigator: Navigator, mode: String) {
         }
     }
 
-    BaseImmersiveScene(
-        statusBarColorStr = "#FFEAE3",
-        navigationBarColorStr = ""
-    ) {
+    BaseImmersiveScene(navigationBarPadding = false) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

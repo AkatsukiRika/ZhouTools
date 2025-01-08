@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -111,10 +112,12 @@ fun AddScheduleScene(navigator: Navigator) {
         }
     }
 
-    BaseImmersiveScene(modifier = Modifier
-        .imePadding()
-        .fillMaxSize()
-        .background(AppColors.Background)
+    BaseImmersiveScene(
+        modifier = Modifier
+            .imePadding()
+            .fillMaxSize()
+            .background(AppColors.Background),
+        navigationBarPadding = false
     ) {
         BottomSheetScaffold(
             sheetContent = {
@@ -430,6 +433,7 @@ private fun ColumnScope.BottomSheetContent(
             }
         },
         modifier = Modifier
+            .navigationBarsPadding()
             .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
             .fillMaxWidth()
             .height(54.dp)

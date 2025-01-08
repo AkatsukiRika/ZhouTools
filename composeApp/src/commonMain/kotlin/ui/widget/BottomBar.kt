@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import constant.TabConstants
 import extension.clickableNoRipple
 import global.AppColors
-import isIOS
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -44,17 +42,11 @@ fun BottomBar(
     selectIndex: Int,
     onSelect: (Int) -> Unit
 ) {
-    var rootModifier = modifier
+    val rootModifier = modifier
+        .background(Color.White)
+        .navigationBarsPadding()
         .fillMaxWidth()
         .height(58.dp)
-        .background(Color.White)
-    if (isIOS()) {
-        rootModifier = modifier
-            .background(Color.White)
-            .navigationBarsPadding()
-            .fillMaxWidth()
-            .height(58.dp)
-    }
 
     Row(
         modifier = rootModifier,
