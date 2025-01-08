@@ -7,10 +7,24 @@
 | |                                                  |
 | - |--------------------------------------------------|
 | **Supported Platforms** | Android 7.0+ / iOS (building from source needed) |
-| **Latest Version** | 1.2.0                                            |
+| **Latest Version** | 1.3.0                                            |
 | **UI Language** | English                                          |
 
 ## Update Notes
+
+### Version 1.3.0
+
+- New "Savings Statistics" feature page
+
+    - Supports viewing total deposit amount changes by month as bar chart
+  
+    - Supports viewing monthly income trends as line chart
+  
+    - Provides multiple value filtering modes
+  
+- New holiday display function in Schedule tab
+
+- Immersive experience optimization
 
 ### Version 1.2.0
 

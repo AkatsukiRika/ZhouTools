@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -102,6 +104,14 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+    }
+    applicationVariants.all {
+        outputs.all { output ->
+            if (output is ApkVariantOutputImpl) {
+                output.outputFileName = "ZhouTools-v${versionName}.apk"
+            }
+            true
+        }
     }
 }
 
