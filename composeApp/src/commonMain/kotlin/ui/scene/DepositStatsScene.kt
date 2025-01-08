@@ -23,8 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import global.AppColors
@@ -41,6 +44,7 @@ import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.extra_deposit
 import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.no_data
+import zhoutools.composeapp.generated.resources.selected_total
 import zhoutools.composeapp.generated.resources.stats
 import zhoutools.composeapp.generated.resources.total_deposit
 import zhoutools.composeapp.generated.resources.value_mode
@@ -104,11 +108,14 @@ private fun MainCharts(state: DepositStatsState, channel: Channel<DepositStatsAc
 
         BarChartLegend(modifier = Modifier
             .align(Alignment.CenterHorizontally)
-            .padding(top = 12.dp)
+            .padding(top = 6.dp)
+            .clip(RoundedCornerShape(32.dp))
+            .clickable {}
+            .padding(horizontal = 12.dp, vertical = 6.dp)
         )
 
         BarChart(
-            modifier = Modifier.padding(top = 16.dp),
+            modifier = Modifier.padding(top = 10.dp),
             data = state.totalDepositBarData
         )
 
@@ -123,6 +130,13 @@ private fun MainCharts(state: DepositStatsState, channel: Channel<DepositStatsAc
                 .padding(horizontal = 16.dp)
                 .padding(top = 32.dp),
             textAlign = TextAlign.Center
+        )
+
+        LineChartLegend(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 12.dp),
+            state = state
         )
 
         LineChart(
@@ -148,6 +162,24 @@ private fun BarChartLegend(modifier: Modifier = Modifier) {
             fontSize = 11.sp
         )
     }
+}
+
+@Composable
+private fun LineChartLegend(modifier: Modifier = Modifier, state: DepositStatsState) {
+    val annotatedString = buildAnnotatedString {
+        withStyle(SpanStyle(fontSize = 11.sp)) {
+            append(stringResource(Res.string.selected_total))
+        }
+
+        withStyle(SpanStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold)) {
+            append(state.totalIncome.toString())
+        }
+    }
+
+    Text(
+        text = annotatedString,
+        modifier = modifier
+    )
 }
 
 @Composable

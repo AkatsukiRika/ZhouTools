@@ -31,6 +31,7 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
     var incomeLineData by remember { mutableStateOf(listOf<LineData<Float>>()) }
     var filterOptions by remember { mutableStateOf(LinkedHashMap<String, Boolean>()) }
     var valueMode by remember { mutableIntStateOf(VALUE_MODE_FULL) }
+    var totalIncome by remember { mutableIntStateOf(0) }
 
     fun initTotalDepositBar() {
         val barData = mutableListOf<BarData<Float>>()
@@ -106,17 +107,23 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
         filterOptions = options
     }
 
+    fun refreshSelectedTotal() {
+        totalIncome = (depositMonths.sumOf { it.monthlyIncome } / 100f).toInt()
+    }
+
     fun initData() {
         depositMonths = DepositHelper.getMonths().sortedBy { it.monthStartTime }
         initTotalDepositBar()
         initIncomeLineChart()
         initFilterOptions()
+        refreshSelectedTotal()
     }
 
     fun refreshData(newDepositMonths: List<DepositMonth>) {
         depositMonths = newDepositMonths.sortedBy { it.monthStartTime }
         initTotalDepositBar()
         initIncomeLineChart()
+        refreshSelectedTotal()
     }
 
     fun onSelectOption(option: String, select: Boolean) {
@@ -154,14 +161,15 @@ fun DepositStatsPresenter(actionFlow: Flow<DepositStatsAction>): DepositStatsSta
         }
     }
 
-    return DepositStatsState(totalDepositBarData, incomeLineData, filterOptions, valueMode)
+    return DepositStatsState(totalDepositBarData, incomeLineData, filterOptions, valueMode, totalIncome)
 }
 
 data class DepositStatsState(
     val totalDepositBarData: List<BarData<Float>> = emptyList(),
     val incomeLineData: List<LineData<Float>> = emptyList(),
     val filterOptions: LinkedHashMap<String, Boolean> = LinkedHashMap(),
-    val valueMode: Int = VALUE_MODE_FULL
+    val valueMode: Int = VALUE_MODE_FULL,
+    val totalIncome: Int = 0
 )
 
 sealed interface DepositStatsAction {

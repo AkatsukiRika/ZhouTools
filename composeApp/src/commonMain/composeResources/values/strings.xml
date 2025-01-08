@@ -137,4 +137,5 @@
     <string name="value_mode_none">None</string>
     <string name="day_work">Work</string>
     <string name="day_off">Off</string>
+    <string name="selected_total">Selected Total: </string>
 </resources>
