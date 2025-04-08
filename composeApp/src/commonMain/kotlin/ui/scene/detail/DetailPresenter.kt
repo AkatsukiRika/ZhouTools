@@ -9,6 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import constant.TimeConstants
 import extension.dayStartTime
+import extension.getNextMonthStartTime
+import extension.getNextQuarterStartTime
+import extension.getNextWeekStartTime
+import extension.getNextYearStartTime
 import helper.NetworkHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -107,6 +111,50 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
         }
     }
 
+    fun updateFoldPeriod(foldType: DetailFoldType?) {
+        if (foldType == null) {
+            historyState = historyState.copy(foldType = null, foldPeriodList = null)
+            return
+        }
+
+        val days = historyState.weekList.flatMap { it.days }.sortedBy { it.dayStartTime }
+        if (days.isEmpty()) {
+            historyState = historyState.copy(foldType = null, foldPeriodList = null)
+            return
+        }
+
+        val minDayStartTime = days.minBy { it.dayStartTime }.dayStartTime
+        val maxDayStartTime = days.maxBy { it.dayStartTime }.dayStartTime
+        var periodStartTime = minDayStartTime
+        val periodList = mutableListOf<DetailHistoryFoldPeriod>()
+        while (periodStartTime < maxDayStartTime) {
+            val startTime = periodStartTime
+            val endTime = when (foldType) {
+                DetailFoldType.WEEK -> periodStartTime.getNextWeekStartTime()
+                DetailFoldType.MONTH -> periodStartTime.getNextMonthStartTime()
+                DetailFoldType.QUARTER -> periodStartTime.getNextQuarterStartTime()
+                DetailFoldType.YEAR -> periodStartTime.getNextYearStartTime()
+            }
+            val daysInPeriod = days.filter { it.dayStartTime in startTime until endTime }
+            val totalWorkingTime = daysInPeriod.sumOf { it.timeWork }
+            val maxWorkingTime = daysInPeriod.maxOfOrNull { it.timeWork } ?: 0L
+            val minWorkingTime = daysInPeriod.minOfOrNull { it.timeWork } ?: 0L
+            val totalOvertimeDays = daysInPeriod.count { it.isOT }
+            val period = DetailHistoryFoldPeriod(
+                startTime = startTime,
+                endTime = endTime,
+                totalWorkingTime = totalWorkingTime,
+                maxWorkingTime = maxWorkingTime,
+                minWorkingTime = minWorkingTime,
+                totalOvertimeDays = totalOvertimeDays
+            )
+            // Go to the next period
+            periodList.add(period)
+            periodStartTime = endTime
+        }
+        historyState = historyState.copy(foldType = foldType, foldPeriodList = periodList.reversed())
+    }
+
     fun refreshTodayData() {
         val currentTime = TimeUtil.currentTimeMillis()
         val todayTimeCard = TimeCardHelper.todayTimeCard() ?: 0L
@@ -144,7 +192,11 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
             }
 
             is DetailAction.ChangeFoldType -> {
-                historyState = historyState.copy(foldType = foldType)
+                if (historyState.foldType == foldType) {
+                    updateFoldPeriod(null)
+                } else {
+                    updateFoldPeriod(foldType)
+                }
             }
         }
     }
@@ -154,7 +206,7 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
 
 sealed interface DetailAction {
     data class ChangeTab(val tab: Int) : DetailAction
-    data class ChangeFoldType(val foldType: DetailFoldType?) : DetailAction
+    data class ChangeFoldType(val foldType: DetailFoldType) : DetailAction
 }
 
 data class DetailState(
@@ -175,7 +227,8 @@ data class DetailTodayState(
 
 data class DetailHistoryState(
     val weekList: List<DetailHistoryWeek> = emptyList(),
-    val foldType: DetailFoldType? = null
+    val foldType: DetailFoldType? = null,
+    val foldPeriodList: List<DetailHistoryFoldPeriod>? = null
 )
 
 data class DetailHistoryWeek(
@@ -183,6 +236,15 @@ data class DetailHistoryWeek(
     val weekEndTime: Long = 0L,
     val days: List<DetailHistoryWeekDay> = emptyList(),
     val otDays: Int = 0
+)
+
+data class DetailHistoryFoldPeriod(
+    val startTime: Long = 0L,
+    val endTime: Long = 0L,
+    val totalWorkingTime: Long = 0L,
+    val maxWorkingTime: Long = 0L,
+    val minWorkingTime: Long = 0L,
+    val totalOvertimeDays: Int = 0
 )
 
 data class DetailHistoryWeekDay(

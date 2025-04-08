@@ -61,6 +61,8 @@ fun HistoryFragment(state: DetailHistoryState, channel: Channel<DetailAction>) {
 
 @Composable
 private fun WeekList(state: DetailHistoryState, channel: Channel<DetailAction>) {
+    val foldPeriodList = state.foldPeriodList
+
     LazyColumn(modifier = Modifier
         .fillMaxWidth()
     ) {
@@ -68,23 +70,39 @@ private fun WeekList(state: DetailHistoryState, channel: Channel<DetailAction>) 
             FoldSelections(modifier = Modifier.padding(top = 8.dp), state, channel)
         }
 
-        items(state.weekList) {
-            val weekStartStr = it.weekStartTime.toDateString()
-            val weekEndStr = it.weekEndTime.toDateString()
+        if (foldPeriodList != null) {
+            items(state.foldPeriodList) {
+                val startStr = it.startTime.toDateString()
+                val endStr = it.endTime.toDateString()
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = "$weekStartStr - $weekEndStr",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(start = 16.dp)
-            )
+                Text(
+                    text = "$startStr - $endStr",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+        } else {
+            items(state.weekList) {
+                val weekStartStr = it.weekStartTime.toDateString()
+                val weekEndStr = it.weekEndTime.toDateString()
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            it.days.forEach { day ->
-                DayItem(day)
+                Text(
+                    text = "$weekStartStr - $weekEndStr",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                it.days.forEach { day ->
+                    DayItem(day)
+                }
             }
         }
     }
