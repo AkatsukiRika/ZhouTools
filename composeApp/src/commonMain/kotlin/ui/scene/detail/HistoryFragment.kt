@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,11 +32,16 @@ import extension.isBlankJson
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
+import kotlinx.coroutines.channels.Channel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
 import ui.widget.EmptyLayout
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.fold_by_month
+import zhoutools.composeapp.generated.resources.fold_by_quarter
+import zhoutools.composeapp.generated.resources.fold_by_week
+import zhoutools.composeapp.generated.resources.fold_by_year
 import zhoutools.composeapp.generated.resources.ic_history_overtime
 import zhoutools.composeapp.generated.resources.ic_history_run
 import zhoutools.composeapp.generated.resources.ic_working
@@ -44,19 +51,23 @@ import zhoutools.composeapp.generated.resources.time_run
 import zhoutools.composeapp.generated.resources.working_time
 
 @Composable
-fun HistoryFragment(state: DetailHistoryState) {
+fun HistoryFragment(state: DetailHistoryState, channel: Channel<DetailAction>) {
     if (state.weekList.isEmpty() || AppStore.timeCards.isBlankJson()) {
         EmptyLayout(description = stringResource(Res.string.no_history_data))
     } else {
-        WeekList(state)
+        WeekList(state, channel)
     }
 }
 
 @Composable
-private fun WeekList(state: DetailHistoryState) {
+private fun WeekList(state: DetailHistoryState, channel: Channel<DetailAction>) {
     LazyColumn(modifier = Modifier
         .fillMaxWidth()
     ) {
+        item {
+            FoldSelections(modifier = Modifier.padding(top = 8.dp), state, channel)
+        }
+
         items(state.weekList) {
             val weekStartStr = it.weekStartTime.toDateString()
             val weekEndStr = it.weekEndTime.toDateString()
@@ -152,5 +163,75 @@ private fun DayItem(day: DetailHistoryWeekDay) {
             lineHeight = 20.sp,
             modifier = Modifier.padding(vertical = 4.dp)
         )
+    }
+}
+
+@Composable
+private fun FoldSelections(modifier: Modifier = Modifier, state: DetailHistoryState, channel: Channel<DetailAction>) {
+    val chipColors = AppColors.getChipColors()
+    LazyRow(modifier) {
+        item {
+            Spacer(modifier = Modifier.width(16.dp))
+        }
+
+        item {
+            ElevatedFilterChip(
+                selected = state.foldType == DetailFoldType.WEEK,
+                onClick = {
+                    channel.trySend(DetailAction.ChangeFoldType(DetailFoldType.WEEK))
+                },
+                label = {
+                    androidx.compose.material3.Text(text = stringResource(Res.string.fold_by_week))
+                },
+                colors = chipColors
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+        }
+
+        item {
+            ElevatedFilterChip(
+                selected = state.foldType == DetailFoldType.MONTH,
+                onClick = {
+                    channel.trySend(DetailAction.ChangeFoldType(DetailFoldType.MONTH))
+                },
+                label = {
+                    androidx.compose.material3.Text(text = stringResource(Res.string.fold_by_month))
+                },
+                colors = chipColors
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+        }
+
+        item {
+            ElevatedFilterChip(
+                selected = state.foldType == DetailFoldType.QUARTER,
+                onClick = {
+                    channel.trySend(DetailAction.ChangeFoldType(DetailFoldType.QUARTER))
+                },
+                label = {
+                    androidx.compose.material3.Text(text = stringResource(Res.string.fold_by_quarter))
+                },
+                colors = chipColors
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+        }
+
+        item {
+            ElevatedFilterChip(
+                selected = state.foldType == DetailFoldType.YEAR,
+                onClick = {
+                    channel.trySend(DetailAction.ChangeFoldType(DetailFoldType.YEAR))
+                },
+                label = {
+                    androidx.compose.material3.Text(text = stringResource(Res.string.fold_by_year))
+                },
+                colors = chipColors
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+        }
     }
 }

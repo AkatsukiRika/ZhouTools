@@ -59,7 +59,7 @@ fun DetailScene(navigator: Navigator) {
             }
 
             if (state.tab == DETAIL_TAB_HISTORY) {
-                HistoryFragment(state.historyState)
+                HistoryFragment(state.historyState, channel)
             } else {
                 TodayFragment(state.todayState)
             }

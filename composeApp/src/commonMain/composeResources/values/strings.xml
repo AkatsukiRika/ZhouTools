@@ -138,4 +138,8 @@
     <string name="day_work">Work</string>
     <string name="day_off">Off</string>
     <string name="selected_total">Selected Total: </string>
+    <string name="fold_by_week">Fold by Week</string>
+    <string name="fold_by_month">Fold by Month</string>
+    <string name="fold_by_quarter">Fold by Quarter</string>
+    <string name="fold_by_year">Fold by Year</string>
 </resources>

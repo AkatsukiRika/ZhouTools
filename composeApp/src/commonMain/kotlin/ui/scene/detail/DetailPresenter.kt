@@ -25,6 +25,13 @@ import kotlin.math.max
 const val DETAIL_TAB_TODAY = 0
 const val DETAIL_TAB_HISTORY = 1
 
+enum class DetailFoldType {
+    WEEK,
+    MONTH,
+    QUARTER,
+    YEAR
+}
+
 @Composable
 fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
     var tab by remember { mutableIntStateOf(DETAIL_TAB_TODAY) }
@@ -135,6 +142,10 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
                     tab = this.tab
                 }
             }
+
+            is DetailAction.ChangeFoldType -> {
+                historyState = historyState.copy(foldType = foldType)
+            }
         }
     }
 
@@ -143,6 +154,7 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
 
 sealed interface DetailAction {
     data class ChangeTab(val tab: Int) : DetailAction
+    data class ChangeFoldType(val foldType: DetailFoldType?) : DetailAction
 }
 
 data class DetailState(
@@ -162,7 +174,8 @@ data class DetailTodayState(
 )
 
 data class DetailHistoryState(
-    val weekList: List<DetailHistoryWeek> = emptyList()
+    val weekList: List<DetailHistoryWeek> = emptyList(),
+    val foldType: DetailFoldType? = null
 )
 
 data class DetailHistoryWeek(
