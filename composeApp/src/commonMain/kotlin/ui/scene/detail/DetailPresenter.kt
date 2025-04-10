@@ -136,13 +136,15 @@ fun DetailPresenter(actionFlow: Flow<DetailAction>): DetailState {
                 DetailFoldType.YEAR -> periodStartTime.getNextYearStartTime()
             }
             val daysInPeriod = days.filter { it.dayStartTime in startTime until endTime }
-            val totalWorkingTime = daysInPeriod.sumOf { it.timeWork }
-            val maxWorkingTime = daysInPeriod.maxOfOrNull { it.timeWork } ?: 0L
-            val minWorkingTime = daysInPeriod.minOfOrNull { it.timeWork } ?: 0L
-            val totalOvertimeDays = daysInPeriod.count { it.isOT }
+            val workingDays = daysInPeriod.filter { it.timeWork > 0L }
+            val totalWorkingTime = workingDays.sumOf { it.timeWork }
+            val maxWorkingTime = workingDays.maxOfOrNull { it.timeWork } ?: 0L
+            val minWorkingTime = workingDays.minOfOrNull { it.timeWork } ?: 0L
+            val totalOvertimeDays = workingDays.count { it.isOT }
             val period = DetailHistoryFoldPeriod(
                 startTime = startTime,
                 endTime = endTime,
+                totalWorkDays = workingDays.size,
                 totalWorkingTime = totalWorkingTime,
                 maxWorkingTime = maxWorkingTime,
                 minWorkingTime = minWorkingTime,
@@ -241,11 +243,20 @@ data class DetailHistoryWeek(
 data class DetailHistoryFoldPeriod(
     val startTime: Long = 0L,
     val endTime: Long = 0L,
+    val totalWorkDays: Int = 0,
     val totalWorkingTime: Long = 0L,
     val maxWorkingTime: Long = 0L,
     val minWorkingTime: Long = 0L,
     val totalOvertimeDays: Int = 0
-)
+) {
+    fun getAverageWorkingTime(): Long {
+        return if (totalWorkDays > 0) {
+            totalWorkingTime / totalWorkDays
+        } else {
+            0L
+        }
+    }
+}
 
 data class DetailHistoryWeekDay(
     val dayStartTime: Long = 0L,

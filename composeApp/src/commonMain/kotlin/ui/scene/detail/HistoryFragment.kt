@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import extension.isBlankJson
 import extension.toDateString
+import extension.toHourMinString
 import extension.toTimeString
 import global.AppColors
 import kotlinx.coroutines.channels.Channel
@@ -38,6 +39,7 @@ import org.jetbrains.compose.resources.stringResource
 import store.AppStore
 import ui.widget.EmptyLayout
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.average_working_time
 import zhoutools.composeapp.generated.resources.fold_by_month
 import zhoutools.composeapp.generated.resources.fold_by_quarter
 import zhoutools.composeapp.generated.resources.fold_by_week
@@ -45,6 +47,8 @@ import zhoutools.composeapp.generated.resources.fold_by_year
 import zhoutools.composeapp.generated.resources.ic_history_overtime
 import zhoutools.composeapp.generated.resources.ic_history_run
 import zhoutools.composeapp.generated.resources.ic_working
+import zhoutools.composeapp.generated.resources.max_working_time
+import zhoutools.composeapp.generated.resources.min_working_time
 import zhoutools.composeapp.generated.resources.no_history_data
 import zhoutools.composeapp.generated.resources.time_card
 import zhoutools.composeapp.generated.resources.time_run
@@ -83,6 +87,10 @@ private fun WeekList(state: DetailHistoryState, channel: Channel<DetailAction>) 
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(start = 16.dp)
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                FoldPeriodCard(foldPeriod = it)
             }
         } else {
             items(state.weekList) {
@@ -105,6 +113,79 @@ private fun WeekList(state: DetailHistoryState, channel: Channel<DetailAction>) 
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun FoldPeriodCard(foldPeriod: DetailHistoryFoldPeriod) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color.White),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Box(modifier = Modifier
+            .padding(8.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(AppColors.LightTheme)
+            .size(56.dp)
+        ) {
+            val annotatedString = buildAnnotatedString {
+                withStyle(SpanStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.sp)) {
+                    append(foldPeriod.totalOvertimeDays.toString())
+                }
+                withStyle(SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.Normal, letterSpacing = 0.sp)) {
+                    append("\n/ " + foldPeriod.totalWorkDays.toString())
+                }
+            }
+
+            Text(
+                text = annotatedString,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 4.dp),
+                color = Color.White,
+                lineHeight = 16.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        val annotatedString = buildAnnotatedString {
+            withStyle(SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp)) {
+                append(stringResource(Res.string.average_working_time) + ": ")
+            }
+
+            withStyle(SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.Normal, letterSpacing = 0.sp)) {
+                append(foldPeriod.getAverageWorkingTime().toHourMinString(utc = true) + "\n")
+            }
+
+            withStyle(SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp)) {
+                append(stringResource(Res.string.max_working_time) + ": ")
+            }
+
+            withStyle(SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.Normal, letterSpacing = 0.sp)) {
+                append(foldPeriod.maxWorkingTime.toHourMinString(utc = true) + "\n")
+            }
+
+            withStyle(SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp)) {
+                append(stringResource(Res.string.min_working_time) + ": ")
+            }
+
+            withStyle(SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.Normal, letterSpacing = 0.sp)) {
+                append(foldPeriod.minWorkingTime.toHourMinString(utc = true))
+            }
+        }
+
+        Text(
+            annotatedString,
+            lineHeight = 20.sp,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
     }
 }
 

@@ -142,4 +142,7 @@
     <string name="fold_by_month">Fold by Month</string>
     <string name="fold_by_quarter">Fold by Quarter</string>
     <string name="fold_by_year">Fold by Year</string>
+    <string name="average_working_time">Average Working Time</string>
+    <string name="max_working_time">Maximum Working Time</string>
+    <string name="min_working_time">Minimum Working Time</string>
 </resources>
