@@ -76,6 +76,7 @@ import zhoutools.composeapp.generated.resources.write_memo
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
+    val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
     val (state, channel) = rememberPresenter { WriteMemoPresenter(it) }
 
@@ -98,7 +99,11 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     ) {
         BottomSheetScaffold(
             sheetContent = {
-                BottomSheetContent()
+                BottomSheetContent(state, channel, close = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.collapse()
+                    }
+                })
             },
             scaffoldState = scaffoldState,
             sheetGesturesEnabled = true,
@@ -173,7 +178,7 @@ private fun MainColumn(
             { channel.trySend(WriteMemoAction.SetTodo(it)) },
             state.isPin,
             { channel.trySend(WriteMemoAction.SetPin(it)) },
-            stringResource(Res.string.group),
+            state.group ?: stringResource(Res.string.unsorted),
             { scope.launch { scaffoldState.bottomSheetState.expand() } }
         )
 
@@ -288,7 +293,7 @@ private fun SettingsLayout(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = group,
+                text = stringResource(Res.string.group),
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp
             )
@@ -296,7 +301,7 @@ private fun SettingsLayout(
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = stringResource(Res.string.unsorted),
+                text = group,
                 fontSize = 16.sp
             )
         }
@@ -305,7 +310,7 @@ private fun SettingsLayout(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun BottomSheetContent() {
+private fun BottomSheetContent(state: WriteMemoState, channel: Channel<WriteMemoAction>, close: () -> Unit) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .navigationBarsPadding()
@@ -313,12 +318,29 @@ private fun BottomSheetContent() {
         val chipColors = AppColors.getChipColors()
 
         FlowRow(modifier = Modifier.padding(16.dp)) {
-            repeat(10) {
+            FilterChip(
+                selected = state.group == null,
+                onClick = {
+                    channel.trySend(WriteMemoAction.SetGroup(null))
+                    close()
+                },
+                label = {
+                    androidx.compose.material3.Text(text = stringResource(Res.string.unsorted))
+                },
+                colors = chipColors,
+                modifier = Modifier.padding(end = 8.dp),
+                border = null
+            )
+
+            state.allGroups.forEach {
                 FilterChip(
-                    selected = it % 2 == 0,
-                    onClick = {},
+                    selected = state.group == it,
+                    onClick = {
+                        channel.trySend(WriteMemoAction.SetGroup(it))
+                        close()
+                    },
                     label = {
-                        androidx.compose.material3.Text(text = stringResource(Res.string.unsorted))
+                        androidx.compose.material3.Text(text = it)
                     },
                     colors = chipColors,
                     modifier = Modifier.padding(end = 8.dp),

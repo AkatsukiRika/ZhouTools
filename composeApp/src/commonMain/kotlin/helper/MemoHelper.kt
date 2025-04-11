@@ -9,21 +9,22 @@ import store.AppStore
 import util.TimeUtil
 
 object MemoHelper {
-    fun addMemo(text: String, todo: Boolean, pin: Boolean) {
+    fun addMemo(text: String, todo: Boolean, pin: Boolean, group: String? = null) {
         val time = TimeUtil.currentTimeMillis()
         val memo = Memo(
             text = text,
             isTodo = todo,
             isPin = pin,
             createTime = time,
-            modifyTime = time
+            modifyTime = time,
+            group = group
         )
         val memos = getMemos()
         memos.add(memo)
         saveMemos(memos)
     }
 
-    fun modifyMemo(memo: Memo, text: String, todo: Boolean, pin: Boolean) {
+    fun modifyMemo(memo: Memo, text: String, todo: Boolean, pin: Boolean, group: String? = null) {
         val memos = getMemos()
         val findResult = memos.find {
             it.text == memo.text
@@ -31,14 +32,16 @@ object MemoHelper {
                     && it.isPin == memo.isPin
                     && it.createTime == memo.createTime
                     && it.modifyTime == memo.modifyTime
+                    && it.group == memo.group
         }
         if (findResult != null) {
             findResult.text = text
             findResult.isTodo = todo
             findResult.isPin = pin
             findResult.modifyTime = TimeUtil.currentTimeMillis()
+            findResult.group = group
         } else {
-            addMemo(text, todo, pin)
+            addMemo(text, todo, pin, group)
         }
         saveMemos(memos)
     }
@@ -51,6 +54,7 @@ object MemoHelper {
                     && it.isPin == memo.isPin
                     && it.createTime == memo.createTime
                     && it.modifyTime == memo.modifyTime
+                    && it.group == memo.group
         }
         if (findResult != null) {
             findResult.isTodoFinished = done
@@ -72,6 +76,17 @@ object MemoHelper {
         displayList.addAll(pinList)
         displayList.addAll(notPinList)
         return displayList
+    }
+
+    fun getGroupSet(): Set<String> {
+        val memos = getMemos()
+        val groupSet = mutableSetOf<String>()
+        memos.forEach {
+            it.group?.let { group ->
+                groupSet.add(group)
+            }
+        }
+        return groupSet
     }
 
     fun buildSyncRequest(): MemoSyncRequest? {

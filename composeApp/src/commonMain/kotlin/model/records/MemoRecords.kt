@@ -23,5 +23,7 @@ data class Memo(
     val createTime: Long = 0L,
     @Serializable(with = DoubleToLongSerializer::class)
     @SerialName("modify_time")
-    var modifyTime: Long = 0L
+    var modifyTime: Long = 0L,
+    @SerialName("group")
+    var group: String? = null
 )

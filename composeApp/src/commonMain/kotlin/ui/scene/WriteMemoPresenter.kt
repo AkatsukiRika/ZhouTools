@@ -20,6 +20,8 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
     var text by remember { mutableStateOf("") }
     var isTodo by remember { mutableStateOf(false) }
     var isPin by remember { mutableStateOf(false) }
+    val allGroups by remember { mutableStateOf(MemoHelper.getGroupSet()) }
+    var group by remember { mutableStateOf<String?>(null) }
 
     actionFlow.collectAction {
         when (this) {
@@ -28,6 +30,7 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
                 text = editMemo.text
                 isTodo = editMemo.isTodo
                 isPin = editMemo.isPin
+                group = editMemo.group
             }
 
             is WriteMemoAction.SetTodo -> {
@@ -36,6 +39,10 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
 
             is WriteMemoAction.SetPin -> {
                 isPin = this.newPin
+            }
+
+            is WriteMemoAction.SetGroup -> {
+                group = this.group
             }
 
             is WriteMemoAction.Delete -> {
@@ -63,20 +70,23 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
         }
     }
 
-    return WriteMemoState(memo, text, isTodo, isPin)
+    return WriteMemoState(memo, text, isTodo, isPin, allGroups, group)
 }
 
 data class WriteMemoState(
     val memo: Memo? = null,
     val text: String = "",
     val isTodo: Boolean = false,
-    val isPin: Boolean = false
+    val isPin: Boolean = false,
+    val allGroups: Set<String> = emptySet(),
+    val group: String? = null
 )
 
 sealed interface WriteMemoAction {
     data class BeginEdit(val editMemo: Memo) : WriteMemoAction
     data class SetTodo(val newTodo: Boolean) : WriteMemoAction
     data class SetPin(val newPin: Boolean) : WriteMemoAction
+    data class SetGroup(val group: String?) : WriteMemoAction
     data class Delete(val navigator: Navigator) : WriteMemoAction
     data class Confirm(val text: String, val navigator: Navigator) : WriteMemoAction
 }
