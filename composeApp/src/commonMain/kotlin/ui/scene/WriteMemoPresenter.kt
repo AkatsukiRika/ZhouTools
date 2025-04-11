@@ -20,7 +20,7 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
     var text by remember { mutableStateOf("") }
     var isTodo by remember { mutableStateOf(false) }
     var isPin by remember { mutableStateOf(false) }
-    val allGroups by remember { mutableStateOf(MemoHelper.getGroupSet()) }
+    var allGroups by remember { mutableStateOf(MemoHelper.getGroupSet()) }
     var group by remember { mutableStateOf<String?>(null) }
 
     actionFlow.collectAction {
@@ -43,6 +43,11 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
 
             is WriteMemoAction.SetGroup -> {
                 group = this.group
+                group?.let {
+                    val newAllGroups = allGroups.toMutableSet()
+                    newAllGroups.add(it)
+                    allGroups = newAllGroups
+                }
             }
 
             is WriteMemoAction.Delete -> {
@@ -57,10 +62,10 @@ fun WriteMemoPresenter(actionFlow: Flow<WriteMemoAction>): WriteMemoState {
             is WriteMemoAction.Confirm -> {
                 text = this.text
                 if (memo == null) {
-                    MemoHelper.addMemo(text, isTodo, isPin)
+                    MemoHelper.addMemo(text, isTodo, isPin, group)
                 } else {
                     memo?.let {
-                        MemoHelper.modifyMemo(it, text, isTodo, isPin)
+                        MemoHelper.modifyMemo(it, text, isTodo, isPin, group)
                     }
                 }
                 SyncHelper.autoPushMemo()
