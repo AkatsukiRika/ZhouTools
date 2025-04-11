@@ -15,6 +15,7 @@ object AppColors {
     val DarkGreen = Color(0xFF41B06E)
     val Red = Color(0xFFC40C0C)
     val LightGold = Color(0xFFE1B84C)
+    val Yellow = Color(0xFFFFD95F)
 
     @Composable
     fun getChipColors() = FilterChipDefaults.elevatedFilterChipColors(

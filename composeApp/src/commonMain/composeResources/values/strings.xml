@@ -145,4 +145,7 @@
     <string name="average_working_time">Average Working Time</string>
     <string name="max_working_time">Maximum Working Time</string>
     <string name="min_working_time">Minimum Working Time</string>
+    <string name="group">Group</string>
+    <string name="unsorted">Unsorted</string>
+    <string name="add_group">Add Group</string>
 </resources>
