@@ -7,10 +7,18 @@
 | |                                                  |
 | - |--------------------------------------------------|
 | **Supported Platforms** | Android 7.0+ / iOS (building from source needed) |
-| **Latest Version** | 1.3.0                                            |
+| **Latest Version** | 1.4.0                                            |
 | **UI Language** | English                                          |
 
 ## Update Notes
+
+### Version 1.4.0
+
+- New statistics feature in `Time Card > Details > History`: Summarizing working hours by week/month/quarter/year.
+
+- New grouping functionality in `Memo` : Grouping notes and TODO tasks.
+
+- Android and iOS keyboard experience optimizations for the Memo feature.
 
 ### Version 1.3.0
 
