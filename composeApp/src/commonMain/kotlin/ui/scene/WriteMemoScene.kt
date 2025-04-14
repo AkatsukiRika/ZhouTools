@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -38,7 +36,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,21 +47,23 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import extension.clickableNoRipple
 import helper.effect.WriteMemoEffect
 import global.AppColors
 import helper.effect.EffectHelper
+import hideSoftwareKeyboard
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import rememberKeyboardVisibilityState
 import ui.widget.BaseImmersiveScene
 import ui.widget.TitleBar
 import ui.widget.VerticalDivider
@@ -164,13 +163,7 @@ private fun MainColumn(
     hideBottomSheet: () -> Unit
 ) {
     var text by remember(state.text) { mutableStateOf(state.text) }
-    val density = LocalDensity.current
-    val imeInsets = WindowInsets.ime
-    val isImeVisible by remember {
-        derivedStateOf {
-            imeInsets.getBottom(density) > 0
-        }
-    }
+    val isImeVisible by rememberKeyboardVisibilityState()
 
     Column {
         TitleBar(
@@ -180,23 +173,32 @@ private fun MainColumn(
             )
         )
 
-        TextField(
-            value = text,
-            onValueChange = {
-                text = it
-            },
-            modifier = Modifier
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .fillMaxWidth()
-                .weight(1f)
-                .clip(RoundedCornerShape(12.dp)),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                backgroundColor = Color.White
+        Box(modifier = Modifier
+            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+            .fillMaxWidth()
+            .weight(1f)
+            .clip(RoundedCornerShape(12.dp))
+        ) {
+            TextField(
+                value = text,
+                onValueChange = {
+                    text = it
+                },
+                modifier = Modifier.fillMaxSize(),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    backgroundColor = Color.White
+                )
             )
-        )
+
+            if (isImeVisible) {
+                ConfirmButton(modifier = Modifier.align(Alignment.BottomEnd), cornerRadius = 12.dp) {
+                    hideSoftwareKeyboard()
+                }
+            }
+        }
 
         if (isImeVisible) {
             Spacer(modifier = Modifier.height(16.dp))
@@ -452,30 +454,37 @@ private fun BottomSheetContent(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Box(modifier = Modifier
-                    .size(42.dp)
-                    .background(
-                        Brush.verticalGradient(colors = listOf(AppColors.LightTheme, AppColors.Theme)),
-                        RoundedCornerShape(8.dp)
-                    )
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable {
-                        if (inputGroupName.isNotEmpty()) {
-                            channel.trySend(WriteMemoAction.SetGroup(inputGroupName))
-                        }
-                        setShowTextInput(false)
+                ConfirmButton {
+                    if (inputGroupName.isNotEmpty()) {
+                        channel.trySend(WriteMemoAction.SetGroup(inputGroupName))
                     }
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_tick),
-                        tint = Color.Black,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(24.dp),
-                        contentDescription = null
-                    )
+                    setShowTextInput(false)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ConfirmButton(modifier: Modifier = Modifier, cornerRadius: Dp = 8.dp, onClick: () -> Unit) {
+    Box(modifier = modifier
+        .size(42.dp)
+        .background(
+            Brush.verticalGradient(colors = listOf(AppColors.LightTheme, AppColors.Theme)),
+            RoundedCornerShape(cornerRadius)
+        )
+        .clip(RoundedCornerShape(cornerRadius))
+        .clickable {
+            onClick()
+        }
+    ) {
+        Icon(
+            painter = painterResource(Res.drawable.ic_tick),
+            tint = Color.Black,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .size(24.dp),
+            contentDescription = null
+        )
     }
 }

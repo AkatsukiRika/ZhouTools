@@ -6,6 +6,13 @@ import android.graphics.Color
 import android.os.Build
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
 import com.tangping.zhoujiang.MainActivity
 
 actual fun isIOS(): Boolean = false
@@ -55,4 +62,16 @@ actual fun setNavigationBarColor(colorStr: String, isLight: Boolean) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         window.navigationBarDividerColor = Color.parseColor(colorStr)
     }
+}
+
+@Composable
+actual fun rememberKeyboardVisibilityState(): State<Boolean> {
+    val density = LocalDensity.current
+    val imeInsets = WindowInsets.ime
+    val isImeVisible = remember {
+        derivedStateOf {
+            imeInsets.getBottom(density) > 0
+        }
+    }
+    return isImeVisible
 }
