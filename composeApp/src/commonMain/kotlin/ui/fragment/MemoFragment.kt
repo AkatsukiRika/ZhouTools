@@ -1,5 +1,6 @@
 package ui.fragment
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,8 @@ import helper.effect.EffectHelper
 import helper.effect.MemoEffect
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import model.display.GroupDisplayItem
+import model.display.MemoDisplayItem
 import model.records.GOAL_TYPE_DEPOSIT
 import model.records.GOAL_TYPE_TIME
 import model.records.Goal
@@ -207,8 +210,12 @@ private fun MemosLayout(state: MemoState, channel: Channel<MemoAction>, showBott
     val lazyListState = rememberLazyListState()
 
     LazyColumn(state = lazyListState) {
-        items(state.displayList) { memo ->
-            MemoItem(memo, channel)
+        items(state.displayList) { item ->
+            if (item is GroupDisplayItem) {
+                GroupItem(item.name)
+            } else if (item is MemoDisplayItem) {
+                MemoItem(item.memo, channel)
+            }
         }
 
         if (showBottomSpace) {
@@ -220,7 +227,9 @@ private fun MemosLayout(state: MemoState, channel: Channel<MemoAction>, showBott
 
     LaunchedEffect(showBottomSpace) {
         if (showBottomSpace) {
-            val selectIndex = state.displayList.indexOfFirst { it == state.curMemo }
+            val selectIndex = state.displayList.indexOfFirst {
+                it is MemoDisplayItem && it.memo == state.curMemo
+            }
             if (selectIndex in state.displayList.indices) {
                 lazyListState.animateScrollToItem(selectIndex)
             }
@@ -276,6 +285,35 @@ private fun GoalsLayout(state: MemoState, channel: Channel<MemoAction>, showBott
                 Spacer(modifier = Modifier.height(148.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun GroupItem(name: String) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp)
+        .padding(bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier
+            .weight(1f)
+            .height(1.dp)
+            .background(AppColors.Divider)
+        )
+
+        Text(
+            text = name,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 12.dp)
+        )
+
+        Box(modifier = Modifier
+            .weight(1f)
+            .height(1.dp)
+            .background(AppColors.Divider)
+        )
     }
 }
 

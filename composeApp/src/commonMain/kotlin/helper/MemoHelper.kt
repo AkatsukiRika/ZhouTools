@@ -1,12 +1,19 @@
 package helper
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import model.display.GroupDisplayItem
+import model.display.IMemoDisplayItem
+import model.display.MemoDisplayItem
 import model.records.Memo
 import model.records.MemoRecords
 import model.request.MemoSyncRequest
+import org.jetbrains.compose.resources.getString
 import store.AppStore
 import util.TimeUtil
+import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.unsorted
 
 object MemoHelper {
     fun addMemo(text: String, todo: Boolean, pin: Boolean, group: String? = null) {
@@ -68,13 +75,34 @@ object MemoHelper {
         saveMemos(memos)
     }
 
-    fun getDisplayList(): List<Memo> {
+    fun getDisplayList(): List<IMemoDisplayItem> {
         val memos = getMemos()
-        val displayList = mutableListOf<Memo>()
-        val pinList = memos.filter { it.isPin }
-        val notPinList = memos.filterNot { it.isPin }
-        displayList.addAll(pinList)
-        displayList.addAll(notPinList)
+        val displayList = mutableListOf<IMemoDisplayItem>()
+        val groupSet = getGroupSet().sorted()
+        groupSet.forEach { group ->
+            val groupDisplayItem = GroupDisplayItem(group)
+            displayList.add(groupDisplayItem)
+            val groupMemos = memos.filter { it.group == group }
+            val groupPinMemos = groupMemos.filter { it.isPin }
+            val groupNotPinMemos = groupMemos.filterNot { it.isPin }
+            groupPinMemos.forEach { memo ->
+                displayList.add(MemoDisplayItem(memo))
+            }
+            groupNotPinMemos.forEach { memo ->
+                displayList.add(MemoDisplayItem(memo))
+            }
+        }
+        val unsortedMemos = memos.filter { it.group == null }
+        val unsortedPinMemos = unsortedMemos.filter { it.isPin }
+        val unsortedNotPinMemos = unsortedMemos.filterNot { it.isPin }
+        val unsorted = runBlocking { getString(Res.string.unsorted) }
+        displayList.add(GroupDisplayItem(unsorted))
+        unsortedPinMemos.forEach { memo ->
+            displayList.add(MemoDisplayItem(memo))
+        }
+        unsortedNotPinMemos.forEach { memo ->
+            displayList.add(MemoDisplayItem(memo))
+        }
         return displayList
     }
 

@@ -16,6 +16,7 @@ import helper.effect.EffectHelper
 import helper.effect.WriteMemoEffect
 import kotlinx.coroutines.flow.Flow
 import logger
+import model.display.IMemoDisplayItem
 import model.records.DepositRecords
 import model.records.GOAL_TYPE_DEPOSIT
 import model.records.GOAL_TYPE_TIME
@@ -130,7 +131,7 @@ fun MemoPresenter(actionFlow: Flow<MemoAction>, onGoEdit: () -> Unit): MemoState
 }
 
 data class MemoState(
-    val displayList: List<Memo> = emptyList(),
+    val displayList: List<IMemoDisplayItem> = emptyList(),
     val curMemo: Memo? = null,
     val showBottomSheet: Boolean = false,
     val mode: Int = MODE_MEMO,
