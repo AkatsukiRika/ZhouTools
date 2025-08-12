@@ -67,6 +67,9 @@ kotlin {
             api(libs.km.logging)
             // Material3
             implementation(libs.material3)
+            // Lifecycle
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation(libs.androidx.lifecycle.runtime.compose)
             // KotStore
             implementation(project(":kotStore"))
         }
