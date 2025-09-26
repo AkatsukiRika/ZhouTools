@@ -16,6 +16,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,18 +25,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import constant.RouteConstants
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
 import helper.SyncHelper
+import helper.TimeCardHelper
 import helper.effect.EffectHelper
 import helper.effect.TimeCardEffect
-import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import helper.TimeCardHelper
 import ui.widget.FragmentHeader
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_details
@@ -51,12 +53,13 @@ fun TimeCardFragment(
     modifier: Modifier = Modifier,
     navigator: Navigator
 ) {
-    val (state, channel) = rememberPresenter { TimeCardPresenter(actionFlow = it) }
+    val viewModel: TimeCardViewModel = viewModel()
+    val state by viewModel.uiState.collectAsState()
 
     EffectHelper.observeTimeCardEffect {
         when (it) {
             is TimeCardEffect.RefreshTodayState -> {
-                channel.trySend(TimeCardAction.RefreshTodayState)
+                viewModel.dispatch(TimeCardAction.RefreshTodayState)
             }
         }
     }
@@ -89,7 +92,7 @@ fun TimeCardFragment(
         if (state.todayTimeCard == 0L) {
             Button(
                 onClick = {
-                    channel.trySend(TimeCardAction.PressTimeCard)
+                    viewModel.dispatch(TimeCardAction.PressTimeCard)
                 },
                 modifier = Modifier
                     .padding(top = 32.dp)
@@ -110,7 +113,7 @@ fun TimeCardFragment(
                 workingTime = state.todayWorkTime,
                 isRun = state.todayRunTime != 0L,
                 onRun = {
-                    channel.trySend(TimeCardAction.Run)
+                    viewModel.dispatch(TimeCardAction.Run)
                 }
             )
         }
