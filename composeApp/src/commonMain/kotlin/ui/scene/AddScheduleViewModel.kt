@@ -60,6 +60,7 @@ sealed interface AddScheduleAction {
     data class SetTimeEditType(val editType: TimeEditType?) : AddScheduleAction
     data class Confirm(val text: String, val milestoneGoalMillis: Long) : AddScheduleAction
     data class BeginEdit(val schedule: Schedule) : AddScheduleAction
+    data object Reset : AddScheduleAction
 }
 
 sealed interface AddScheduleEvent {
@@ -96,6 +97,9 @@ class AddScheduleViewModel : ViewModel() {
 
     fun dispatch(action: AddScheduleAction) {
         when (action) {
+            is AddScheduleAction.Reset -> {
+                resetState()
+            }
             is AddScheduleAction.SetDate -> {
                 setDate(action.dateTriple)
             }
@@ -134,6 +138,24 @@ class AddScheduleViewModel : ViewModel() {
                 initEditData(action.schedule)
             }
         }
+    }
+
+    private fun resetState() {
+        val now = TimeUtil.currentTimeMillis()
+        _uiState.value = AddScheduleState(
+            year = now.getYear(),
+            monthOfYear = now.getMonthOfYear(),
+            dayOfMonth = now.getDayOfMonth(),
+            text = "",
+            startTime = now,
+            endTime = now,
+            isAllDay = false,
+            isMilestone = false,
+            timeEditType = null,
+            isEdit = false,
+            milestoneGoalMillis = 0L,
+            editItem = null
+        )
     }
 
     private fun setDate(dateTriple: Triple<Int, Int, Int>) {

@@ -30,6 +30,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -45,8 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import helper.effect.AddScheduleEffect
-import helper.effect.ScheduleEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
 import constant.RouteConstants
 import constant.TimeConstants
 import extension.clickableNoRipple
@@ -55,13 +55,13 @@ import extension.toHourMinString
 import global.AppColors
 import helper.ScheduleHelper
 import helper.SyncHelper
+import helper.effect.AddScheduleEffect
 import helper.effect.EffectHelper
-import kotlinx.coroutines.channels.Channel
+import helper.effect.ScheduleEffect
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import model.calendar.MonthDay
 import model.records.Schedule
-import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -89,7 +89,8 @@ import zhoutools.composeapp.generated.resources.x_days_until
 fun ScheduleFragment(navigator: Navigator) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
-    val (state, channel) = rememberPresenter(keys = listOf(scope)) { SchedulePresenter(it) }
+    val viewModel: ScheduleViewModel = viewModel()
+    val state by viewModel.uiState.collectAsState()
     val scheduleList = remember { mutableStateListOf<Schedule>() }
     var selectItem by remember { mutableStateOf<Schedule?>(null) }
 
@@ -165,10 +166,10 @@ fun ScheduleFragment(navigator: Navigator) {
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 8.dp),
                 state = state,
-                channel = channel
+                onAction = viewModel::dispatch
             )
 
-            CalendarGrid(state, channel)
+            CalendarGrid(state, viewModel::dispatch)
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -200,7 +201,7 @@ fun ScheduleFragment(navigator: Navigator) {
 }
 
 @Composable
-private fun MonthRow(modifier: Modifier = Modifier, state: ScheduleState, channel: Channel<ScheduleAction>) {
+private fun MonthRow(modifier: Modifier = Modifier, state: ScheduleState, onAction: (ScheduleAction) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -212,7 +213,7 @@ private fun MonthRow(modifier: Modifier = Modifier, state: ScheduleState, channe
             modifier = Modifier
                 .clip(CircleShape)
                 .clickable {
-                    channel.trySend(ScheduleAction.GoPrevMonth)
+                    onAction(ScheduleAction.GoPrevMonth)
                 }
                 .padding(8.dp)
                 .size(18.dp)
@@ -232,7 +233,7 @@ private fun MonthRow(modifier: Modifier = Modifier, state: ScheduleState, channe
             modifier = Modifier
                 .clip(CircleShape)
                 .clickable {
-                    channel.trySend(ScheduleAction.GoNextMonth)
+                    onAction(ScheduleAction.GoNextMonth)
                 }
                 .padding(8.dp)
                 .size(18.dp)
@@ -241,7 +242,7 @@ private fun MonthRow(modifier: Modifier = Modifier, state: ScheduleState, channe
 }
 
 @Composable
-private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>) {
+private fun CalendarGrid(state: ScheduleState, onAction: (ScheduleAction) -> Unit) {
     LazyVerticalGrid(
         modifier = Modifier
             .background(Color.White)
@@ -284,21 +285,21 @@ private fun CalendarGrid(state: ScheduleState, channel: Channel<ScheduleAction>)
             }
 
             items(state.currMonthDays) {
-                CurrentMonthDay(state, it, channel)
+                CurrentMonthDay(state, it, onAction)
             }
         }
     )
 }
 
 @Composable
-private fun CurrentMonthDay(state: ScheduleState, dayOfMonth: MonthDay, channel: Channel<ScheduleAction>) {
+private fun CurrentMonthDay(state: ScheduleState, dayOfMonth: MonthDay, onAction: (ScheduleAction) -> Unit) {
     val isToday = state.isToday(dayOfMonth.day)
     val isSelect = state.isSelect(dayOfMonth.day)
     val isHoliday = dayOfMonth.isHoliday
 
     Box(modifier = Modifier
         .clickable {
-            channel.trySend(ScheduleAction.SelectDay(
+            onAction(ScheduleAction.SelectDay(
                 Triple(state.currYear, state.currMonthOfYear, dayOfMonth.day)
             ))
         }

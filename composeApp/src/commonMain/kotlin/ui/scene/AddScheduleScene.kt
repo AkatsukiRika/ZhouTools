@@ -112,6 +112,7 @@ fun AddScheduleScene(navigator: Navigator) {
     EffectHelper.observeAddScheduleEffect {
         when (it) {
             is AddScheduleEffect.SetDate -> {
+                viewModel.dispatch(AddScheduleAction.Reset)
                 viewModel.dispatch(AddScheduleAction.SetDate(Triple(it.year, it.month, it.day)))
             }
 
