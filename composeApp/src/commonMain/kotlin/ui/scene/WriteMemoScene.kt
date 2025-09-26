@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedButton
@@ -28,14 +27,17 @@ import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,14 +54,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import extension.clickableNoRipple
-import helper.effect.WriteMemoEffect
 import global.AppColors
 import helper.effect.EffectHelper
+import helper.effect.WriteMemoEffect
 import hideSoftwareKeyboard
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -84,7 +85,8 @@ import zhoutools.composeapp.generated.resources.write_memo
 @Composable
 fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     val scope = rememberCoroutineScope()
-    val (state, channel) = rememberPresenter { WriteMemoPresenter(it) }
+    val viewModel: WriteMemoViewModel = viewModel()
+    val state by viewModel.uiState.collectAsState()
     var showTextInput by remember { mutableStateOf(false) }
     val bottomSheetState = rememberStandardBottomSheetState(
         skipHiddenState = false,
@@ -97,11 +99,21 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState)
 
+    LaunchedEffect(Unit) {
+        viewModel.writeMemoEvent.collect { event ->
+            when (event) {
+                is WriteMemoEvent.GoBack -> {
+                    navigator.goBack()
+                }
+            }
+        }
+    }
+
     EffectHelper.observeWriteMemoEffect {
         when (it) {
             is WriteMemoEffect.BeginEdit -> {
                 if (isEdit) {
-                    channel.trySend(WriteMemoAction.BeginEdit(editMemo = it.memo))
+                    viewModel.dispatch(WriteMemoAction.BeginEdit(editMemo = it.memo))
                 }
             }
         }
@@ -116,7 +128,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     ) {
         BottomSheetScaffold(
             sheetContent = {
-                BottomSheetContent(state, channel,
+                BottomSheetContent(state, viewModel::dispatch,
                     showTextInput = showTextInput,
                     close = {
                         scope.launch {
@@ -136,16 +148,11 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
                 navigator = navigator,
                 isEdit = isEdit,
                 state = state,
-                channel = channel,
+                onAction = viewModel::dispatch,
                 showBottomSheet = {
                     scope.launch {
                         scaffoldState.bottomSheetState.expand()
                         showTextInput = false
-                    }
-                },
-                hideBottomSheet = {
-                    scope.launch {
-                        scaffoldState.bottomSheetState.hide()
                     }
                 }
             )
@@ -158,9 +165,8 @@ private fun MainColumn(
     navigator: Navigator,
     isEdit: Boolean,
     state: WriteMemoState,
-    channel: Channel<WriteMemoAction>,
-    showBottomSheet: () -> Unit,
-    hideBottomSheet: () -> Unit
+    onAction: (WriteMemoAction) -> Unit,
+    showBottomSheet: () -> Unit
 ) {
     var text by remember(state.text) { mutableStateOf(state.text) }
     val isImeVisible by rememberKeyboardVisibilityState()
@@ -207,9 +213,9 @@ private fun MainColumn(
 
         SettingsLayout(
             state.isTodo,
-            { channel.trySend(WriteMemoAction.SetTodo(it)) },
+            { onAction(WriteMemoAction.SetTodo(it)) },
             state.isPin,
-            { channel.trySend(WriteMemoAction.SetPin(it)) },
+            { onAction(WriteMemoAction.SetPin(it)) },
             state.group ?: stringResource(Res.string.unsorted),
             showBottomSheet
         )
@@ -217,7 +223,7 @@ private fun MainColumn(
         if (isEdit) {
             OutlinedButton(
                 onClick = {
-                    channel.trySend(WriteMemoAction.Delete(navigator))
+                    onAction(WriteMemoAction.Delete)
                 },
                 modifier = Modifier
                     .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
@@ -236,7 +242,7 @@ private fun MainColumn(
 
         Button(
             onClick = {
-                channel.trySend(WriteMemoAction.Confirm(text, navigator))
+                onAction(WriteMemoAction.Confirm(text))
             },
             modifier = Modifier
                 .padding(start = 24.dp, end = 24.dp, bottom = 48.dp)
@@ -344,7 +350,7 @@ private fun SettingsLayout(
 @Composable
 private fun BottomSheetContent(
     state: WriteMemoState,
-    channel: Channel<WriteMemoAction>,
+    onAction: (WriteMemoAction) -> Unit,
     showTextInput: Boolean,
     close: () -> Unit,
     setShowTextInput: (Boolean) -> Unit
@@ -366,7 +372,7 @@ private fun BottomSheetContent(
                 selected = state.group == null,
                 enabled = !showTextInput,
                 onClick = {
-                    channel.trySend(WriteMemoAction.SetGroup(null))
+                    onAction(WriteMemoAction.SetGroup(null))
                     close()
                 },
                 label = {
@@ -377,16 +383,16 @@ private fun BottomSheetContent(
                 border = null
             )
 
-            state.allGroups.forEach {
+            state.allGroups.forEach { groupName ->
                 FilterChip(
-                    selected = state.group == it,
+                    selected = state.group == groupName,
                     enabled = !showTextInput,
                     onClick = {
-                        channel.trySend(WriteMemoAction.SetGroup(it))
+                        onAction(WriteMemoAction.SetGroup(groupName))
                         close()
                     },
                     label = {
-                        androidx.compose.material3.Text(text = it)
+                        androidx.compose.material3.Text(text = groupName)
                     },
                     colors = chipColors,
                     modifier = Modifier.padding(end = 8.dp),
@@ -456,7 +462,7 @@ private fun BottomSheetContent(
 
                 ConfirmButton {
                     if (inputGroupName.isNotEmpty()) {
-                        channel.trySend(WriteMemoAction.SetGroup(inputGroupName))
+                        onAction(WriteMemoAction.SetGroup(inputGroupName))
                     }
                     setShowTextInput(false)
                 }
