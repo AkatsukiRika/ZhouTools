@@ -36,6 +36,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,20 +54,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import extension.clickableNoRipple
 import extension.daysToMillis
-import helper.effect.AddScheduleEffect
 import extension.getHour
 import extension.getMinute
 import extension.toDays
 import extension.toHourMinString
 import global.AppColors
+import helper.effect.AddScheduleEffect
 import helper.effect.EffectHelper
 import hideSoftwareKeyboard
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
@@ -92,7 +92,8 @@ import zhoutools.composeapp.generated.resources.start_time
 fun AddScheduleScene(navigator: Navigator) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val (state, channel) = rememberPresenter { AddSchedulePresenter(it) }
+    val viewModel: AddScheduleViewModel = viewModel()
+    val state by viewModel.uiState.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
     var text by remember(state.text) { mutableStateOf(state.text) }
     var timePickerState by remember {
@@ -100,14 +101,22 @@ fun AddScheduleScene(navigator: Navigator) {
     }
     var milestoneGoalStr by remember(state.milestoneGoalMillis) { mutableStateOf(state.milestoneGoalMillis.toDays().toString()) }
 
+    LaunchedEffect(Unit) {
+        viewModel.addScheduleEvent.collect { event ->
+            when (event) {
+                is AddScheduleEvent.GoBack -> navigator.goBack()
+            }
+        }
+    }
+
     EffectHelper.observeAddScheduleEffect {
         when (it) {
             is AddScheduleEffect.SetDate -> {
-                channel.trySend(AddScheduleAction.SetDate(Triple(it.year, it.month, it.day)))
+                viewModel.dispatch(AddScheduleAction.SetDate(Triple(it.year, it.month, it.day)))
             }
 
             is AddScheduleEffect.BeginEdit -> {
-                channel.trySend(AddScheduleAction.BeginEdit(it.schedule))
+                viewModel.dispatch(AddScheduleAction.BeginEdit(it.schedule))
             }
         }
     }
@@ -121,7 +130,7 @@ fun AddScheduleScene(navigator: Navigator) {
     ) {
         BottomSheetScaffold(
             sheetContent = {
-                BottomSheetContent(timePickerState, scaffoldState, state, channel)
+                BottomSheetContent(timePickerState, scaffoldState, state, viewModel::dispatch)
             },
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
@@ -155,7 +164,9 @@ fun AddScheduleScene(navigator: Navigator) {
                 )
 
                 SettingsLayout(
-                    state, channel, milestoneGoalStr,
+                    state,
+                    viewModel::dispatch,
+                    milestoneGoalStr,
                     onShowBottomSheet = {
                         scope.launch {
                             scaffoldState.bottomSheetState.expand()
@@ -177,8 +188,7 @@ fun AddScheduleScene(navigator: Navigator) {
                             }
                             return@Button
                         }
-                        channel.trySend(AddScheduleAction.Confirm(text, milestoneGoalStr.daysToMillis()))
-                        navigator.goBack()
+                        viewModel.dispatch(AddScheduleAction.Confirm(text, milestoneGoalStr.daysToMillis()))
                     },
                     modifier = Modifier
                         .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
@@ -201,7 +211,7 @@ fun AddScheduleScene(navigator: Navigator) {
 @Composable
 private fun SettingsLayout(
     state: AddScheduleState,
-    channel: Channel<AddScheduleAction>,
+    onAction: (AddScheduleAction) -> Unit,
     milestoneGoalStr: String,
     onShowBottomSheet: () -> Unit,
     onSetPickerTime: (hour: Int, minute: Int) -> Unit,
@@ -244,7 +254,7 @@ private fun SettingsLayout(
                     hideSoftwareKeyboard()
                     onSetPickerTime(state.startTime.getHour(), state.startTime.getMinute())
                     onShowBottomSheet()
-                    channel.trySend(AddScheduleAction.SetTimeEditType(TimeEditType.START_TIME))
+                    onAction(AddScheduleAction.SetTimeEditType(TimeEditType.START_TIME))
                 }
                 .padding(horizontal = 16.dp, vertical = 12.dp)
                 .fillMaxWidth(),
@@ -272,7 +282,7 @@ private fun SettingsLayout(
                     hideSoftwareKeyboard()
                     onSetPickerTime(state.endTime.getHour(), state.endTime.getMinute())
                     onShowBottomSheet()
-                    channel.trySend(AddScheduleAction.SetTimeEditType(TimeEditType.END_TIME))
+                    onAction(AddScheduleAction.SetTimeEditType(TimeEditType.END_TIME))
                 }
                 .padding(horizontal = 16.dp, vertical = 12.dp)
                 .fillMaxWidth(),
@@ -311,7 +321,7 @@ private fun SettingsLayout(
             Switch(
                 checked = state.isAllDay,
                 onCheckedChange = {
-                    channel.trySend(AddScheduleAction.SetAllDay(it))
+                    onAction(AddScheduleAction.SetAllDay(it))
                 },
                 colors = SwitchDefaults.colors(checkedThumbColor = AppColors.Theme, checkedTrackColor = AppColors.LightTheme)
             )
@@ -336,7 +346,7 @@ private fun SettingsLayout(
             Switch(
                 checked = state.isMilestone,
                 onCheckedChange = {
-                    channel.trySend(AddScheduleAction.SetMilestone(it))
+                    onAction(AddScheduleAction.SetMilestone(it))
                 },
                 colors = SwitchDefaults.colors(checkedThumbColor = AppColors.Theme, checkedTrackColor = AppColors.LightTheme)
             )
@@ -407,7 +417,7 @@ private fun ColumnScope.BottomSheetContent(
     timePickerState: TimePickerState,
     scaffoldState: BottomSheetScaffoldState,
     state: AddScheduleState,
-    channel: Channel<AddScheduleAction>
+    onAction: (AddScheduleAction) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -425,9 +435,9 @@ private fun ColumnScope.BottomSheetContent(
         onClick = {
             scope.launch {
                 if (state.timeEditType == TimeEditType.START_TIME) {
-                    channel.trySend(AddScheduleAction.SetStartTime(timePickerState.hour, timePickerState.minute))
+                    onAction(AddScheduleAction.SetStartTime(timePickerState.hour, timePickerState.minute))
                 } else if (state.timeEditType == TimeEditType.END_TIME) {
-                    channel.trySend(AddScheduleAction.SetEndTime(timePickerState.hour, timePickerState.minute))
+                    onAction(AddScheduleAction.SetEndTime(timePickerState.hour, timePickerState.minute))
                 }
                 scaffoldState.bottomSheetState.collapse()
             }
