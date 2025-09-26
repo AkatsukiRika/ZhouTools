@@ -35,6 +35,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import constant.RouteConstants
 import extension.clickableNoRipple
 import extension.monthStartTime
@@ -69,7 +71,6 @@ import helper.effect.EffectHelper
 import hideSoftwareKeyboard
 import kotlinx.coroutines.launch
 import model.records.DepositMonth
-import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -103,7 +104,8 @@ import kotlin.math.roundToLong
 @Composable
 fun DepositFragment(navigator: Navigator) {
     val scope = rememberCoroutineScope()
-    val (state, channel) = rememberPresenter(keys = listOf(scope)) { DepositPresenter(it) }
+    val viewModel = viewModel<DepositViewModel>()
+    val state by viewModel.uiState.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
     )
@@ -118,14 +120,14 @@ fun DepositFragment(navigator: Navigator) {
 
     LaunchedEffect(Unit) {
         SyncHelper.autoPullDeposit(onSuccess = {
-            channel.trySend(DepositAction.RefreshData)
+            viewModel.dispatch(DepositAction.RefreshData)
         })
     }
 
     EffectHelper.observeDepositEffect {
         when (it) {
             is DepositEffect.RefreshData -> {
-                channel.trySend(DepositAction.RefreshData)
+                viewModel.dispatch(DepositAction.RefreshData)
             }
         }
     }
@@ -134,7 +136,7 @@ fun DepositFragment(navigator: Navigator) {
         sheetContent = {
             BottomSheetContent(
                 onConfirm = {
-                    channel.trySend(DepositAction.AddMonth(it))
+                    viewModel.dispatch(DepositAction.AddMonth(it))
                     scope.launch {
                         scaffoldState.bottomSheetState.hide()
                     }
@@ -183,9 +185,9 @@ fun DepositFragment(navigator: Navigator) {
                 .fillMaxWidth()
                 .weight(1f)
             ) {
-                items(state.displayDeque) {
-                    MonthCard(it, onClick = {
-                        deleteDialogRecord = it
+                items(state.displayDeque) { item ->
+                    MonthCard(item, onClick = {
+                        deleteDialogRecord = item
                     })
                 }
             }
@@ -209,7 +211,7 @@ fun DepositFragment(navigator: Navigator) {
             },
             onConfirm = {
                 deleteDialogRecord?.toDepositMonth()?.let {
-                    channel.trySend(DepositAction.RemoveMonth(it))
+                    viewModel.dispatch(DepositAction.RemoveMonth(it))
                 }
                 deleteDialogRecord = null
             }

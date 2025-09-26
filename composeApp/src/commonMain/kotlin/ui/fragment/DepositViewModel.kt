@@ -1,66 +1,58 @@
 package ui.fragment
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import extension.toMonthYearString
 import helper.DepositHelper
 import helper.SyncHelper
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import model.records.DepositMonth
 import model.records.DepositRecords
-import moe.tlaster.precompose.molecule.collectAction
 import store.AppFlowStore
 import ui.fragment.DepositState.Companion.toDeque
 import util.TimeUtil
 
-@Composable
-fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
-    var currentAmount by remember { mutableLongStateOf(0L) }
-    var progress by remember { mutableFloatStateOf(0f) }
-    var displayDeque by remember { mutableStateOf(ArrayDeque<DepositDisplayRecord>()) }
-    val depositGoal = AppFlowStore.totalDepositGoalFlow.collectAsState(initial = 0L).value
+class DepositViewModel : ViewModel() {
+    private val _uiState = MutableStateFlow(DepositState())
+    val uiState: StateFlow<DepositState> = _uiState.asStateFlow()
 
-    fun refreshData() {
-        val depositMonths = DepositHelper.getMonths()
-        val deque = DepositRecords(months = depositMonths).toDeque()
-        displayDeque = deque
-        displayDeque.firstOrNull()?.let {
-            currentAmount = it.currentAmount + it.extraDeposit
-        }
-        if (displayDeque.isEmpty()) {
-            currentAmount = 0L
-        }
-    }
+    private val depositGoal = AppFlowStore.totalDepositGoalFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0L
+    )
 
-    LaunchedEffect(Unit) {
+    init {
         refreshData()
-    }
-
-    LaunchedEffect(depositGoal, currentAmount) {
-        progress = if (depositGoal == 0L) {
-            0f
-        } else {
-            currentAmount.toFloat() / (depositGoal.toFloat() * 100)
+        viewModelScope.launch {
+            depositGoal.collect { goal ->
+                val currentAmount = _uiState.value.currentAmount
+                val newProgress = if (goal == 0L) {
+                    0f
+                } else {
+                    currentAmount.toFloat() / (goal.toFloat() * 100)
+                }
+                _uiState.update { it.copy(progress = newProgress) }
+            }
         }
     }
 
-    actionFlow.collectAction {
-        when (this) {
+    fun dispatch(action: DepositAction) {
+        when (action) {
             is DepositAction.AddMonth -> {
-                DepositHelper.addMonth(month)
+                DepositHelper.addMonth(action.month)
                 SyncHelper.autoPushDeposit()
                 refreshData()
             }
 
             is DepositAction.RemoveMonth -> {
-                DepositHelper.removeMonth(month)
+                DepositHelper.removeMonth(action.month)
                 SyncHelper.autoPushDeposit()
                 refreshData()
             }
@@ -71,8 +63,27 @@ fun DepositPresenter(actionFlow: Flow<DepositAction>): DepositState {
         }
     }
 
-    return DepositState(currentAmount, progress, displayDeque)
+    private fun refreshData() {
+        val depositMonths = DepositHelper.getMonths()
+        val deque = DepositRecords(months = depositMonths).toDeque()
+        val newCurrentAmount = deque.firstOrNull()?.let { it.currentAmount + it.extraDeposit } ?: 0L
+        val depositGoalValue = depositGoal.value
+        val newProgress = if (depositGoalValue == 0L) {
+            0f
+        } else {
+            newCurrentAmount.toFloat() / (depositGoalValue.toFloat() * 100)
+        }
+
+        _uiState.update {
+            it.copy(
+                displayDeque = deque,
+                currentAmount = newCurrentAmount,
+                progress = newProgress
+            )
+        }
+    }
 }
+
 
 data class DepositState(
     val currentAmount: Long = 0L,
