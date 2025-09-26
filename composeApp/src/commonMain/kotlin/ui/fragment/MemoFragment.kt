@@ -26,10 +26,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import constant.RouteConstants
 import extension.clickableNoRipple
 import extension.roundToDecimalPlaces
@@ -51,15 +52,12 @@ import global.AppColors
 import helper.SyncHelper
 import helper.effect.EffectHelper
 import helper.effect.MemoEffect
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
 import model.display.GroupDisplayItem
 import model.display.MemoDisplayItem
 import model.records.GOAL_TYPE_DEPOSIT
 import model.records.GOAL_TYPE_TIME
 import model.records.Goal
 import model.records.Memo
-import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -82,13 +80,21 @@ import zhoutools.composeapp.generated.resources.memo
 @Composable
 fun MemoFragment(navigator: Navigator) {
     val scaffoldState = rememberBottomSheetScaffoldState()
-    val scope = rememberCoroutineScope()
-    val (state, channel) = rememberPresenter(keys = listOf(scope)) {
-        MemoPresenter(it, onGoEdit = {
-            scope.launch {
-                navigator.navigateForResult(RouteConstants.ROUTE_WRITE_MEMO.replace(RouteConstants.PARAM_EDIT, "true"))
+    val viewModel: MemoViewModel = viewModel()
+    val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.dispatch(MemoAction.InitGoals)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.memoEvent.collect { event ->
+            when (event) {
+                is MemoEvent.GoToEditScene -> {
+                    navigator.navigateForResult(RouteConstants.ROUTE_WRITE_MEMO.replace(RouteConstants.PARAM_EDIT, "true"))
+                }
             }
-        })
+        }
     }
 
     LaunchedEffect(state.showBottomSheet) {
@@ -101,14 +107,14 @@ fun MemoFragment(navigator: Navigator) {
 
     LaunchedEffect(Unit) {
         SyncHelper.autoPullMemo(onSuccess = {
-            channel.trySend(MemoAction.RefreshDisplayList)
+            viewModel.dispatch(MemoAction.RefreshDisplayList)
         })
     }
 
     EffectHelper.observeMemoEffect {
         when (it) {
             is MemoEffect.RefreshData -> {
-                channel.trySend(MemoAction.RefreshDisplayList)
+                viewModel.dispatch(MemoAction.RefreshDisplayList)
             }
         }
     }
@@ -116,17 +122,17 @@ fun MemoFragment(navigator: Navigator) {
     Box(modifier = Modifier
         .fillMaxSize()
         .clickableNoRipple {
-            channel.trySend(MemoAction.HideBottomSheet)
+            viewModel.dispatch(MemoAction.HideBottomSheet)
         }
     ) {
         BottomSheetScaffold(
             sheetContent = {
                 BottomSheetContent(
                     onEdit = {
-                        channel.trySend(MemoAction.ClickEdit)
+                        viewModel.dispatch(MemoAction.ClickEdit)
                     },
                     onMarkDone = {
-                        channel.trySend(MemoAction.MarkDone)
+                        viewModel.dispatch(MemoAction.MarkDone)
                     }
                 )
             },
@@ -151,7 +157,7 @@ fun MemoFragment(navigator: Navigator) {
                         fontWeight = if (state.mode == MODE_MEMO) FontWeight.ExtraBold else FontWeight.Bold,
                         modifier = Modifier
                             .clickable {
-                                channel.trySend(MemoAction.SwitchMode(MODE_MEMO))
+                                viewModel.dispatch(MemoAction.SwitchMode(MODE_MEMO))
                             }
                             .alpha(if (state.mode == MODE_MEMO) 1f else 0.2f)
                     )
@@ -168,16 +174,16 @@ fun MemoFragment(navigator: Navigator) {
                         fontWeight = if (state.mode == MODE_GOALS) FontWeight.ExtraBold else FontWeight.Bold,
                         modifier = Modifier
                             .clickable {
-                                channel.trySend(MemoAction.SwitchMode(MODE_GOALS))
+                                viewModel.dispatch(MemoAction.SwitchMode(MODE_GOALS))
                             }
                             .alpha(if (state.mode == MODE_GOALS) 1f else 0.2f)
                     )
                 }
 
                 if (state.mode == MODE_MEMO) {
-                    MemosLayout(state, channel, showBottomSpace = scaffoldState.bottomSheetState.isExpanded)
+                    MemosLayout(state, viewModel::dispatch, showBottomSpace = scaffoldState.bottomSheetState.isExpanded)
                 } else {
-                    GoalsLayout(state, channel, showBottomSpace = scaffoldState.bottomSheetState.isExpanded)
+                    GoalsLayout(state, showBottomSpace = scaffoldState.bottomSheetState.isExpanded)
                 }
             }
         }
@@ -206,7 +212,7 @@ fun MemoFragment(navigator: Navigator) {
 }
 
 @Composable
-private fun MemosLayout(state: MemoState, channel: Channel<MemoAction>, showBottomSpace: Boolean) {
+private fun MemosLayout(state: MemoState, onAction: (MemoAction) -> Unit, showBottomSpace: Boolean) {
     val lazyListState = rememberLazyListState()
 
     LazyColumn(state = lazyListState) {
@@ -214,7 +220,7 @@ private fun MemosLayout(state: MemoState, channel: Channel<MemoAction>, showBott
             if (item is GroupDisplayItem) {
                 GroupItem(item.name)
             } else if (item is MemoDisplayItem) {
-                MemoItem(item.memo, channel)
+                MemoItem(item.memo, onAction)
             }
         }
 
@@ -238,7 +244,7 @@ private fun MemosLayout(state: MemoState, channel: Channel<MemoAction>, showBott
 }
 
 @Composable
-private fun GoalsLayout(state: MemoState, channel: Channel<MemoAction>, showBottomSpace: Boolean) {
+private fun GoalsLayout(state: MemoState, showBottomSpace: Boolean) {
     val lazyListState = rememberLazyListState()
 
     LazyColumn(state = lazyListState) {
@@ -257,7 +263,7 @@ private fun GoalsLayout(state: MemoState, channel: Channel<MemoAction>, showBott
             }
 
             items(depositGoalsList) { goal ->
-                GoalItem(goal, channel)
+                GoalItem(goal)
             }
         }
 
@@ -276,7 +282,7 @@ private fun GoalsLayout(state: MemoState, channel: Channel<MemoAction>, showBott
             }
 
             items(timeGoalsList) { goal ->
-                GoalItem(goal, channel)
+                GoalItem(goal)
             }
         }
 
@@ -318,13 +324,13 @@ private fun GroupItem(name: String) {
 }
 
 @Composable
-private fun MemoItem(memo: Memo, channel: Channel<MemoAction>) {
+private fun MemoItem(memo: Memo, onAction: (MemoAction) -> Unit) {
     Card(modifier = Modifier
         .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
         .fillMaxWidth()
         .clip(RoundedCornerShape(4.dp))
         .clickable {
-            channel.trySend(MemoAction.ClickMemoItem(memo))
+            onAction(MemoAction.ClickMemoItem(memo))
         }
     ) {
         Box(modifier = Modifier.padding(all = 8.dp)) {
@@ -364,7 +370,7 @@ private fun MemoItem(memo: Memo, channel: Channel<MemoAction>) {
 }
 
 @Composable
-private fun GoalItem(goal: Goal, channel: Channel<MemoAction>) {
+private fun GoalItem(goal: Goal) {
     Card(modifier = Modifier
         .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
         .fillMaxWidth()
@@ -372,9 +378,7 @@ private fun GoalItem(goal: Goal, channel: Channel<MemoAction>) {
     ) {
         var height by remember { mutableIntStateOf(0) }
 
-        Box(modifier = Modifier.onSizeChanged {
-            height = it.height
-        }) {
+        Box(modifier = Modifier.onSizeChanged { height = it.height }) {
             val progress = goal.getProgress()
 
             ShimmerProgressBar(
