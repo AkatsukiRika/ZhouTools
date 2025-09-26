@@ -32,6 +32,7 @@ sealed interface WriteMemoAction {
     data class SetGroup(val group: String?) : WriteMemoAction
     data object Delete : WriteMemoAction
     data class Confirm(val text: String) : WriteMemoAction
+    data object Reset : WriteMemoAction
 }
 
 sealed interface WriteMemoEvent {
@@ -47,7 +48,11 @@ class WriteMemoViewModel : ViewModel() {
     val writeMemoEvent: SharedFlow<WriteMemoEvent> = _writeMemoEvent.asSharedFlow()
 
     init {
-        _uiState.update { it.copy(allGroups = MemoHelper.getGroupSet()) }
+        resetState()
+    }
+
+    private fun resetState() {
+        _uiState.value = WriteMemoState(allGroups = MemoHelper.getGroupSet())
     }
 
     fun dispatch(action: WriteMemoAction) {
@@ -106,6 +111,10 @@ class WriteMemoViewModel : ViewModel() {
                 viewModelScope.launch {
                     _writeMemoEvent.emit(WriteMemoEvent.GoBack)
                 }
+            }
+
+            is WriteMemoAction.Reset -> {
+                resetState()
             }
         }
     }

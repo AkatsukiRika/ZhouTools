@@ -17,9 +17,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.material3.ElevatedFilterChip
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,9 +34,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import global.AppColors
-import kotlinx.coroutines.channels.Channel
-import moe.tlaster.precompose.molecule.rememberPresenter
+import logger
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.BarChart
@@ -56,7 +62,22 @@ import zhoutools.composeapp.generated.resources.value_mode_none
 
 @Composable
 fun DepositStatsScene(navigator: Navigator) {
-    val (state, channel) = rememberPresenter { DepositStatsPresenter(it) }
+    val viewModel = viewModel<DepositStatsViewModel>()
+    val state by viewModel.uiState.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                logger.i { "DepositStatsScene onResume" }
+                viewModel.dispatch(DepositStatsAction.Reset)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     BaseImmersiveScene(modifier = Modifier
         .fillMaxSize()
@@ -73,7 +94,7 @@ fun DepositStatsScene(navigator: Navigator) {
                     FilterRow(
                         modifier = Modifier.padding(top = 4.dp),
                         state = state,
-                        channel = channel
+                        dispatch = viewModel::dispatch
                     )
                 }
 
@@ -81,7 +102,7 @@ fun DepositStatsScene(navigator: Navigator) {
                     if (state.totalDepositBarData.isEmpty() && state.incomeLineData.isEmpty()) {
                         EmptyLayout(description = stringResource(Res.string.no_data))
                     } else {
-                        MainCharts(state, channel)
+                        MainCharts(state, viewModel::dispatch)
                     }
                 }
 
@@ -94,7 +115,7 @@ fun DepositStatsScene(navigator: Navigator) {
 }
 
 @Composable
-private fun MainCharts(state: DepositStatsState, channel: Channel<DepositStatsAction>) {
+private fun MainCharts(state: DepositStatsState, dispatch: (DepositStatsAction) -> Unit) {
     Column {
         Text(
             text = stringResource(Res.string.total_deposit),
@@ -113,7 +134,7 @@ private fun MainCharts(state: DepositStatsState, channel: Channel<DepositStatsAc
                 .padding(top = 6.dp)
                 .clip(RoundedCornerShape(32.dp))
                 .clickable {
-                    channel.trySend(DepositStatsAction.ToggleShowExtraDeposit)
+                    dispatch(DepositStatsAction.ToggleShowExtraDeposit)
                 }
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             state
@@ -124,7 +145,7 @@ private fun MainCharts(state: DepositStatsState, channel: Channel<DepositStatsAc
             data = state.totalDepositBarData
         )
 
-        SettingsLayout(state = state, channel = channel)
+        SettingsLayout(state = state, dispatch = dispatch)
 
         Text(
             text = stringResource(Res.string.monthly_income),
@@ -189,7 +210,7 @@ private fun LineChartLegend(modifier: Modifier = Modifier, state: DepositStatsSt
 }
 
 @Composable
-private fun FilterRow(modifier: Modifier = Modifier, state: DepositStatsState, channel: Channel<DepositStatsAction>) {
+private fun FilterRow(modifier: Modifier = Modifier, state: DepositStatsState, dispatch: (DepositStatsAction) -> Unit) {
     LazyRow(modifier = modifier) {
         item {
             Spacer(modifier = Modifier.width(16.dp))
@@ -200,7 +221,7 @@ private fun FilterRow(modifier: Modifier = Modifier, state: DepositStatsState, c
                 selected = state.filterOptions[it] ?: false,
                 onClick = {
                     val currentSelected = state.filterOptions[it] ?: false
-                    channel.trySend(DepositStatsAction.SelectOption(it, !currentSelected))
+                    dispatch(DepositStatsAction.SelectOption(it, !currentSelected))
                 },
                 label = {
                     Text(text = it)
@@ -214,7 +235,7 @@ private fun FilterRow(modifier: Modifier = Modifier, state: DepositStatsState, c
 }
 
 @Composable
-private fun SettingsLayout(modifier: Modifier = Modifier, state: DepositStatsState, channel: Channel<DepositStatsAction>) {
+private fun SettingsLayout(modifier: Modifier = Modifier, state: DepositStatsState, dispatch: (DepositStatsAction) -> Unit) {
     Column(modifier = modifier
         .fillMaxWidth()
         .padding(start = 16.dp, end = 16.dp, top = 24.dp)
@@ -231,7 +252,7 @@ private fun SettingsLayout(modifier: Modifier = Modifier, state: DepositStatsSta
         Row(
             modifier = Modifier
                 .clickable {
-                    channel.trySend(DepositStatsAction.ToggleValueMode)
+                    dispatch(DepositStatsAction.ToggleValueMode)
                 }
                 .padding(horizontal = 16.dp, vertical = 12.dp)
                 .fillMaxWidth(),
