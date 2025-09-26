@@ -7,10 +7,12 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
 import global.AppColors
-import moe.tlaster.precompose.molecule.rememberPresenter
 import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.BaseImmersiveScene
@@ -22,7 +24,8 @@ import zhoutools.composeapp.generated.resources.today
 
 @Composable
 fun DetailScene(navigator: Navigator) {
-    val (state, channel) = rememberPresenter { DetailPresenter(it) }
+    val viewModel: DetailViewModel = viewModel()
+    val state by viewModel.uiState.collectAsState()
     val tabs = mapOf(
         DETAIL_TAB_TODAY to stringResource(Res.string.today),
         DETAIL_TAB_HISTORY to stringResource(Res.string.history)
@@ -43,13 +46,11 @@ fun DetailScene(navigator: Navigator) {
                 backgroundColor = Color.White,
                 contentColor = AppColors.Theme
             ) {
-                tabs.forEach {
-                    val index = it.key
-                    val title = it.value
+                tabs.forEach { (index, title) ->
                     Tab(
                         selected = state.tab == index,
                         onClick = {
-                            channel.trySend(DetailAction.ChangeTab(index))
+                            viewModel.dispatch(DetailAction.ChangeTab(index))
                         },
                         text = {
                             Text(text = title)
@@ -59,7 +60,7 @@ fun DetailScene(navigator: Navigator) {
             }
 
             if (state.tab == DETAIL_TAB_HISTORY) {
-                HistoryFragment(state.historyState, channel)
+                HistoryFragment(state.historyState, viewModel::dispatch)
             } else {
                 TodayFragment(state.todayState)
             }

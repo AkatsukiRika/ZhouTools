@@ -33,7 +33,6 @@ import extension.toDateString
 import extension.toHourMinString
 import extension.toTimeString
 import global.AppColors
-import kotlinx.coroutines.channels.Channel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import store.AppStore
@@ -55,23 +54,23 @@ import zhoutools.composeapp.generated.resources.time_run
 import zhoutools.composeapp.generated.resources.working_time
 
 @Composable
-fun HistoryFragment(state: DetailHistoryState, channel: Channel<DetailAction>) {
+fun HistoryFragment(state: DetailHistoryState, onAction: (DetailAction) -> Unit) {
     if (state.weekList.isEmpty() || AppStore.timeCards.isBlankJson()) {
         EmptyLayout(description = stringResource(Res.string.no_history_data))
     } else {
-        WeekList(state, channel)
+        WeekList(state, onAction)
     }
 }
 
 @Composable
-private fun WeekList(state: DetailHistoryState, channel: Channel<DetailAction>) {
+private fun WeekList(state: DetailHistoryState, onAction: (DetailAction) -> Unit) {
     val foldPeriodList = state.foldPeriodList
 
     LazyColumn(modifier = Modifier
         .fillMaxWidth()
     ) {
         item {
-            FoldSelections(modifier = Modifier.padding(top = 8.dp), state, channel)
+            FoldSelections(modifier = Modifier.padding(top = 8.dp), state, onAction)
         }
 
         if (foldPeriodList != null) {
@@ -266,7 +265,7 @@ private fun DayItem(day: DetailHistoryWeekDay) {
 }
 
 @Composable
-private fun FoldSelections(modifier: Modifier = Modifier, state: DetailHistoryState, channel: Channel<DetailAction>) {
+private fun FoldSelections(modifier: Modifier = Modifier, state: DetailHistoryState, onAction: (DetailAction) -> Unit) {
     val chipColors = AppColors.getChipColors()
     LazyRow(modifier) {
         item {
@@ -277,7 +276,7 @@ private fun FoldSelections(modifier: Modifier = Modifier, state: DetailHistorySt
             ElevatedFilterChip(
                 selected = state.foldType == DetailFoldType.WEEK,
                 onClick = {
-                    channel.trySend(DetailAction.ChangeFoldType(DetailFoldType.WEEK))
+                    onAction(DetailAction.ChangeFoldType(DetailFoldType.WEEK))
                 },
                 label = {
                     androidx.compose.material3.Text(text = stringResource(Res.string.fold_by_week))
@@ -292,7 +291,7 @@ private fun FoldSelections(modifier: Modifier = Modifier, state: DetailHistorySt
             ElevatedFilterChip(
                 selected = state.foldType == DetailFoldType.MONTH,
                 onClick = {
-                    channel.trySend(DetailAction.ChangeFoldType(DetailFoldType.MONTH))
+                    onAction(DetailAction.ChangeFoldType(DetailFoldType.MONTH))
                 },
                 label = {
                     androidx.compose.material3.Text(text = stringResource(Res.string.fold_by_month))
@@ -307,7 +306,7 @@ private fun FoldSelections(modifier: Modifier = Modifier, state: DetailHistorySt
             ElevatedFilterChip(
                 selected = state.foldType == DetailFoldType.QUARTER,
                 onClick = {
-                    channel.trySend(DetailAction.ChangeFoldType(DetailFoldType.QUARTER))
+                    onAction(DetailAction.ChangeFoldType(DetailFoldType.QUARTER))
                 },
                 label = {
                     androidx.compose.material3.Text(text = stringResource(Res.string.fold_by_quarter))
@@ -322,7 +321,7 @@ private fun FoldSelections(modifier: Modifier = Modifier, state: DetailHistorySt
             ElevatedFilterChip(
                 selected = state.foldType == DetailFoldType.YEAR,
                 onClick = {
-                    channel.trySend(DetailAction.ChangeFoldType(DetailFoldType.YEAR))
+                    onAction(DetailAction.ChangeFoldType(DetailFoldType.YEAR))
                 },
                 label = {
                     androidx.compose.material3.Text(text = stringResource(Res.string.fold_by_year))
