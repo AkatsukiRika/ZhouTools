@@ -19,7 +19,7 @@ actual fun isIOS(): Boolean = false
 
 actual fun getAppVersion(): String {
     val context = MainActivity.context ?: return ""
-    return context.packageManager.getPackageInfo(context.packageName, 0).versionName
+    return context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: ""
 }
 
 actual fun setClipboardContent(text: String) {
