@@ -52,6 +52,8 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             // PreCompose
             implementation(libs.precompose)
+            // Navigation
+            implementation(libs.androidx.navigation.compose)
             // Ktor
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
