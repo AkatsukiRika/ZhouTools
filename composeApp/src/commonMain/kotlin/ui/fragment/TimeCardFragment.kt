@@ -53,7 +53,7 @@ fun TimeCardFragment(
     modifier: Modifier = Modifier,
     navigator: Navigator
 ) {
-    val viewModel: TimeCardViewModel = viewModel()
+    val viewModel = viewModel { TimeCardViewModel() }
     val state by viewModel.uiState.collectAsState()
 
     EffectHelper.observeTimeCardEffect {

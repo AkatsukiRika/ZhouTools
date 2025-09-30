@@ -80,7 +80,7 @@ import zhoutools.composeapp.generated.resources.memo
 @Composable
 fun MemoFragment(navigator: Navigator) {
     val scaffoldState = rememberBottomSheetScaffoldState()
-    val viewModel: MemoViewModel = viewModel()
+    val viewModel = viewModel { MemoViewModel() }
     val state by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {

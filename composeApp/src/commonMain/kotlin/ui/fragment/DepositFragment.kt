@@ -104,7 +104,7 @@ import kotlin.math.roundToLong
 @Composable
 fun DepositFragment(navigator: Navigator) {
     val scope = rememberCoroutineScope()
-    val viewModel = viewModel<DepositViewModel>()
+    val viewModel = viewModel { DepositViewModel() }
     val state by viewModel.uiState.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)

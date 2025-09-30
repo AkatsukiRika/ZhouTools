@@ -90,7 +90,7 @@ import zhoutools.composeapp.generated.resources.write_memo
 @Composable
 fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
     val scope = rememberCoroutineScope()
-    val viewModel: WriteMemoViewModel = viewModel()
+    val viewModel = viewModel { WriteMemoViewModel() }
     val state by viewModel.uiState.collectAsState()
     var showTextInput by remember { mutableStateOf(false) }
     val bottomSheetState = rememberStandardBottomSheetState(

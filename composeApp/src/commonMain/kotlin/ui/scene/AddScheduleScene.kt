@@ -92,7 +92,7 @@ import zhoutools.composeapp.generated.resources.start_time
 fun AddScheduleScene(navigator: Navigator) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val viewModel: AddScheduleViewModel = viewModel()
+    val viewModel = viewModel { AddScheduleViewModel() }
     val state by viewModel.uiState.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
     var text by remember(state.text) { mutableStateOf(state.text) }

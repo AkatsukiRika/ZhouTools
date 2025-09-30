@@ -24,7 +24,7 @@ import zhoutools.composeapp.generated.resources.today
 
 @Composable
 fun DetailScene(navigator: Navigator) {
-    val viewModel: DetailViewModel = viewModel()
+    val viewModel = viewModel { DetailViewModel() }
     val state by viewModel.uiState.collectAsState()
     val tabs = mapOf(
         DETAIL_TAB_TODAY to stringResource(Res.string.today),

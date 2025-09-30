@@ -89,7 +89,7 @@ import zhoutools.composeapp.generated.resources.x_days_until
 fun ScheduleFragment(navigator: Navigator) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
-    val viewModel: ScheduleViewModel = viewModel()
+    val viewModel = viewModel { ScheduleViewModel() }
     val state by viewModel.uiState.collectAsState()
     val scheduleList = remember { mutableStateListOf<Schedule>() }
     var selectItem by remember { mutableStateOf<Schedule?>(null) }
