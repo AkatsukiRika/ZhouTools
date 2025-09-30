@@ -62,7 +62,7 @@ import zhoutools.composeapp.generated.resources.value_mode_none
 
 @Composable
 fun DepositStatsScene(navigator: Navigator) {
-    val viewModel = viewModel<DepositStatsViewModel>()
+    val viewModel = viewModel { DepositStatsViewModel() }
     val state by viewModel.uiState.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
 
