@@ -13,7 +13,6 @@ serialization = "1.9.23"
 androidx-datastore = "1.1.7"
 datetime = "0.5.0"
 logging = "1.4.2"
-molecule = "1.4.1"
 material3 = "1.6.10"
 lifecycle = "2.8.3"
 
@@ -22,7 +21,6 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
-precompose-molecule = { module = "moe.tlaster:precompose-molecule", version.ref = "precompose" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
@@ -31,7 +29,6 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 androidx-datastore-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "androidx-datastore" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 km-logging = { module = "org.lighthousegames:logging", version.ref = "logging" }
-molecule-runtime = { module = "app.cash.molecule:molecule-runtime", version.ref = "molecule" }
 material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
 androidx-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version = "2.8.0-alpha02" }
 androidx-lifecycle-viewmodel-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
