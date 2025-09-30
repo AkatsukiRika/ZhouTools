@@ -3,6 +3,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import global.AppTheme
 import constant.RouteConstants
 import helper.NetworkHelper
@@ -27,6 +30,33 @@ import ui.scene.WriteMemoScene
 import ui.scene.detail.DetailScene
 
 val logger = logging("App")
+
+/**
+ * Provides a scene-local ViewModelStoreOwner to the composable tree.
+ *
+ * This is essential for scoping ViewModels to the lifecycle of a specific navigation scene.
+ * It creates a ViewModelStoreOwner that is remembered as long as the scene is on the back stack.
+ * When the scene is popped and disposed, the DisposableEffect clears the associated
+ * ViewModelStore, effectively destroying all ViewModels scoped to that scene.
+ * This mimics the ViewModel lifecycle behavior of Activities on Android.
+ */
+@Composable
+private fun SceneScope(content: @Composable () -> Unit) {
+    val viewModelStoreOwner = remember {
+        object : ViewModelStoreOwner {
+            override val viewModelStore = ViewModelStore()
+        }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModelStoreOwner.viewModelStore.clear()
+        }
+    }
+    CompositionLocalProvider(
+        LocalViewModelStoreOwner provides viewModelStoreOwner,
+        content = content
+    )
+}
 
 @Composable
 @Preview
@@ -65,8 +95,10 @@ fun App() {
                 route = RouteConstants.ROUTE_LOGIN,
                 navTransition = navTransition
             ) {
-                AppTheme {
-                    LoginScene(navigator)
+                SceneScope {
+                    AppTheme {
+                        LoginScene(navigator)
+                    }
                 }
             }
 
@@ -74,8 +106,10 @@ fun App() {
                 route = RouteConstants.ROUTE_SIGN_UP,
                 navTransition = navTransition
             ) {
-                AppTheme {
-                    SignUpScene(navigator)
+                SceneScope {
+                    AppTheme {
+                        SignUpScene(navigator)
+                    }
                 }
             }
 
@@ -83,8 +117,10 @@ fun App() {
                 route = RouteConstants.ROUTE_HOME,
                 navTransition = navTransition
             ) {
-                AppTheme {
-                    HomeScene(navigator)
+                SceneScope {
+                    AppTheme {
+                        HomeScene(navigator)
+                    }
                 }
             }
 
@@ -92,8 +128,10 @@ fun App() {
                 route = RouteConstants.ROUTE_DETAILS,
                 navTransition = navTransition
             ) {
-                AppTheme {
-                    DetailScene(navigator)
+                SceneScope {
+                    AppTheme {
+                        DetailScene(navigator)
+                    }
                 }
             }
 
@@ -103,8 +141,10 @@ fun App() {
             ) {
                 val isEdit = it.path<Boolean>("edit") ?: false
 
-                AppTheme {
-                    WriteMemoScene(navigator, isEdit)
+                SceneScope {
+                    AppTheme {
+                        WriteMemoScene(navigator, isEdit)
+                    }
                 }
             }
 
@@ -112,8 +152,10 @@ fun App() {
                 route = RouteConstants.ROUTE_ADD_SCHEDULE,
                 navTransition = navTransition
             ) {
-                AppTheme {
-                    AddScheduleScene(navigator)
+                SceneScope {
+                    AppTheme {
+                        AddScheduleScene(navigator)
+                    }
                 }
             }
 
@@ -123,8 +165,10 @@ fun App() {
             ) {
                 val mode = it.path<String>("mode") ?: ""
 
-                AppTheme {
-                    SyncScene(navigator, mode)
+                SceneScope {
+                    AppTheme {
+                        SyncScene(navigator, mode)
+                    }
                 }
             }
 
@@ -132,8 +176,10 @@ fun App() {
                 route = RouteConstants.ROUTE_EXPORT,
                 navTransition = navTransition
             ) {
-                AppTheme {
-                    ExportDataScene(navigator)
+                SceneScope {
+                    AppTheme {
+                        ExportDataScene(navigator)
+                    }
                 }
             }
 
@@ -141,8 +187,10 @@ fun App() {
                 route = RouteConstants.ROUTE_DEPOSIT_STATS,
                 navTransition = navTransition
             ) {
-                AppTheme {
-                    DepositStatsScene(navigator)
+                SceneScope {
+                    AppTheme {
+                        DepositStatsScene(navigator)
+                    }
                 }
             }
         }
