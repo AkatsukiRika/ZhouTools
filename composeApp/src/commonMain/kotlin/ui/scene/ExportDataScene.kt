@@ -34,9 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import global.AppColors
 import kotlinx.coroutines.launch
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -54,7 +54,7 @@ import zhoutools.composeapp.generated.resources.schedule
 import zhoutools.composeapp.generated.resources.time_card
 
 @Composable
-fun ExportDataScene(navigator: Navigator) {
+fun ExportDataScene(navController: NavHostController) {
     var exportType by remember { mutableIntStateOf(ExportType.TIME_CARD.ordinal) }
     var text by remember { mutableStateOf(AppStore.timeCards) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -86,7 +86,7 @@ fun ExportDataScene(navigator: Navigator) {
                 val chipColors = AppColors.getChipColors()
 
                 TitleBar(
-                    navigator = navigator,
+                    navigator = navController,
                     title = stringResource(Res.string.export_data)
                 )
 

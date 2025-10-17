@@ -61,7 +61,6 @@ import helper.effect.EffectHelper
 import helper.effect.WriteMemoEffect
 import hideSoftwareKeyboard
 import kotlinx.coroutines.launch
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import rememberKeyboardVisibilityState
@@ -80,10 +79,11 @@ import zhoutools.composeapp.generated.resources.pin_to_top
 import zhoutools.composeapp.generated.resources.set_as_todo
 import zhoutools.composeapp.generated.resources.unsorted
 import zhoutools.composeapp.generated.resources.write_memo
+import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
+fun WriteMemoScene(navController: NavHostController, isEdit: Boolean) {
     val scope = rememberCoroutineScope()
     val viewModel = viewModel { WriteMemoViewModel() }
     val state by viewModel.uiState.collectAsState()
@@ -103,7 +103,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
         viewModel.writeMemoEvent.collect { event ->
             when (event) {
                 is WriteMemoEvent.GoBack -> {
-                    navigator.goBack()
+                    navController.popBackStack()
                 }
             }
         }
@@ -145,7 +145,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
             sheetPeekHeight = 0.dp,
         ) {
             MainColumn(
-                navigator = navigator,
+                navigator = navController,
                 isEdit = isEdit,
                 state = state,
                 onAction = viewModel::dispatch,
@@ -162,7 +162,7 @@ fun WriteMemoScene(navigator: Navigator, isEdit: Boolean) {
 
 @Composable
 private fun MainColumn(
-    navigator: Navigator,
+    navigator: NavHostController,
     isEdit: Boolean,
     state: WriteMemoState,
     onAction: (WriteMemoAction) -> Unit,

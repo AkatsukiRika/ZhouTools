@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import constant.RouteConstants
 import extension.isValidUrl
 import extension.toHourMinString
@@ -42,10 +44,6 @@ import global.AppColors
 import helper.SyncHelper
 import helper.WorkHoursHelper
 import kotlinx.coroutines.launch
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
-import moe.tlaster.precompose.navigation.NavOptions
-import moe.tlaster.precompose.navigation.Navigator
-import moe.tlaster.precompose.navigation.PopUpTo
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -91,7 +89,7 @@ import zhoutools.composeapp.generated.resources.version_x
 @Composable
 fun SettingsFragment(
     modifier: Modifier = Modifier,
-    navigator: Navigator,
+    navController: NavHostController,
     showSnackbar: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -110,13 +108,12 @@ fun SettingsFragment(
         AppStore.loginPassword = ""
         AppStore.clearCache()
         SyncHelper.clearPulledFlags()
-        navigator.navigate(
-            route = RouteConstants.ROUTE_LOGIN,
-            options = NavOptions(
-                launchSingleTop = true,
-                popUpTo = PopUpTo.First()
-            )
-        )
+        navController.navigate(RouteConstants.ROUTE_LOGIN) {
+            launchSingleTop = true
+            popUpTo(navController.graph.startDestinationRoute!!) {
+                inclusive = true
+            }
+        }
     }
 
     BottomSheetScaffold(
@@ -164,7 +161,7 @@ fun SettingsFragment(
                 icon = Res.drawable.ic_export,
                 name = Res.string.export_data
             ) {
-                navigator.navigate(RouteConstants.ROUTE_EXPORT)
+                navController.navigate(RouteConstants.ROUTE_EXPORT)
             }
 
             VerticalDivider()
@@ -221,11 +218,11 @@ fun SettingsFragment(
             confirm = stringResource(Res.string.push),
             onCancel = {
                 showSyncDialog = false
-                navigator.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, "pull"))
+                navController.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, "pull"))
             },
             onConfirm = {
                 showSyncDialog = false
-                navigator.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, "push"))
+                navController.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, "push"))
             },
             onDismiss = {
                 showSyncDialog = false
@@ -339,7 +336,7 @@ private fun SyncItem(onClick: () -> Unit) {
 
 @Composable
 private fun AutoSyncItem() {
-    val isAutoSync = AppFlowStore.autoSyncFlow.collectAsStateWithLifecycle(initial = false).value
+    val isAutoSync = AppFlowStore.autoSyncFlow.collectAsStateWithLifecycle(initialValue = false).value
     val scope = rememberCoroutineScope()
 
     Row(

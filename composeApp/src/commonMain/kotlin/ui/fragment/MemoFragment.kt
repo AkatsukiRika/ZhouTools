@@ -54,11 +54,9 @@ import helper.effect.EffectHelper
 import helper.effect.MemoEffect
 import model.display.GroupDisplayItem
 import model.display.MemoDisplayItem
-import model.records.GOAL_TYPE_DEPOSIT
 import model.records.GOAL_TYPE_TIME
 import model.records.Goal
 import model.records.Memo
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.AutoSyncIndicator
@@ -75,10 +73,12 @@ import zhoutools.composeapp.generated.resources.ic_todo
 import zhoutools.composeapp.generated.resources.ic_todo_finished
 import zhoutools.composeapp.generated.resources.mark_done
 import zhoutools.composeapp.generated.resources.memo
+import androidx.navigation.NavHostController
+import model.records.GOAL_TYPE_DEPOSIT
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MemoFragment(navigator: Navigator) {
+fun MemoFragment(navController: NavHostController) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     val viewModel = viewModel { MemoViewModel() }
     val state by viewModel.uiState.collectAsState()
@@ -91,7 +91,9 @@ fun MemoFragment(navigator: Navigator) {
         viewModel.memoEvent.collect { event ->
             when (event) {
                 is MemoEvent.GoToEditScene -> {
-                    navigator.navigateForResult(RouteConstants.ROUTE_WRITE_MEMO.replace(RouteConstants.PARAM_EDIT, "true"))
+                    // FIXME: navigateForResult is a precompose feature, replaced with navigate.
+                    // Result handling may need to be re-implemented.
+                    navController.navigate(RouteConstants.ROUTE_WRITE_MEMO.replace(RouteConstants.PARAM_EDIT, "true"))
                 }
             }
         }
@@ -192,7 +194,7 @@ fun MemoFragment(navigator: Navigator) {
             FloatingActionButton(
                 backgroundColor = AppColors.Theme,
                 onClick = {
-                    navigator.navigate(route = RouteConstants.ROUTE_WRITE_MEMO)
+                    navController.navigate(route = RouteConstants.ROUTE_WRITE_MEMO)
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)

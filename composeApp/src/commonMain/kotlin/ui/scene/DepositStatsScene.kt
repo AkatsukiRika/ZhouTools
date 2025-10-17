@@ -34,8 +34,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import global.AppColors
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.BarChart
 import ui.widget.BaseImmersiveScene
@@ -56,7 +56,7 @@ import zhoutools.composeapp.generated.resources.value_mode_full
 import zhoutools.composeapp.generated.resources.value_mode_none
 
 @Composable
-fun DepositStatsScene(navigator: Navigator) {
+fun DepositStatsScene(navController: NavHostController) {
     val viewModel = viewModel { DepositStatsViewModel() }
     val state by viewModel.uiState.collectAsState()
 
@@ -66,7 +66,7 @@ fun DepositStatsScene(navigator: Navigator) {
     ) {
         Column {
             TitleBar(
-                navigator = navigator,
+                navigator = navController,
                 title = stringResource(Res.string.stats)
             )
 

@@ -2,9 +2,9 @@ package helper.effect
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 
 open class BaseEffectObserver<T> {
     private val effectFlow = MutableSharedFlow<T?>(replay = 1)

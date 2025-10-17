@@ -16,23 +16,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.navigation.NavHostController
 import constant.TabConstants
-import ui.fragment.SettingsFragment
-import ui.fragment.TimeCardFragment
 import global.AppColors
 import kotlinx.coroutines.launch
-import moe.tlaster.precompose.navigation.BackHandler
-import moe.tlaster.precompose.navigation.Navigator
 import store.CurrentProcessStore
 import ui.fragment.DepositFragment
 import ui.fragment.MemoFragment
 import ui.fragment.ScheduleFragment
+import ui.fragment.SettingsFragment
+import ui.fragment.TimeCardFragment
 import ui.widget.BaseImmersiveScene
 import ui.widget.BottomBar
+import util.BackHandler
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeScene(navigator: Navigator) {
+fun HomeScene(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -69,19 +69,19 @@ fun HomeScene(navigator: Navigator) {
                     when (it) {
                         TabConstants.TAB_TIME_CARD -> TimeCardFragment(
                             modifier = Modifier.fillMaxSize(),
-                            navigator = navigator
+                            navController
                         )
                         TabConstants.TAB_SETTINGS -> SettingsFragment(
                             modifier = Modifier.fillMaxSize(),
-                            navigator = navigator,
+                            navController,
                             showSnackbar = ::showSnackbar
                         )
-                        TabConstants.TAB_MEMO -> MemoFragment(navigator = navigator)
-                        TabConstants.TAB_SCHEDULE -> ScheduleFragment(navigator = navigator)
-                        TabConstants.TAB_DEPOSIT -> DepositFragment(navigator = navigator)
+                        TabConstants.TAB_MEMO -> MemoFragment(navController)
+                        TabConstants.TAB_SCHEDULE -> ScheduleFragment(navController)
+                        TabConstants.TAB_DEPOSIT -> DepositFragment(navController)
                         else -> TimeCardFragment(
                             modifier = Modifier.fillMaxSize(),
-                            navigator = navigator
+                            navController
                         )
                     }
                 }

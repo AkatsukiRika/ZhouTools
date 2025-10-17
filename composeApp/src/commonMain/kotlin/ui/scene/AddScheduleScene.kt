@@ -67,7 +67,7 @@ import helper.effect.EffectHelper
 import hideSoftwareKeyboard
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import moe.tlaster.precompose.navigation.Navigator
+import androidx.navigation.NavHostController
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.BaseImmersiveScene
@@ -89,7 +89,7 @@ import zhoutools.composeapp.generated.resources.start_time
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun AddScheduleScene(navigator: Navigator) {
+fun AddScheduleScene(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val viewModel = viewModel { AddScheduleViewModel() }
@@ -104,7 +104,7 @@ fun AddScheduleScene(navigator: Navigator) {
     LaunchedEffect(Unit) {
         viewModel.addScheduleEvent.collect { event ->
             when (event) {
-                is AddScheduleEvent.GoBack -> navigator.goBack()
+                is AddScheduleEvent.GoBack -> navController.popBackStack()
             }
         }
     }
@@ -141,7 +141,7 @@ fun AddScheduleScene(navigator: Navigator) {
         ) {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                 TitleBar(
-                    navigator = navigator,
+                    navigator = navController,
                     title = stringResource(if (state.isEdit) Res.string.edit_schedule else Res.string.add_schedule)
                 )
 

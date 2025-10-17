@@ -21,13 +21,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import moe.tlaster.precompose.navigation.Navigator
+import androidx.navigation.NavHostController
 import org.jetbrains.compose.resources.painterResource
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.ic_back
 
 @Composable
-fun TitleBar(navigator: Navigator, title: String) {
+fun TitleBar(navigator: NavHostController, title: String) {
     val rootModifier = Modifier
         .background(Color.White)
         .statusBarsPadding()
@@ -43,7 +43,7 @@ fun TitleBar(navigator: Navigator, title: String) {
             .size(36.dp)
             .clip(CircleShape)
             .clickable {
-                navigator.goBack()
+                navigator.popBackStack()
             }
         ) {
             Icon(

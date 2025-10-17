@@ -62,7 +62,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import model.calendar.MonthDay
 import model.records.Schedule
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.FragmentHeader
@@ -83,10 +82,11 @@ import zhoutools.composeapp.generated.resources.schedule
 import zhoutools.composeapp.generated.resources.today
 import zhoutools.composeapp.generated.resources.x_days_since
 import zhoutools.composeapp.generated.resources.x_days_until
+import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ScheduleFragment(navigator: Navigator) {
+fun ScheduleFragment(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
     val viewModel = viewModel { ScheduleViewModel() }
@@ -102,7 +102,7 @@ fun ScheduleFragment(navigator: Navigator) {
     fun onEdit() {
         selectItem?.let {
             EffectHelper.emitAddScheduleEffect(AddScheduleEffect.BeginEdit(schedule = it))
-            navigator.navigate(RouteConstants.ROUTE_ADD_SCHEDULE)
+            navController.navigate(RouteConstants.ROUTE_ADD_SCHEDULE)
             scope.launch {
                 scaffoldState.bottomSheetState.collapse()
             }
@@ -192,7 +192,7 @@ fun ScheduleFragment(navigator: Navigator) {
                     month = state.selectDate.second,
                     day = state.selectDate.third
                 ))
-                navigator.navigate(RouteConstants.ROUTE_ADD_SCHEDULE)
+                navController.navigate(RouteConstants.ROUTE_ADD_SCHEDULE)
             })
 
             Spacer(modifier = Modifier.height(16.dp))

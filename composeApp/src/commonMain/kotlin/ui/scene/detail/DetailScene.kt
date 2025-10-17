@@ -12,8 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import global.AppColors
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.BaseImmersiveScene
 import ui.widget.TitleBar
@@ -23,7 +23,7 @@ import zhoutools.composeapp.generated.resources.history
 import zhoutools.composeapp.generated.resources.today
 
 @Composable
-fun DetailScene(navigator: Navigator) {
+fun DetailScene(navController: NavHostController) {
     val viewModel = viewModel { DetailViewModel() }
     val state by viewModel.uiState.collectAsState()
     val tabs = mapOf(
@@ -37,7 +37,7 @@ fun DetailScene(navigator: Navigator) {
     ) {
         Column {
             TitleBar(
-                navigator = navigator,
+                navigator = navController,
                 title = stringResource(Res.string.details)
             )
 

@@ -34,15 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import extension.firstCharToCapital
-import global.AppColors
-import constant.RouteConstants
-import helper.NetworkHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import model.request.LoginRequest
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -57,9 +50,16 @@ import zhoutools.composeapp.generated.resources.password
 import zhoutools.composeapp.generated.resources.title_slogan
 import zhoutools.composeapp.generated.resources.unknown_error
 import zhoutools.composeapp.generated.resources.username
+import androidx.navigation.NavHostController
+import constant.RouteConstants
+import extension.firstCharToCapital
+import global.AppColors
+import helper.NetworkHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 
 @Composable
-fun LoginScene(navigator: Navigator) {
+fun LoginScene(navController: NavHostController) {
     var inputUsername by remember { mutableStateOf("") }
     var inputPassword by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -91,7 +91,7 @@ fun LoginScene(navigator: Navigator) {
                     AppStore.loginPassword = inputPassword
                     scope.launch(Dispatchers.Main) {
                         keyboardController?.hide()
-                        navigator.navigate(RouteConstants.ROUTE_HOME)
+                        navController.navigate(RouteConstants.ROUTE_HOME)
                     }
                 } else {
                     snackbarHostState.showSnackbar(getString(Res.string.unknown_error))
@@ -185,7 +185,7 @@ fun LoginScene(navigator: Navigator) {
 
                     TextButton(
                         onClick = {
-                            navigator.navigate(RouteConstants.ROUTE_SIGN_UP)
+                            navController.navigate(RouteConstants.ROUTE_SIGN_UP)
                         }
                     ) {
                         Text(

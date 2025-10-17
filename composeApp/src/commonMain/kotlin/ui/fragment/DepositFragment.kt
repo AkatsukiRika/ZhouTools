@@ -71,7 +71,6 @@ import helper.effect.EffectHelper
 import hideSoftwareKeyboard
 import kotlinx.coroutines.launch
 import model.records.DepositMonth
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
@@ -99,10 +98,11 @@ import zhoutools.composeapp.generated.resources.invalid_deposit_toast
 import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
 import kotlin.math.roundToLong
+import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DepositFragment(navigator: Navigator) {
+fun DepositFragment(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val viewModel = viewModel { DepositViewModel() }
     val state by viewModel.uiState.collectAsState()
@@ -165,7 +165,7 @@ fun DepositFragment(navigator: Navigator) {
                         .size(24.dp)
                         .clip(CircleShape)
                         .clickable {
-                            navigator.navigate(RouteConstants.ROUTE_DEPOSIT_STATS)
+                            navController.navigate(RouteConstants.ROUTE_DEPOSIT_STATS)
                         }
                 )
             }

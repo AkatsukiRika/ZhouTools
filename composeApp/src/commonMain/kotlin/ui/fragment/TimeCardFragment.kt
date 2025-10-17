@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import constant.RouteConstants
 import extension.toDateString
 import extension.toTimeString
@@ -34,7 +35,6 @@ import helper.SyncHelper
 import helper.TimeCardHelper
 import helper.effect.EffectHelper
 import helper.effect.TimeCardEffect
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.FragmentHeader
@@ -51,7 +51,7 @@ import zhoutools.composeapp.generated.resources.working_time
 @Composable
 fun TimeCardFragment(
     modifier: Modifier = Modifier,
-    navigator: Navigator
+    navController: NavHostController
 ) {
     val viewModel = viewModel { TimeCardViewModel() }
     val state by viewModel.uiState.collectAsState()
@@ -75,7 +75,7 @@ fun TimeCardFragment(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TitleLayout(onDetailsClick = {
-            navigator.navigate(RouteConstants.ROUTE_DETAILS)
+            navController.navigate(RouteConstants.ROUTE_DETAILS)
         })
 
         Text(

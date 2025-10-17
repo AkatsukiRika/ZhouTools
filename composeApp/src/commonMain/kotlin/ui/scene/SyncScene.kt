@@ -28,13 +28,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import global.AppColors
 import helper.SyncHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.BaseImmersiveScene
 import zhoutools.composeapp.generated.resources.Res
@@ -51,6 +49,8 @@ import zhoutools.composeapp.generated.resources.pushing_time_card
 import zhoutools.composeapp.generated.resources.sync_failed
 import zhoutools.composeapp.generated.resources.sync_success
 import kotlin.math.roundToInt
+import androidx.navigation.NavHostController
+import global.AppColors
 
 enum class ProcessState(val value: Int) {
     PUSHING_MEMO(0),
@@ -68,14 +68,14 @@ enum class ProcessState(val value: Int) {
 }
 
 @Composable
-fun SyncScene(navigator: Navigator, mode: String) {
+fun SyncScene(navController: NavHostController, mode: String) {
     var progressValue by remember { mutableFloatStateOf(0f) }
     val progressState by animateFloatAsState(targetValue = progressValue)
     val processStates = remember { mutableStateListOf<Int>() }
 
     suspend fun goBack() {
         delay(1000)
-        navigator.goBack()
+        navController.popBackStack()
     }
 
     fun onError() {

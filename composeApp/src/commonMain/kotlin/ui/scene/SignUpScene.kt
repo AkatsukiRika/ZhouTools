@@ -35,7 +35,6 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import model.request.RegisterRequest
-import moe.tlaster.precompose.navigation.Navigator
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import ui.widget.BaseImmersiveScene
@@ -50,9 +49,10 @@ import zhoutools.composeapp.generated.resources.registration_failed
 import zhoutools.composeapp.generated.resources.registration_success
 import zhoutools.composeapp.generated.resources.sign_up
 import zhoutools.composeapp.generated.resources.username
+import androidx.navigation.NavHostController
 
 @Composable
-fun SignUpScene(navigator: Navigator) {
+fun SignUpScene(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var inputUsername by remember { mutableStateOf("") }
@@ -86,7 +86,7 @@ fun SignUpScene(navigator: Navigator) {
 
     suspend fun delayGoBack() {
         delay(1500)
-        navigator.goBack()
+        navController.popBackStack()
     }
 
     fun signUp() {
@@ -128,7 +128,7 @@ fun SignUpScene(navigator: Navigator) {
         Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
             Column(modifier = Modifier.fillMaxSize()) {
                 TitleBar(
-                    navigator = navigator,
+                    navigator = navController,
                     title = stringResource(Res.string.registration)
                 )
 
