@@ -3,7 +3,6 @@ package extension
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
@@ -11,7 +10,10 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import util.CalendarUtil
 import util.TimeUtil
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 fun Long.dayStartTime(): Long {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -19,6 +21,7 @@ fun Long.dayStartTime(): Long {
     return startOfDay.toEpochMilliseconds()
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.weekStartTime(): Long {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -29,6 +32,7 @@ fun Long.weekStartTime(): Long {
     return startOfDay.toEpochMilliseconds()
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.monthStartTime(): Long {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -38,6 +42,7 @@ fun Long.monthStartTime(): Long {
     return startOfDay.toEpochMilliseconds()
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.getNextWeekStartTime(): Long {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -48,6 +53,7 @@ fun Long.getNextWeekStartTime(): Long {
     return startOfDay.toEpochMilliseconds()
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.getNextMonthStartTime(): Long {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -57,6 +63,7 @@ fun Long.getNextMonthStartTime(): Long {
     return startOfDay.toEpochMilliseconds()
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.getNextQuarterStartTime(): Long {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -73,6 +80,7 @@ fun Long.getNextQuarterStartTime(): Long {
     return nextQuarterStartTime
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.getNextYearStartTime(): Long {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -81,6 +89,7 @@ fun Long.getNextYearStartTime(): Long {
     return nextYearStartTime
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.toTimeString(utc: Boolean = false): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(
@@ -89,6 +98,7 @@ fun Long.toTimeString(utc: Boolean = false): String {
     return "${localDateTime.hour.toString().padStart(2, '0')}:${localDateTime.minute.toString().padStart(2, '0')}:${localDateTime.second.toString().padStart(2, '0')}"
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.toHourMinString(utc: Boolean = false): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(
@@ -105,42 +115,49 @@ fun String.daysToMillis(): Long {
     return this.toLong() * 1000 * 60 * 60 * 24
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.getHour(): Int {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return localDateTime.hour
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.getMinute(): Int {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return localDateTime.minute
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.getYear(): Int {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return localDateTime.year
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.getMonthOfYear(): Int {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return localDateTime.monthNumber
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.getDayOfMonth(): Int {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return localDateTime.dayOfMonth
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.toDateString(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return "${localDateTime.year}/${localDateTime.monthNumber.toString().padStart(2, '0')}/${localDateTime.dayOfMonth.toString().padStart(2, '0')}"
 }
 
+@OptIn(ExperimentalTime::class)
 fun Long.toMonthDayString(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -150,6 +167,7 @@ fun Long.toMonthDayString(): String {
 /**
  * @return Strings like "May 2024", "Jan 2025"
  */
+@OptIn(ExperimentalTime::class)
 fun Long.toMonthYearString(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())

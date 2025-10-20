@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import logger
@@ -20,6 +19,7 @@ import model.records.MemoRecords
 import model.records.ScheduleRecords
 import store.AppFlowStore
 import store.AppStore
+import util.TimeUtil
 
 object SyncHelper {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -223,7 +223,7 @@ object SyncHelper {
             }
             val memoRecords = MemoRecords(memos = serverData.toMutableList())
             AppStore.memos = Json.encodeToString(memoRecords)
-            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+            AppStore.lastSync = TimeUtil.currentTimeMillis()
             onSuccess()
         } else {
             onError()
@@ -238,7 +238,7 @@ object SyncHelper {
                 return
             }
             AppStore.timeCards = Json.encodeToString(serverData)
-            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+            AppStore.lastSync = TimeUtil.currentTimeMillis()
             EffectHelper.emitTimeCardEffect(TimeCardEffect.RefreshTodayState)
             onSuccess()
         } else {
@@ -255,7 +255,7 @@ object SyncHelper {
             }
             val scheduleRecords = ScheduleRecords(schedules = serverData.toMutableList())
             AppStore.schedules = Json.encodeToString(scheduleRecords)
-            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+            AppStore.lastSync = TimeUtil.currentTimeMillis()
             onSuccess()
         } else {
             onError()
@@ -271,7 +271,7 @@ object SyncHelper {
             }
             val depositRecords = DepositRecords(months = serverData)
             AppStore.depositMonths = Json.encodeToString(depositRecords)
-            AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+            AppStore.lastSync = TimeUtil.currentTimeMillis()
             EffectHelper.emitDepositEffect(DepositEffect.RefreshData)
             onSuccess()
         } else {
@@ -290,7 +290,7 @@ object SyncHelper {
             onError()
             return
         }
-        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+        AppStore.lastSync = TimeUtil.currentTimeMillis()
         onSuccess()
     }
 
@@ -305,7 +305,7 @@ object SyncHelper {
             onError()
             return
         }
-        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+        AppStore.lastSync = TimeUtil.currentTimeMillis()
         onSuccess()
     }
 
@@ -320,7 +320,7 @@ object SyncHelper {
             onError()
             return
         }
-        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+        AppStore.lastSync = TimeUtil.currentTimeMillis()
         onSuccess()
     }
 
@@ -335,7 +335,7 @@ object SyncHelper {
             onError()
             return
         }
-        AppStore.lastSync = Clock.System.now().toEpochMilliseconds()
+        AppStore.lastSync = TimeUtil.currentTimeMillis()
         onSuccess()
     }
 }

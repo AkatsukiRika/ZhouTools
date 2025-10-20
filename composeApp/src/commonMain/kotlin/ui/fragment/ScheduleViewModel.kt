@@ -10,11 +10,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import model.calendar.MonthDay
 import util.CalendarUtil
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 data class ScheduleState(
     val currYear: Int,
@@ -32,6 +33,7 @@ data class ScheduleState(
         } else ""
     }
 
+    @OptIn(ExperimentalTime::class)
     fun isToday(dayOfMonth: Int): Boolean {
         val todayDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         return currYear == todayDate.year && currMonthOfYear == todayDate.monthNumber && dayOfMonth == todayDate.dayOfMonth
@@ -48,6 +50,7 @@ sealed interface ScheduleAction {
     data class SelectDay(val date: Triple<Int, Int, Int>) : ScheduleAction
 }
 
+@OptIn(ExperimentalTime::class)
 class ScheduleViewModel : ViewModel() {
     private val _uiState: MutableStateFlow<ScheduleState>
     val uiState: StateFlow<ScheduleState>

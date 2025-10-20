@@ -14,13 +14,7 @@ compose.resources {
 }
 
 kotlin {
-    androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "11"
-            }
-        }
-    }
+    androidTarget()
     
     listOf(
         iosX64(),
@@ -101,9 +95,8 @@ android {
             isMinifyEnabled = false
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+    kotlin {
+        jvmToolchain(11)
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
