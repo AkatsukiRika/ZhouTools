@@ -7,7 +7,6 @@ androidx-activityCompose = "1.9.3"
 compose = "1.6.7"
 compose-plugin = "1.6.10"
 kotlin = "2.0.21"
-precompose = "1.6.2"
 ktor = "2.3.7"
 serialization = "1.9.23"
 androidx-datastore = "1.1.7"
@@ -21,7 +20,6 @@ navigation-compose = "2.8.0-alpha02"
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
-precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }

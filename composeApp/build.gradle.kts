@@ -50,8 +50,6 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            // PreCompose
-            implementation(libs.precompose)
             // Navigation
             implementation(libs.androidx.navigation.compose)
             // Ktor

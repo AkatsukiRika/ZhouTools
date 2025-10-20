@@ -91,8 +91,6 @@ fun MemoFragment(navController: NavHostController) {
         viewModel.memoEvent.collect { event ->
             when (event) {
                 is MemoEvent.GoToEditScene -> {
-                    // FIXME: navigateForResult is a precompose feature, replaced with navigate.
-                    // Result handling may need to be re-implemented.
                     navController.navigate(RouteConstants.ROUTE_WRITE_MEMO.replace(RouteConstants.PARAM_EDIT, "true"))
                 }
             }
