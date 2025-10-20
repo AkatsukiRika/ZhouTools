@@ -99,6 +99,7 @@ import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
 import kotlin.math.roundToLong
 import androidx.navigation.NavHostController
+import zhoutools.composeapp.generated.resources.ic_calc
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -172,14 +173,30 @@ fun DepositFragment(navController: NavHostController) {
 
             BigCard(state)
 
-            Text(
-                text = stringResource(Res.string.records),
-                fontWeight = FontWeight.Medium,
-                fontSize = 20.sp,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 24.dp, top = 24.dp, bottom = 12.dp)
-            )
+            Row(
+                modifier = Modifier.padding(start = 24.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(Res.string.records),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 20.sp
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Icon(
+                    painter = painterResource(Res.drawable.ic_calc),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .clickable {
+                        }
+                        .padding(4.dp),
+                    tint = AppColors.Theme
+                )
+            }
 
             LazyColumn(modifier = Modifier
                 .fillMaxWidth()
