@@ -99,13 +99,13 @@ fun SyncScene(navController: NavHostController, mode: String) {
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             if (mode == "push") {
-                SyncHelper.pushMemo(::onSuccess, ::onError)
+                SyncHelper.pushMemo(::onError, ::onSuccess)
                 progressValue = 1 / 4f
-                SyncHelper.pushTimeCard(::onSuccess, ::onError)
+                SyncHelper.pushTimeCard(::onError, ::onSuccess)
                 progressValue = 2 / 4f
-                SyncHelper.pushSchedule(::onSuccess, ::onError)
+                SyncHelper.pushSchedule(::onError, ::onSuccess)
                 progressValue = 3 / 4f
-                SyncHelper.pushDepositMonths(::onSuccess, ::onError)
+                SyncHelper.pushDepositMonths(::onError, ::onSuccess)
                 progressValue = 1f
             } else if (mode == "pull") {
                 SyncHelper.pullMemo(::onSuccess, ::onError)
