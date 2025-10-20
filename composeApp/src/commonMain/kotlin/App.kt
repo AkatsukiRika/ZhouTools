@@ -1,4 +1,3 @@
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -35,15 +34,15 @@ val logger = logging("App")
 fun App() {
     val navController = rememberNavController()
     val isLogin = AppStore.loginToken.isNotBlank()
-    val animationSpec = remember { tween<IntOffset>(easing = LinearEasing) }
+    val animationSpec = remember { tween<IntOffset>() }
 
     NavHost(
         navController = navController,
         startDestination = if (isLogin) RouteConstants.ROUTE_HOME else RouteConstants.ROUTE_LOGIN,
         enterTransition = { slideInHorizontally(animationSpec = animationSpec) { it } },
-        exitTransition = { slideOutHorizontally(animationSpec = animationSpec) { it } },
+        exitTransition = { slideOutHorizontally(animationSpec = animationSpec) { -it / 4 } },
         popEnterTransition = { slideInHorizontally(animationSpec = animationSpec) { -it / 4 } },
-        popExitTransition = { slideOutHorizontally(animationSpec = animationSpec) { -it / 4 } },
+        popExitTransition = { slideOutHorizontally(animationSpec = animationSpec) { it } },
     ) {
         composable(
             route = RouteConstants.ROUTE_LOGIN,
