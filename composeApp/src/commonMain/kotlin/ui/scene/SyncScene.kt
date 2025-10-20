@@ -75,7 +75,9 @@ fun SyncScene(navController: NavHostController, mode: String) {
 
     suspend fun goBack() {
         delay(1000)
-        navController.popBackStack()
+        withContext(Dispatchers.Main) {
+            navController.popBackStack()
+        }
     }
 
     fun onError() {

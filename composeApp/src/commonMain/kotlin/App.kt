@@ -78,7 +78,7 @@ fun App() {
         }
 
         composable(
-            route = "${RouteConstants.ROUTE_WRITE_MEMO}?edit={edit}",
+            route = RouteConstants.ROUTE_WRITE_MEMO,
             arguments = listOf(navArgument("edit") {
                 type = NavType.BoolType
                 defaultValue = false
@@ -100,7 +100,7 @@ fun App() {
         }
 
         composable(
-            route = "${RouteConstants.ROUTE_SYNC}/{mode}",
+            route = RouteConstants.ROUTE_SYNC,
             arguments = listOf(navArgument("mode") {
                 type = NavType.StringType
             })

@@ -194,7 +194,7 @@ fun MemoFragment(navController: NavHostController) {
             FloatingActionButton(
                 backgroundColor = AppColors.Theme,
                 onClick = {
-                    navController.navigate(route = RouteConstants.ROUTE_WRITE_MEMO)
+                    navController.navigate(route = RouteConstants.ROUTE_WRITE_MEMO.replace(RouteConstants.PARAM_EDIT, "false"))
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)

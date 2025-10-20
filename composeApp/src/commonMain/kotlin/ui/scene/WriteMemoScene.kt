@@ -171,7 +171,7 @@ private fun MainColumn(
     var text by remember(state.text) { mutableStateOf(state.text) }
     val isImeVisible by rememberKeyboardVisibilityState()
 
-    Column {
+    Column(modifier = Modifier.background(AppColors.Background)) {
         TitleBar(
             navigator = navigator,
             title = stringResource(
