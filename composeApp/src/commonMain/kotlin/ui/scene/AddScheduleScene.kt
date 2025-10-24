@@ -30,8 +30,8 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import ui.widget.InsetAwareSnackbarHost
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
@@ -134,7 +134,7 @@ fun AddScheduleScene(navController: NavHostController) {
                 BottomSheetContent(timePickerState, scaffoldState, state, viewModel::dispatch)
             },
             snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
+                InsetAwareSnackbarHost(hostState = snackbarHostState)
             },
             scaffoldState = scaffoldState,
             sheetPeekHeight = 0.dp

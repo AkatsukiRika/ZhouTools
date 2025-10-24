@@ -28,7 +28,6 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDatePickerState
@@ -99,6 +98,7 @@ import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
 import kotlin.math.roundToLong
 import androidx.navigation.NavHostController
+import ui.widget.InsetAwareSnackbarHost
 import zhoutools.composeapp.generated.resources.ic_calc
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -150,7 +150,7 @@ fun DepositFragment(navController: NavHostController) {
             )
         },
         snackbarHost = {
-            SnackbarHost(snackbarHostState)
+            InsetAwareSnackbarHost(snackbarHostState)
         },
         scaffoldState = scaffoldState,
         sheetPeekHeight = 0.dp,

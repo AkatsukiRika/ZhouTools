@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -50,6 +49,7 @@ import zhoutools.composeapp.generated.resources.registration_success
 import zhoutools.composeapp.generated.resources.sign_up
 import zhoutools.composeapp.generated.resources.username
 import androidx.navigation.NavHostController
+import ui.widget.InsetAwareSnackbarHost
 
 @Composable
 fun SignUpScene(navController: NavHostController) {
@@ -125,7 +125,7 @@ fun SignUpScene(navController: NavHostController) {
         .fillMaxSize()
         .background(AppColors.Background)
     ) {
-        Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        Scaffold(snackbarHost = { InsetAwareSnackbarHost(hostState = snackbarHostState) }) {
             Column(modifier = Modifier.fillMaxSize()) {
                 TitleBar(
                     navigator = navController,

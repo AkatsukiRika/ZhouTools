@@ -12,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -57,6 +56,7 @@ import global.AppColors
 import helper.NetworkHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import ui.widget.InsetAwareSnackbarHost
 
 @Composable
 fun LoginScene(navController: NavHostController) {
@@ -109,7 +109,7 @@ fun LoginScene(navController: NavHostController) {
             .background(AppColors.Background),
         navigationBarPadding = false
     ) {
-        Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        Scaffold(snackbarHost = { InsetAwareSnackbarHost(hostState = snackbarHostState) }) {
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(Brush.verticalGradient(colors = listOf(AppColors.SlightTheme, Color.White)))

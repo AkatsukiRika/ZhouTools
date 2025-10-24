@@ -43,6 +43,7 @@ import org.jetbrains.compose.resources.stringResource
 import setClipboardContent
 import store.AppStore
 import ui.widget.BaseImmersiveScene
+import ui.widget.InsetAwareSnackbarHost
 import ui.widget.TitleBar
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.copied_to_clipboard
@@ -81,7 +82,7 @@ fun ExportDataScene(navController: NavHostController) {
             .background(Color(0xFFFFFBFE)),
         navigationBarColorStr = "#FFFBFE"
     ) {
-        Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        Scaffold(snackbarHost = { InsetAwareSnackbarHost(hostState = snackbarHostState) }) {
             Column(modifier = Modifier.fillMaxSize()) {
                 val chipColors = AppColors.getChipColors()
 
