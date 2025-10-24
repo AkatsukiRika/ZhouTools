@@ -53,7 +53,7 @@ import store.AppFlowStore
 import store.AppStore
 import ui.dialog.CloudServerDialog
 import ui.dialog.ConfirmDialog
-import ui.dialog.DepositGoalDialog
+import ui.dialog.SetValueDialog
 import ui.widget.HorizontalSeekBar
 import ui.widget.VerticalDivider
 import zhoutools.composeapp.generated.resources.Res
@@ -83,6 +83,7 @@ import zhoutools.composeapp.generated.resources.sync_confirm_content
 import zhoutools.composeapp.generated.resources.sync_confirm_title
 import zhoutools.composeapp.generated.resources.sync_data
 import zhoutools.composeapp.generated.resources.time_card_settings
+import zhoutools.composeapp.generated.resources.total_deposit_goal
 import zhoutools.composeapp.generated.resources.version_x
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -253,7 +254,9 @@ fun SettingsFragment(
     }
 
     if (showDepositGoalDialog) {
-        DepositGoalDialog(
+        SetValueDialog(
+            initialValue = AppStore.totalDepositGoal,
+            valueName = stringResource(Res.string.total_deposit_goal),
             onCancel = {
                 showDepositGoalDialog = false
             },

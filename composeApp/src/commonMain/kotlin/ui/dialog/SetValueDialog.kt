@@ -33,18 +33,16 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import global.AppColors
 import org.jetbrains.compose.resources.stringResource
-import store.AppStore
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.cancel
 import zhoutools.composeapp.generated.resources.confirm
 import zhoutools.composeapp.generated.resources.enter_your_x_below
-import zhoutools.composeapp.generated.resources.total_deposit_goal
 
 @Composable
-fun DepositGoalDialog(onCancel: () -> Unit, onConfirm: (Long?) -> Unit) {
-    var totalDepositGoal by remember { mutableStateOf(AppStore.totalDepositGoal.toString()) }
-    val isValidGoal by remember(totalDepositGoal) {
-        derivedStateOf { totalDepositGoal.isNotEmpty() && totalDepositGoal.toLongOrNull() != null }
+fun SetValueDialog(initialValue: Long, valueName: String, onCancel: () -> Unit, onConfirm: (Long?) -> Unit) {
+    var currentValueString by remember { mutableStateOf(initialValue.toString()) }
+    val isValueValid by remember(currentValueString) {
+        derivedStateOf { currentValueString.isNotEmpty() && currentValueString.toLongOrNull() != null }
     }
 
     Dialog(onDismissRequest = {}) {
@@ -56,7 +54,7 @@ fun DepositGoalDialog(onCancel: () -> Unit, onConfirm: (Long?) -> Unit) {
                 append(stringResource(Res.string.enter_your_x_below).substringBefore("%s"))
 
                 withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(stringResource(Res.string.total_deposit_goal))
+                    append(valueName)
                 }
 
                 append(stringResource(Res.string.enter_your_x_below).substringAfter("%s"))
@@ -70,16 +68,16 @@ fun DepositGoalDialog(onCancel: () -> Unit, onConfirm: (Long?) -> Unit) {
             )
 
             TextField(
-                value = totalDepositGoal,
+                value = currentValueString,
                 onValueChange = {
-                    totalDepositGoal = it
+                    currentValueString = it
                 },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
-                    textColor = if (isValidGoal) AppColors.DarkGreen else AppColors.Red
+                    textColor = if (isValueValid) AppColors.DarkGreen else AppColors.Red
                 ),
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -105,10 +103,10 @@ fun DepositGoalDialog(onCancel: () -> Unit, onConfirm: (Long?) -> Unit) {
 
                 Button(
                     onClick = {
-                        if (totalDepositGoal.isEmpty()) {
+                        if (currentValueString.isEmpty()) {
                             onConfirm(0)
                         } else {
-                            onConfirm(totalDepositGoal.toLongOrNull())
+                            onConfirm(currentValueString.toLongOrNull())
                         }
                     },
                     modifier = Modifier.weight(1f)

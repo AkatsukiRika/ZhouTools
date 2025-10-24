@@ -2,10 +2,9 @@ package ui.scene
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Scaffold
@@ -52,40 +51,10 @@ fun HomeScene(navController: NavHostController) {
             .fillMaxSize()
             .background(AppColors.Background)
     ) {
-        Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
-            val pagerState = rememberPagerState(initialPage = TabConstants.TAB_TIME_CARD, pageCount = { TabConstants.TAB_COUNT })
-
-            Column(modifier = Modifier.fillMaxSize()) {
-                HorizontalPager(
-                    state = pagerState,
-                    userScrollEnabled = false,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .onSizeChanged {
-                            CurrentProcessStore.screenWidthPixels.value = it.width
-                        }
-                ) {
-                    when (it) {
-                        TabConstants.TAB_TIME_CARD -> TimeCardFragment(
-                            modifier = Modifier.fillMaxSize(),
-                            navController
-                        )
-                        TabConstants.TAB_SETTINGS -> SettingsFragment(
-                            modifier = Modifier.fillMaxSize(),
-                            navController,
-                            showSnackbar = ::showSnackbar
-                        )
-                        TabConstants.TAB_MEMO -> MemoFragment(navController)
-                        TabConstants.TAB_SCHEDULE -> ScheduleFragment(navController)
-                        TabConstants.TAB_DEPOSIT -> DepositFragment(navController)
-                        else -> TimeCardFragment(
-                            modifier = Modifier.fillMaxSize(),
-                            navController
-                        )
-                    }
-                }
-
+        val pagerState = rememberPagerState(initialPage = TabConstants.TAB_TIME_CARD, pageCount = { TabConstants.TAB_COUNT })
+        Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            bottomBar = {
                 BottomBar(
                     selectIndex = pagerState.currentPage,
                     onSelect = {
@@ -94,6 +63,36 @@ fun HomeScene(navController: NavHostController) {
                         }
                     }
                 )
+            }
+        ) { innerPadding ->
+            HorizontalPager(
+                state = pagerState,
+                userScrollEnabled = false,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .onSizeChanged {
+                        CurrentProcessStore.screenWidthPixels.value = it.width
+                    }
+            ) {
+                when (it) {
+                    TabConstants.TAB_TIME_CARD -> TimeCardFragment(
+                        modifier = Modifier.fillMaxSize(),
+                        navController
+                    )
+                    TabConstants.TAB_SETTINGS -> SettingsFragment(
+                        modifier = Modifier.fillMaxSize(),
+                        navController,
+                        showSnackbar = ::showSnackbar
+                    )
+                    TabConstants.TAB_MEMO -> MemoFragment(navController)
+                    TabConstants.TAB_SCHEDULE -> ScheduleFragment(navController)
+                    TabConstants.TAB_DEPOSIT -> DepositFragment(navController)
+                    else -> TimeCardFragment(
+                        modifier = Modifier.fillMaxSize(),
+                        navController
+                    )
+                }
             }
 
             BackHandler {

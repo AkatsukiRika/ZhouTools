@@ -125,6 +125,7 @@
     <string name="enter_your_x_below">Enter your %s below:</string>
     <string name="total_deposit_goal">Total Deposit Goal</string>
     <string name="total_deposit">Total Deposit</string>
+    <string name="remaining_deposit">Remaining Deposit</string>
     <string name="invalid_number">Invalid number.</string>
     <string name="milestone_goal">Milestone Goal</string>
     <string name="days">Day(s)</string>
