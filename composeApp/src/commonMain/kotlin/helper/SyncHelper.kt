@@ -75,10 +75,12 @@ object SyncHelper {
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPushTimeCard success" }
                         _isAutoPushing.value = false
+                        AppFlowStore.setLastPushTimeCardStatus(AppFlowStore.STATUS_SUCCESS)
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPushTimeCard error" }
                         _isAutoPushing.value = false
+                        AppFlowStore.setLastPushTimeCardStatus(AppFlowStore.STATUS_FAIL)
                     }
                 )
             }
@@ -118,10 +120,12 @@ object SyncHelper {
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPushSchedule success" }
                         _isAutoPushing.value = false
+                        AppFlowStore.setLastPushScheduleStatus(AppFlowStore.STATUS_SUCCESS)
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPushSchedule error" }
                         _isAutoPushing.value = false
+                        AppFlowStore.setLastPushScheduleStatus(AppFlowStore.STATUS_FAIL)
                     }
                 )
             }
@@ -161,10 +165,12 @@ object SyncHelper {
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPushMemo success" }
                         _isAutoPushing.value = false
+                        AppFlowStore.setLastPushMemoStatus(AppFlowStore.STATUS_SUCCESS)
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPushMemo error" }
                         _isAutoPushing.value = false
+                        AppFlowStore.setLastPushMemoStatus(AppFlowStore.STATUS_FAIL)
                     }
                 )
             }
@@ -204,10 +210,12 @@ object SyncHelper {
                     onSuccess = {
                         logger.i("SyncHelper") { "autoPushDeposit success" }
                         _isAutoPushing.value = false
+                        AppFlowStore.setLastPushDepositStatus(AppFlowStore.STATUS_SUCCESS)
                     },
                     onError = {
                         logger.i("SyncHelper") { "autoPushDeposit error" }
                         _isAutoPushing.value = false
+                        AppFlowStore.setLastPushDepositStatus(AppFlowStore.STATUS_FAIL)
                     }
                 )
             }

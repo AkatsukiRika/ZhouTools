@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import constant.RouteConstants
+import constant.TabConstants
 import extension.toDateString
 import extension.toTimeString
 import global.AppColors
@@ -122,7 +123,7 @@ fun TimeCardFragment(
 
 @Composable
 fun TitleLayout(onDetailsClick: () -> Unit) {
-    FragmentHeader(title = stringResource(Res.string.time_card)) {
+    FragmentHeader(homeTabId = TabConstants.TAB_TIME_CARD, title = stringResource(Res.string.time_card)) {
         Icon(
             painter = painterResource(Res.drawable.ic_details),
             contentDescription = null,

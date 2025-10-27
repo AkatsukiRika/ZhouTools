@@ -74,6 +74,7 @@ import zhoutools.composeapp.generated.resources.ic_todo_finished
 import zhoutools.composeapp.generated.resources.mark_done
 import zhoutools.composeapp.generated.resources.memo
 import androidx.navigation.NavHostController
+import constant.TabConstants
 import model.records.GOAL_TYPE_DEPOSIT
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -162,9 +163,7 @@ fun MemoFragment(navController: NavHostController) {
                             .alpha(if (state.mode == MODE_MEMO) 1f else 0.2f)
                     )
 
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    AutoSyncIndicator()
+                    AutoSyncIndicator(homeTabId = TabConstants.TAB_MEMO)
 
                     Spacer(modifier = Modifier.weight(1f))
 

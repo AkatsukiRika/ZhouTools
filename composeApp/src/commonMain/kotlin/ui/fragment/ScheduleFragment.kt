@@ -83,6 +83,7 @@ import zhoutools.composeapp.generated.resources.today
 import zhoutools.composeapp.generated.resources.x_days_since
 import zhoutools.composeapp.generated.resources.x_days_until
 import androidx.navigation.NavHostController
+import constant.TabConstants
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -159,7 +160,7 @@ fun ScheduleFragment(navController: NavHostController) {
                 }
             }
         ) {
-            FragmentHeader(title = stringResource(Res.string.schedule))
+            FragmentHeader(homeTabId = TabConstants.TAB_SCHEDULE, title = stringResource(Res.string.schedule))
 
             MonthRow(
                 modifier = Modifier

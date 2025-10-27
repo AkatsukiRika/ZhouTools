@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun FragmentHeader(title: String, endingSlot: @Composable (() -> Unit)? = null) {
+fun FragmentHeader(homeTabId: Int, title: String, endingSlot: @Composable (() -> Unit)? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -26,7 +26,7 @@ fun FragmentHeader(title: String, endingSlot: @Composable (() -> Unit)? = null) 
             fontWeight = FontWeight.ExtraBold
         )
 
-        AutoSyncIndicator()
+        AutoSyncIndicator(homeTabId)
 
         Spacer(modifier = Modifier.weight(1f))
 

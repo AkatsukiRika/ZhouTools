@@ -98,6 +98,7 @@ import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
 import kotlin.math.roundToLong
 import androidx.navigation.NavHostController
+import constant.TabConstants
 import store.AppStore
 import ui.dialog.SetValueDialog
 import ui.widget.InsetAwareSnackbarHost
@@ -163,7 +164,7 @@ fun DepositFragment(navController: NavHostController) {
         containerColor = AppColors.Background
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            FragmentHeader(title = stringResource(Res.string.deposit)) {
+            FragmentHeader(homeTabId = TabConstants.TAB_DEPOSIT, title = stringResource(Res.string.deposit)) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_details),
                     contentDescription = null,
