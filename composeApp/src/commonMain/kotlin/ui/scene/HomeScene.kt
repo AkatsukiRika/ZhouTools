@@ -11,15 +11,24 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.navigation.NavHostController
 import constant.TabConstants
 import global.AppColors
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import store.AppFlowStore
+import store.AppFlowStore.STATUS_NONE
 import store.CurrentProcessStore
+import ui.dialog.WarningDialog
 import ui.fragment.DepositFragment
 import ui.fragment.MemoFragment
 import ui.fragment.ScheduleFragment
@@ -28,12 +37,30 @@ import ui.fragment.TimeCardFragment
 import ui.widget.BaseImmersiveScene
 import ui.widget.BottomBar
 import util.BackHandler
+import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.retry_upload
+import zhoutools.composeapp.generated.resources.warning_upload_fail
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScene(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val pushTimeCardStatus = AppFlowStore.lastPushTimeCardStatus.collectAsState(STATUS_NONE).value
+    val pushScheduleStatus = AppFlowStore.lastPushScheduleStatus.collectAsState(STATUS_NONE).value
+    val pushMemoStatus = AppFlowStore.lastPushMemoStatus.collectAsState(STATUS_NONE).value
+    val pushDepositStatus = AppFlowStore.lastPushDepositStatus.collectAsState(STATUS_NONE).value
+    var showWarningDialog by remember { mutableStateOf<Boolean?>(null) }
+
+    LaunchedEffect(pushTimeCardStatus, pushScheduleStatus, pushMemoStatus, pushDepositStatus) {
+        val isFail = pushTimeCardStatus == AppFlowStore.STATUS_FAIL ||
+                pushScheduleStatus == AppFlowStore.STATUS_FAIL ||
+                pushMemoStatus == AppFlowStore.STATUS_FAIL ||
+                pushDepositStatus == AppFlowStore.STATUS_FAIL
+        if (isFail && showWarningDialog == null) {
+            showWarningDialog = true
+        }
+    }
 
     fun showSnackbar(message: String) {
         scope.launch {
@@ -93,6 +120,16 @@ fun HomeScene(navController: NavHostController) {
                         navController
                     )
                 }
+            }
+
+            if (showWarningDialog == true) {
+                WarningDialog(
+                    content = stringResource(Res.string.warning_upload_fail),
+                    confirmText = stringResource(Res.string.retry_upload),
+                    onConfirm = {
+                        showWarningDialog = false
+                    }
+                )
             }
 
             BackHandler {

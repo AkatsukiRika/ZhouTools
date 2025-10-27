@@ -151,4 +151,6 @@
     <string name="unsorted">Unsorted</string>
     <string name="add_group">Add Group</string>
     <string name="retry_upload">Retry Upload</string>
+    <string name="warning">Warning</string>
+    <string name="warning_upload_fail">An upload attempt failed last time.\nTo prevent data loss, "Auto Sync" has been turned off.\nA successful manual upload will turn it back on.</string>
 </resources>
