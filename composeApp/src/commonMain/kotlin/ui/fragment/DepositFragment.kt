@@ -98,8 +98,13 @@ import zhoutools.composeapp.generated.resources.monthly_income
 import zhoutools.composeapp.generated.resources.records
 import kotlin.math.roundToLong
 import androidx.navigation.NavHostController
+import store.AppStore
+import ui.dialog.SetValueDialog
 import ui.widget.InsetAwareSnackbarHost
+import zhoutools.composeapp.generated.resources.current_balance
 import zhoutools.composeapp.generated.resources.ic_calc
+import zhoutools.composeapp.generated.resources.invalid_number
+import zhoutools.composeapp.generated.resources.monthly_income_remain
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,6 +117,7 @@ fun DepositFragment(navController: NavHostController) {
     )
     val snackbarHostState = remember { SnackbarHostState() }
     var deleteDialogRecord by remember { mutableStateOf<DepositDisplayRecord?>(null) }
+    var showCurrentBalanceDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
@@ -171,7 +177,9 @@ fun DepositFragment(navController: NavHostController) {
                 )
             }
 
-            BigCard(state)
+            BigCard(state, onClick = {
+                viewModel.dispatch(DepositAction.ToggleBigCardState)
+            })
 
             Row(
                 modifier = Modifier.padding(start = 24.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
@@ -192,6 +200,7 @@ fun DepositFragment(navController: NavHostController) {
                         .size(36.dp)
                         .clip(CircleShape)
                         .clickable {
+                            showCurrentBalanceDialog = true
                         }
                         .padding(4.dp),
                     tint = AppColors.Theme
@@ -234,15 +243,41 @@ fun DepositFragment(navController: NavHostController) {
             }
         )
     }
+
+    if (showCurrentBalanceDialog) {
+        SetValueDialog(
+            initialValue = AppStore.currentBalance,
+            valueName = stringResource(Res.string.current_balance),
+            onCancel = {
+                showCurrentBalanceDialog = false
+            },
+            onConfirm = {
+                showCurrentBalanceDialog = false
+                if (it == null) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(getString(Res.string.invalid_number))
+                    }
+                } else {
+                    AppStore.isCurrentBalanceSet = true
+                    AppStore.currentBalance = it
+                    viewModel.dispatch(DepositAction.ResetBigCardState)
+                }
+            }
+        )
+    }
 }
 
 @Composable
-private fun BigCard(state: DepositState) {
+private fun BigCard(state: DepositState, onClick: () -> Unit) {
     var annotatedAmountString by remember { mutableStateOf(AnnotatedString("")) }
 
-    LaunchedEffect(state.currentAmount) {
+    LaunchedEffect(state.bigCardState, state.currentAmount, state.monthlyIncomeRemain) {
         annotatedAmountString = buildAnnotatedString {
-            val splitResult = state.currentAmount.toMoneyDisplayStr().split(".")
+            val splitResult = if (state.bigCardState == DepositBigCardState.REMAIN) {
+                state.monthlyIncomeRemain.toMoneyDisplayStr().split(".")
+            } else {
+                state.currentAmount.toMoneyDisplayStr().split(".")
+            }
 
             if (splitResult.size == 2) {
                 withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
@@ -258,8 +293,11 @@ private fun BigCard(state: DepositState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        shape = RoundedCornerShape(8.dp),
+            .padding(horizontal = 24.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable {
+                onClick()
+            },
         backgroundColor = Color.White,
         elevation = 4.dp
     ) {
@@ -269,11 +307,18 @@ private fun BigCard(state: DepositState) {
                 density.run { px.toDp() }
             }
             var height by remember { mutableIntStateOf(0) }
-            var width by remember { mutableIntStateOf(0) }
 
             ShimmerProgressBar(
-                progress = state.progress,
-                color = AppColors.LightGold.copy(alpha = 0.5f),
+                progress = if (state.bigCardState == DepositBigCardState.REMAIN) {
+                    state.monthlyIncomeRemainProgress
+                } else {
+                    state.progress
+                },
+                color = if (state.bigCardState == DepositBigCardState.REMAIN) {
+                    AppColors.LightTheme.copy(alpha = 0.5f)
+                } else {
+                    AppColors.LightGold.copy(alpha = 0.5f)
+                },
                 backgroundColor = Color.Transparent,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -285,13 +330,18 @@ private fun BigCard(state: DepositState) {
                     .fillMaxWidth()
                     .onSizeChanged {
                         height = it.height
-                        width = it.width
                     },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Text(text = stringResource(Res.string.current_deposit_amount))
+                Text(text = stringResource(
+                    if (state.bigCardState == DepositBigCardState.REMAIN) {
+                        Res.string.monthly_income_remain
+                    } else {
+                        Res.string.current_deposit_amount
+                    }
+                ))
 
                 Text(annotatedAmountString)
 

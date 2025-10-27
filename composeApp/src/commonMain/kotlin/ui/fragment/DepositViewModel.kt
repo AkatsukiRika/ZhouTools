@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import model.records.DepositMonth
 import model.records.DepositRecords
 import store.AppFlowStore
+import store.AppStore
 import ui.fragment.DepositState.Companion.toDeque
 import util.TimeUtil
 
@@ -60,6 +61,16 @@ class DepositViewModel : ViewModel() {
             is DepositAction.RefreshData -> {
                 refreshData()
             }
+
+            is DepositAction.ToggleBigCardState -> {
+                toggleBigCardState()
+            }
+
+            is DepositAction.ResetBigCardState -> {
+                _uiState.update {
+                    it.copy(bigCardState = DepositBigCardState.TOTAL)
+                }
+            }
         }
     }
 
@@ -82,13 +93,40 @@ class DepositViewModel : ViewModel() {
             )
         }
     }
+
+    private fun toggleBigCardState() {
+        if (!AppStore.isCurrentBalanceSet || _uiState.value.bigCardState == DepositBigCardState.REMAIN || _uiState.value.displayDeque.isEmpty()) {
+            _uiState.update {
+                it.copy(bigCardState = DepositBigCardState.TOTAL)
+            }
+        } else {
+            val displayDeque = _uiState.value.displayDeque
+            displayDeque.firstOrNull()?.let { lastRecord ->
+                val remain = AppStore.currentBalance * 100 - lastRecord.balance
+                val progress = runCatching { remain / lastRecord.monthlyIncome.toFloat() }.getOrElse { 0f }
+                _uiState.update {
+                    it.copy(
+                        bigCardState = DepositBigCardState.REMAIN,
+                        monthlyIncomeRemain = remain,
+                        monthlyIncomeRemainProgress = progress
+                    )
+                }
+            }
+        }
+    }
 }
 
+enum class DepositBigCardState {
+    TOTAL, REMAIN
+}
 
 data class DepositState(
     val currentAmount: Long = 0L,
     val progress: Float = 0f,
-    val displayDeque: ArrayDeque<DepositDisplayRecord> = ArrayDeque()
+    val displayDeque: ArrayDeque<DepositDisplayRecord> = ArrayDeque(),
+    val bigCardState: DepositBigCardState = DepositBigCardState.TOTAL,
+    val monthlyIncomeRemain: Long = 0L,
+    val monthlyIncomeRemainProgress: Float = 0f
 ) {
     companion object {
         fun DepositRecords.toDeque(): ArrayDeque<DepositDisplayRecord> {
@@ -135,4 +173,6 @@ sealed interface DepositAction {
     data class AddMonth(val month: DepositMonth) : DepositAction
     data class RemoveMonth(val month: DepositMonth) : DepositAction
     data object RefreshData : DepositAction
+    data object ToggleBigCardState : DepositAction
+    data object ResetBigCardState : DepositAction
 }

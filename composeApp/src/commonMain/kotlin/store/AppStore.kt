@@ -17,7 +17,8 @@ object AppStore : KotStoreModel(storeName = PREFERENCES_NAME) {
     var minWorkingHours by floatStore(key = "min_working_hours", default = 9.5f)
     var minOvertimeHours by floatStore(key = "min_overtime_hours", default = 1f)
     var totalDepositGoal by longStore(key = "total_deposit_goal", default = 0L)
-    var currentDepositRemain by longStore(key = "current_deposit_remain", default = 0L)
+    var isCurrentBalanceSet by booleanStore(key = "is_current_balance_set", default = false)
+    var currentBalance by longStore(key = "current_balance", default = 0L)
 
     fun clearCache() {
         customServerUrl = ""
@@ -27,7 +28,8 @@ object AppStore : KotStoreModel(storeName = PREFERENCES_NAME) {
         depositMonths = "{}"
         lastSync = 0L
         totalDepositGoal = 0L
-        currentDepositRemain = 0L
+        isCurrentBalanceSet = false
+        currentBalance = 0L
     }
 
     fun setMinWorkingHoursWithFlow(hours: Float) {
