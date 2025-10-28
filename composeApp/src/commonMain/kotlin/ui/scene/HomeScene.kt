@@ -26,7 +26,6 @@ import global.AppColors
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import store.AppFlowStore
-import store.AppFlowStore.STATUS_NONE
 import store.CurrentProcessStore
 import ui.dialog.WarningDialog
 import ui.fragment.DepositFragment
@@ -46,18 +45,11 @@ import zhoutools.composeapp.generated.resources.warning_upload_fail
 fun HomeScene(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val pushTimeCardStatus = AppFlowStore.lastPushTimeCardStatus.collectAsState(STATUS_NONE).value
-    val pushScheduleStatus = AppFlowStore.lastPushScheduleStatus.collectAsState(STATUS_NONE).value
-    val pushMemoStatus = AppFlowStore.lastPushMemoStatus.collectAsState(STATUS_NONE).value
-    val pushDepositStatus = AppFlowStore.lastPushDepositStatus.collectAsState(STATUS_NONE).value
+    val lastPushFailed = AppFlowStore.lastPushFailed.collectAsState(false).value
     var showWarningDialog by remember { mutableStateOf<Boolean?>(null) }
 
-    LaunchedEffect(pushTimeCardStatus, pushScheduleStatus, pushMemoStatus, pushDepositStatus) {
-        val isFail = pushTimeCardStatus == AppFlowStore.STATUS_FAIL ||
-                pushScheduleStatus == AppFlowStore.STATUS_FAIL ||
-                pushMemoStatus == AppFlowStore.STATUS_FAIL ||
-                pushDepositStatus == AppFlowStore.STATUS_FAIL
-        if (isFail && showWarningDialog == null) {
+    LaunchedEffect(lastPushFailed) {
+        if (lastPushFailed && showWarningDialog == null) {
             showWarningDialog = true
         }
     }
