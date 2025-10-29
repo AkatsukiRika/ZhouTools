@@ -11,9 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 @Composable
-fun FragmentHeader(homeTabId: Int, title: String, endingSlot: @Composable (() -> Unit)? = null) {
+fun FragmentHeader(navController: NavController, homeTabId: Int, title: String, endingSlot: @Composable (() -> Unit)? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -26,7 +27,7 @@ fun FragmentHeader(homeTabId: Int, title: String, endingSlot: @Composable (() ->
             fontWeight = FontWeight.ExtraBold
         )
 
-        AutoSyncIndicator(homeTabId)
+        AutoSyncIndicator(navController, homeTabId)
 
         Spacer(modifier = Modifier.weight(1f))
 

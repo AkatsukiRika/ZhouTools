@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import constant.RouteConstants
 import constant.TabConstants
@@ -75,7 +76,7 @@ fun TimeCardFragment(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TitleLayout(onDetailsClick = {
+        TitleLayout(navController, onDetailsClick = {
             navController.navigate(RouteConstants.ROUTE_DETAILS)
         })
 
@@ -122,8 +123,8 @@ fun TimeCardFragment(
 }
 
 @Composable
-fun TitleLayout(onDetailsClick: () -> Unit) {
-    FragmentHeader(homeTabId = TabConstants.TAB_TIME_CARD, title = stringResource(Res.string.time_card)) {
+fun TitleLayout(navController: NavController, onDetailsClick: () -> Unit) {
+    FragmentHeader(navController, homeTabId = TabConstants.TAB_TIME_CARD, title = stringResource(Res.string.time_card)) {
         Icon(
             painter = painterResource(Res.drawable.ic_details),
             contentDescription = null,

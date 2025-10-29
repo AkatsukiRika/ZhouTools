@@ -26,18 +26,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import constant.RouteConstants
 import constant.TabConstants
 import global.AppColors
 import helper.SyncHelper
 import org.jetbrains.compose.resources.stringResource
 import store.AppFlowStore
+import ui.scene.MODE_PUSH_RETRY
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.downloading
 import zhoutools.composeapp.generated.resources.retry_upload
 import zhoutools.composeapp.generated.resources.uploading
 
 @Composable
-fun AutoSyncIndicator(homeTabId: Int) {
+fun AutoSyncIndicator(navController: NavController, homeTabId: Int) {
     var textAlpha by remember { mutableFloatStateOf(1f) }
     val isPulling = SyncHelper.isAutoPulling.collectAsState(initial = false).value
     val isPushing = SyncHelper.isAutoPushing.collectAsState(initial = false).value
@@ -61,7 +64,9 @@ fun AutoSyncIndicator(homeTabId: Int) {
             color = AppColors.Red,
             modifier = Modifier
                 .padding(start = 4.dp)
-                .clickable {}
+                .clickable {
+                    navController.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, MODE_PUSH_RETRY))
+                }
                 .padding(horizontal = 4.dp),
             fontSize = 14.sp
         )

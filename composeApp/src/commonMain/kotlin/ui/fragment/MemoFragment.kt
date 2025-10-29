@@ -163,7 +163,7 @@ fun MemoFragment(navController: NavHostController) {
                             .alpha(if (state.mode == MODE_MEMO) 1f else 0.2f)
                     )
 
-                    AutoSyncIndicator(homeTabId = TabConstants.TAB_MEMO)
+                    AutoSyncIndicator(navController, TabConstants.TAB_MEMO)
 
                     Spacer(modifier = Modifier.weight(1f))
 

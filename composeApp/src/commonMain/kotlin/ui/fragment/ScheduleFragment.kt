@@ -160,7 +160,7 @@ fun ScheduleFragment(navController: NavHostController) {
                 }
             }
         ) {
-            FragmentHeader(homeTabId = TabConstants.TAB_SCHEDULE, title = stringResource(Res.string.schedule))
+            FragmentHeader(navController, homeTabId = TabConstants.TAB_SCHEDULE, title = stringResource(Res.string.schedule))
 
             MonthRow(
                 modifier = Modifier

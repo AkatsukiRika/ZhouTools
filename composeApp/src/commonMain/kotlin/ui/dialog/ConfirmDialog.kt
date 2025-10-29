@@ -105,9 +105,9 @@ fun ConfirmDialog(
 }
 
 @Composable
-fun DismissButton(onDismiss: () -> Unit) {
+fun DismissButton(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(28.dp)
             .clip(CircleShape)
             .clickable {

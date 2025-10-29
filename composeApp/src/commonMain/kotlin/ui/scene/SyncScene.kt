@@ -14,8 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +53,14 @@ import zhoutools.composeapp.generated.resources.sync_success
 import kotlin.math.roundToInt
 import androidx.navigation.NavHostController
 import global.AppColors
+import store.AppFlowStore
+import store.AppFlowStore.STATUS_SUCCESS
+
+const val MODE_PUSH = "push"
+
+const val MODE_PULL = "pull"
+
+const val MODE_PUSH_RETRY = "push_retry"
 
 enum class ProcessState(val value: Int) {
     PUSHING_MEMO(0),
@@ -72,6 +82,8 @@ fun SyncScene(navController: NavHostController, mode: String) {
     var progressValue by remember { mutableFloatStateOf(0f) }
     val progressState by animateFloatAsState(targetValue = progressValue)
     val processStates = remember { mutableStateListOf<Int>() }
+    var successCount by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
 
     suspend fun goBack() {
         delay(1000)
@@ -80,34 +92,56 @@ fun SyncScene(navController: NavHostController, mode: String) {
         }
     }
 
+    fun isPushMode() = mode == MODE_PUSH || mode == MODE_PUSH_RETRY
+
+    fun isPushRetryMode() = mode == MODE_PUSH_RETRY
+
+    fun isPullMode() = mode == MODE_PULL
+
     fun onError() {
-        if (mode == "push") {
+        if (isPushMode()) {
             processStates.add(ProcessState.SYNC_FAILED.value)
-        } else if (mode == "pull") {
+        } else if (isPullMode()) {
             processStates.add(ProcessState.PULL_FAILED.value)
         }
     }
 
     fun onSuccess() {
-        if (mode == "push") {
+        if (isPushMode()) {
             processStates.add(ProcessState.SYNC_SUCCESS.value)
-        } else if (mode == "pull") {
+        } else if (isPullMode()) {
             processStates.add(ProcessState.PULL_SUCCESS.value)
         }
     }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            if (mode == "push") {
-                SyncHelper.pushMemo(::onError, ::onSuccess)
+            if (isPushMode()) {
+                SyncHelper.pushMemo(::onError) {
+                    onSuccess()
+                    AppFlowStore.setLastPushMemoStatus(STATUS_SUCCESS)
+                    successCount++
+                }
                 progressValue = 1 / 4f
-                SyncHelper.pushTimeCard(::onError, ::onSuccess)
+                SyncHelper.pushTimeCard(::onError) {
+                    onSuccess()
+                    AppFlowStore.setLastPushTimeCardStatus(STATUS_SUCCESS)
+                    successCount++
+                }
                 progressValue = 2 / 4f
-                SyncHelper.pushSchedule(::onError, ::onSuccess)
+                SyncHelper.pushSchedule(::onError) {
+                    onSuccess()
+                    AppFlowStore.setLastPushScheduleStatus(STATUS_SUCCESS)
+                    successCount++
+                }
                 progressValue = 3 / 4f
-                SyncHelper.pushDepositMonths(::onError, ::onSuccess)
+                SyncHelper.pushDepositMonths(::onError) {
+                    onSuccess()
+                    AppFlowStore.setLastPushDepositStatus(STATUS_SUCCESS)
+                    successCount++
+                }
                 progressValue = 1f
-            } else if (mode == "pull") {
+            } else if (isPullMode()) {
                 SyncHelper.pullMemo(::onSuccess, ::onError)
                 progressValue = 1 / 4f
                 SyncHelper.pullTimeCard(::onSuccess, ::onError)
@@ -117,12 +151,15 @@ fun SyncScene(navController: NavHostController, mode: String) {
                 SyncHelper.pullDepositMonths(::onSuccess, ::onError)
                 progressValue = 1f
             }
+            if (isPushRetryMode() && successCount == 4) {
+                AppFlowStore.autoSyncFlow.emitIn(scope, true)
+            }
             goBack()
         }
     }
 
     LaunchedEffect(progressValue) {
-        if (mode == "push") {
+        if (isPushMode()) {
             if (progressValue >= 0f && ProcessState.PUSHING_MEMO.value !in processStates) {
                 processStates.add(ProcessState.PUSHING_MEMO.value)
             }
@@ -135,7 +172,7 @@ fun SyncScene(navController: NavHostController, mode: String) {
             if (progressValue >= 3 / 4f && ProcessState.PUSHING_DEPOSIT.value !in processStates) {
                 processStates.add(ProcessState.PUSHING_DEPOSIT.value)
             }
-        } else if (mode == "pull") {
+        } else if (isPullMode()) {
             if (progressValue >= 0f && ProcessState.PULLING_MEMO.value !in processStates) {
                 processStates.add(ProcessState.PULLING_MEMO.value)
             }

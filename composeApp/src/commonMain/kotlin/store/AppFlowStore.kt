@@ -36,21 +36,36 @@ object AppFlowStore : KotStoreFlowModel<AppFlowStore>(storeName = FLOW_PREFERENC
 
     fun setLastPushTimeCardStatus(status: Int) {
         lastPushTimeCardStatus.emitIn(scope, status)
-        autoSyncFlow.emitIn(scope, false)
+        if (status == STATUS_FAIL) {
+            autoSyncFlow.emitIn(scope, false)
+        }
     }
 
     fun setLastPushScheduleStatus(status: Int) {
         lastPushScheduleStatus.emitIn(scope, status)
-        autoSyncFlow.emitIn(scope, false)
+        if (status == STATUS_FAIL) {
+            autoSyncFlow.emitIn(scope, false)
+        }
     }
 
     fun setLastPushMemoStatus(status: Int) {
         lastPushMemoStatus.emitIn(scope, status)
-        autoSyncFlow.emitIn(scope, false)
+        if (status == STATUS_FAIL) {
+            autoSyncFlow.emitIn(scope, false)
+        }
     }
 
     fun setLastPushDepositStatus(status: Int) {
         lastPushDepositStatus.emitIn(scope, status)
-        autoSyncFlow.emitIn(scope, false)
+        if (status == STATUS_FAIL) {
+            autoSyncFlow.emitIn(scope, false)
+        }
+    }
+
+    fun clearLastPushStatuses() {
+        setLastPushTimeCardStatus(STATUS_NONE)
+        setLastPushScheduleStatus(STATUS_NONE)
+        setLastPushMemoStatus(STATUS_NONE)
+        setLastPushDepositStatus(STATUS_NONE)
     }
 }

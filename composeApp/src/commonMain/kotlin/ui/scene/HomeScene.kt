@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.navigation.NavHostController
+import constant.RouteConstants
 import constant.TabConstants
 import global.AppColors
 import kotlinx.coroutines.launch
@@ -119,6 +120,10 @@ fun HomeScene(navController: NavHostController) {
                     content = stringResource(Res.string.warning_upload_fail),
                     confirmText = stringResource(Res.string.retry_upload),
                     onConfirm = {
+                        showWarningDialog = false
+                        navController.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, MODE_PUSH_RETRY))
+                    },
+                    onDismiss = {
                         showWarningDialog = false
                     }
                 )

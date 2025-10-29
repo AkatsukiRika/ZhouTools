@@ -30,6 +30,7 @@ object AppStore : KotStoreModel(storeName = PREFERENCES_NAME) {
         totalDepositGoal = 0L
         isCurrentBalanceSet = false
         currentBalance = 0L
+        AppFlowStore.clearLastPushStatuses()
     }
 
     fun setMinWorkingHoursWithFlow(hours: Float) {

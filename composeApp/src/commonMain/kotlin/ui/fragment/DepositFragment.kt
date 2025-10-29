@@ -164,7 +164,7 @@ fun DepositFragment(navController: NavHostController) {
         containerColor = AppColors.Background
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            FragmentHeader(homeTabId = TabConstants.TAB_DEPOSIT, title = stringResource(Res.string.deposit)) {
+            FragmentHeader(navController, homeTabId = TabConstants.TAB_DEPOSIT, title = stringResource(Res.string.deposit)) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_details),
                     contentDescription = null,

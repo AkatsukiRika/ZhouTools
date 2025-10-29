@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +55,8 @@ import store.AppStore
 import ui.dialog.CloudServerDialog
 import ui.dialog.ConfirmDialog
 import ui.dialog.SetValueDialog
+import ui.scene.MODE_PULL
+import ui.scene.MODE_PUSH
 import ui.widget.HorizontalSeekBar
 import ui.widget.VerticalDivider
 import zhoutools.composeapp.generated.resources.Res
@@ -219,11 +222,11 @@ fun SettingsFragment(
             confirm = stringResource(Res.string.push),
             onCancel = {
                 showSyncDialog = false
-                navController.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, "pull"))
+                navController.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, MODE_PULL))
             },
             onConfirm = {
                 showSyncDialog = false
-                navController.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, "push"))
+                navController.navigate(RouteConstants.ROUTE_SYNC.replace(RouteConstants.PARAM_MODE, MODE_PUSH))
             },
             onDismiss = {
                 showSyncDialog = false
@@ -340,6 +343,7 @@ private fun SyncItem(onClick: () -> Unit) {
 @Composable
 private fun AutoSyncItem() {
     val isAutoSync = AppFlowStore.autoSyncFlow.collectAsStateWithLifecycle(initialValue = false).value
+    val isLastPushFailed = AppFlowStore.lastPushFailed.collectAsStateWithLifecycle(initialValue = false).value
     val scope = rememberCoroutineScope()
 
     Row(
@@ -351,13 +355,15 @@ private fun AutoSyncItem() {
             contentDescription = null,
             modifier = Modifier
                 .padding(top = 13.dp, bottom = 12.dp, start = 16.dp, end = 16.dp)
-                .size(26.dp),
+                .size(26.dp)
+                .alpha(if (isLastPushFailed) 0.3f else 1f),
             tint = Color.Unspecified
         )
 
         Text(
             text = stringResource(Res.string.auto_sync),
-            fontSize = 16.sp
+            fontSize = 16.sp,
+            modifier = Modifier.alpha(if (isLastPushFailed) 0.3f else 1f)
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -368,7 +374,8 @@ private fun AutoSyncItem() {
                 AppFlowStore.autoSyncFlow.emitIn(scope, it)
             },
             colors = SwitchDefaults.colors(checkedThumbColor = AppColors.Theme, checkedTrackColor = AppColors.LightTheme),
-            modifier = Modifier.padding(end = 12.dp)
+            modifier = Modifier.padding(end = 12.dp),
+            enabled = !isLastPushFailed
         )
     }
 }
