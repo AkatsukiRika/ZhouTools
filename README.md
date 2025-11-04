@@ -7,10 +7,18 @@
 | |                                                  |
 | - |--------------------------------------------------|
 | **Supported Platforms** | Android 7.0+ / iOS (building from source needed) |
-| **Latest Version** | 1.4.0                                            |
+| **Latest Version** | 1.5.0                                            |
 | **UI Language** | English                                          |
 
 ## Update Notes
+
+### Version 1.5.0
+
+- Upgraded to Compose 1.9: Removed deprecated third-party dependencies for better stability and maintainability.
+
+- New Built-in Calculator in Deposit: Easily track and manage your spending in real time.
+
+- Improved Sync Reliability: Added better network error handling to minimize the risk of data loss during synchronization.
 
 ### Version 1.4.0
 
