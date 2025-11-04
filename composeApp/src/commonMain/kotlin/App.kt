@@ -83,7 +83,7 @@ fun App() {
                 defaultValue = false
             })
         ) {
-            val isEdit = it.arguments?.getBoolean("edit") ?: false
+            val isEdit = it.savedStateHandle.get<Boolean>("edit") == true
 
             AppTheme {
                 WriteMemoScene(navController, isEdit)
@@ -104,7 +104,7 @@ fun App() {
                 type = NavType.StringType
             })
         ) {
-            val mode = it.arguments?.getString("mode") ?: ""
+            val mode = it.savedStateHandle.get<String>("mode") ?: ""
 
             AppTheme {
                 SyncScene(navController, mode)

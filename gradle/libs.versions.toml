@@ -4,7 +4,7 @@ android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
 androidx-activityCompose = "1.11.0"
-compose = "1.9.3"
+compose = "1.9.4"
 compose-plugin = "1.9.1"
 kotlin = "2.2.20"
 ktor = "2.3.7"
@@ -14,7 +14,7 @@ datetime = "0.7.1"
 logging = "1.4.2"
 material3 = "1.9.0"
 lifecycle = "2.9.5"
-navigation-compose = "2.8.0-alpha02"
+navigation-compose = "2.9.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
