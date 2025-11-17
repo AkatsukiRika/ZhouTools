@@ -7,10 +7,14 @@
 | |                                                  |
 | - |--------------------------------------------------|
 | **Supported Platforms** | Android 7.0+ / iOS (building from source needed) |
-| **Latest Version** | 1.5.0                                            |
+| **Latest Version** | 1.5.1                                            |
 | **UI Language** | English                                          |
 
 ## Update Notes
+
+### Version 1.5.1
+
+- Bug Fix: Unable enter group name in Write Memo page
 
 ### Version 1.5.0
 
