@@ -32,7 +32,6 @@ import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
@@ -89,13 +88,7 @@ fun WriteMemoScene(navController: NavHostController, isEdit: Boolean) {
     val state by viewModel.uiState.collectAsState()
     var showTextInput by remember { mutableStateOf(false) }
     val bottomSheetState = rememberStandardBottomSheetState(
-        skipHiddenState = false,
-        confirmValueChange = {
-            if (it != SheetValue.Expanded) {
-                showTextInput = false
-            }
-            true
-        }
+        skipHiddenState = false
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState)
 
