@@ -29,6 +29,22 @@ actual fun setClipboardContent(text: String) {
     clipboard.setPrimaryClip(clip)
 }
 
+actual fun openSystemPhotoLibrary(onImageSelected: (String?) -> Unit) {
+    val activity = MainActivity.context as? Activity
+    if (activity == null) {
+        onImageSelected(null)
+        return
+    }
+    MainActivity.onImagePicked = onImageSelected
+    val launcher = MainActivity.imagePickerLauncher
+    if (launcher == null) {
+        MainActivity.onImagePicked = null
+        onImageSelected(null)
+        return
+    }
+    launcher.launch("image/*")
+}
+
 actual fun hideSoftwareKeyboard() {
     val context = MainActivity.context ?: return
     val imeManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

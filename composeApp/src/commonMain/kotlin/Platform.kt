@@ -10,6 +10,8 @@ expect fun getAppVersion(): String
 
 expect fun setClipboardContent(text: String)
 
+expect fun openSystemPhotoLibrary(onImageSelected: (String?) -> Unit)
+
 expect fun hideSoftwareKeyboard()
 
 expect fun setStatusBarColor(colorStr: String, isLight: Boolean)

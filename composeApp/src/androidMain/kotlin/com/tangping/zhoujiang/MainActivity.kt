@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.Window
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -17,6 +19,8 @@ class MainActivity : ComponentActivity() {
         @SuppressLint("StaticFieldLeak")
         var context: Context? = null
         var window: Window? = null
+        var imagePickerLauncher: ActivityResultLauncher<String>? = null
+        var onImagePicked: ((String?) -> Unit)? = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +30,10 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         MainActivity.window = window
         KotStoreAndroidBase.init(this)
+        imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            onImagePicked?.invoke(uri?.toString())
+            onImagePicked = null
+        }
 
         setContent {
             App()

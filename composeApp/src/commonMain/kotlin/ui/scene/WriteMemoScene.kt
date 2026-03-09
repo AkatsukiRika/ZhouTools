@@ -79,6 +79,9 @@ import zhoutools.composeapp.generated.resources.set_as_todo
 import zhoutools.composeapp.generated.resources.unsorted
 import zhoutools.composeapp.generated.resources.write_memo
 import androidx.navigation.NavHostController
+import openSystemPhotoLibrary
+import org.jetbrains.compose.resources.DrawableResource
+import zhoutools.composeapp.generated.resources.ic_image
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -193,9 +196,24 @@ private fun MainColumn(
             )
 
             if (isImeVisible) {
-                ConfirmButton(modifier = Modifier.align(Alignment.BottomEnd), cornerRadius = 12.dp) {
-                    hideSoftwareKeyboard()
-                }
+                EditToolRow(
+                    modifier = Modifier.align(Alignment.BottomStart),
+                    onImageClick = {
+                        openSystemPhotoLibrary { imageUri ->
+                            if (imageUri.isNullOrBlank()) {
+                                return@openSystemPhotoLibrary
+                            }
+                            text = if (text.isBlank()) {
+                                imageUri
+                            } else {
+                                "$text\n$imageUri"
+                            }
+                        }
+                    },
+                    onConfirmClick = {
+                        hideSoftwareKeyboard()
+                    }
+                )
             }
         }
 
@@ -249,6 +267,25 @@ private fun MainColumn(
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
             )
+        }
+    }
+}
+
+@Composable
+private fun EditToolRow(
+    modifier: Modifier = Modifier,
+    onImageClick: () -> Unit,
+    onConfirmClick: () -> Unit
+) {
+    Row(modifier = modifier.fillMaxWidth()) {
+        ToolButton(iconRes = Res.drawable.ic_image) {
+            onImageClick()
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        ConfirmButton(cornerRadius = 12.dp) {
+            onConfirmClick()
         }
     }
 }
@@ -479,6 +516,35 @@ private fun ConfirmButton(modifier: Modifier = Modifier, cornerRadius: Dp = 8.dp
     ) {
         Icon(
             painter = painterResource(Res.drawable.ic_tick),
+            tint = Color.Black,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .size(24.dp),
+            contentDescription = null
+        )
+    }
+}
+
+@Composable
+private fun ToolButton(
+    modifier: Modifier = Modifier,
+    cornerRadius: Dp = 12.dp,
+    iconRes: DrawableResource,
+    onClick: () -> Unit
+) {
+    Box(modifier = modifier
+        .size(42.dp)
+        .background(
+            Brush.verticalGradient(colors = listOf(AppColors.Background, Color.LightGray.copy(alpha = 0.5f))),
+            RoundedCornerShape(cornerRadius)
+        )
+        .clip(RoundedCornerShape(cornerRadius))
+        .clickable {
+            onClick()
+        }
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
             tint = Color.Black,
             modifier = Modifier
                 .align(Alignment.Center)
