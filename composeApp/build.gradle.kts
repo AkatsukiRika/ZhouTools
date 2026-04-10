@@ -63,6 +63,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             // KotStore
             implementation(project(":kotStore"))
+            // Firebase Lib
+            implementation(project(":lib-firebase"))
         }
     }
 }
