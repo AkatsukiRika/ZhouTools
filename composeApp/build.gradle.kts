@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     kotlin(libs.plugins.serialization.get().pluginId).version(libs.versions.serialization)
+    alias(libs.plugins.googleServices)
 }
 
 compose.resources {
@@ -33,6 +34,8 @@ kotlin {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.android)
+            implementation(project.dependencies.platform(libs.firebase.bom.get()))
+            implementation(libs.firebase.config)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

@@ -71,7 +71,7 @@ fun HomeScene(navController: NavHostController) {
             .fillMaxSize()
             .background(AppColors.Background)
     ) {
-        val pagerState = rememberPagerState(initialPage = TabConstants.TAB_TIME_CARD, pageCount = { TabConstants.TAB_COUNT })
+        val pagerState = rememberPagerState(initialPage = TabConstants.TAB_SETTINGS, pageCount = { TabConstants.TAB_COUNT })
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             bottomBar = {

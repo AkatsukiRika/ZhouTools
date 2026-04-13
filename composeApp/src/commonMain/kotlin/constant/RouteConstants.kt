@@ -13,4 +13,5 @@ object RouteConstants {
     const val ROUTE_SYNC = "/sync/$PARAM_MODE"
     const val ROUTE_EXPORT = "/export"
     const val ROUTE_DEPOSIT_STATS = "/deposit/stats"
+    const val ROUTE_DEBUG = "/debug"
 }

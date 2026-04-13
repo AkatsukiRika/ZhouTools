@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tangping.lib.firebase.initFirebaseRemoteConfig
 import constant.RouteConstants
 import global.AppTheme
 import helper.NetworkHelper
@@ -18,6 +19,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.lighthousegames.logging.logging
 import store.AppStore
 import ui.scene.AddScheduleScene
+import ui.scene.DebugScene
 import ui.scene.DepositStatsScene
 import ui.scene.ExportDataScene
 import ui.scene.HomeScene
@@ -126,10 +128,19 @@ fun App() {
                 DepositStatsScene(navController)
             }
         }
+
+        composable(
+            route = RouteConstants.ROUTE_DEBUG,
+        ) {
+            AppTheme {
+                DebugScene(navController)
+            }
+        }
     }
 
     LaunchedEffect(Unit) {
         logger.i { "Welcome to Zhou Tools!" }
+        initFirebaseRemoteConfig()
         checkLoginValidity()
     }
 }

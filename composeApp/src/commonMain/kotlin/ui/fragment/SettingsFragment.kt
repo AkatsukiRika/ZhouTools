@@ -22,6 +22,7 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import constant.RouteConstants
+import extension.clickableNoRipple
 import extension.isValidUrl
 import extension.toHourMinString
 import extension.toMonthDayString
@@ -104,6 +106,7 @@ fun SettingsFragment(
     var showSyncDialog by remember { mutableStateOf(false) }
     var showServerDialog by remember { mutableStateOf(false) }
     var showDepositGoalDialog by remember { mutableStateOf(false) }
+    var debugTapCount by remember { mutableIntStateOf(0) }
 
     fun logout() {
         showLogoutDialog = false
@@ -196,7 +199,15 @@ fun SettingsFragment(
                 text = stringResource(Res.string.version_x, getAppVersion()),
                 color = Color.Black.copy(alpha = 0.5f),
                 fontSize = 16.sp,
-                modifier = Modifier.padding(top = 48.dp)
+                modifier = Modifier
+                    .padding(top = 48.dp)
+                    .clickableNoRipple {
+                        debugTapCount += 1
+                        if (debugTapCount >= 5) {
+                            debugTapCount = 0
+                            navController.navigate(RouteConstants.ROUTE_DEBUG)
+                        }
+                    }
             )
         }
     }

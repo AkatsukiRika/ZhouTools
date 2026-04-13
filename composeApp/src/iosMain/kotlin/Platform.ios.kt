@@ -118,3 +118,6 @@ actual fun rememberKeyboardVisibilityState(): State<Boolean> {
     }
     return isKeyboardVisible
 }
+
+actual fun initFirebaseRemoteConfig() {
+}

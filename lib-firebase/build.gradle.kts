@@ -20,7 +20,7 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
-            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:34.11.0"))
+            implementation(project.dependencies.platform(libs.firebase.bom.get()))
             implementation(libs.firebase.config)
         }
     }
