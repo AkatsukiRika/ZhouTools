@@ -26,9 +26,9 @@ kotlin {
 
 android {
     namespace = "com.tangping.kotstore"
-    compileSdk = 36
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
-        minSdk = 24
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
     kotlin {
         jvmToolchain(11)
