@@ -10,13 +10,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tangping.lib.firebase.getHomeTabList
 import com.tangping.lib.firebase.initFirebaseRemoteConfig
 import constant.RouteConstants
 import global.AppTheme
 import helper.NetworkHelper
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import model.request.LoginRequest
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.lighthousegames.logging.logging
+import store.AppFlowStore
 import store.AppStore
 import ui.scene.AddScheduleScene
 import ui.scene.DebugScene
@@ -140,7 +144,16 @@ fun App() {
 
     LaunchedEffect(Unit) {
         logger.i { "Welcome to Zhou Tools!" }
-        initFirebaseRemoteConfig()
+        val appScope = this
+        initFirebaseRemoteConfig {
+            appScope.launch {
+                val latestHomeTabList = getHomeTabList()
+                val cachedHomeTabList = AppFlowStore.homeTabList.first()
+                if (latestHomeTabList != cachedHomeTabList) {
+                    AppFlowStore.setHomeTabList(latestHomeTabList)
+                }
+            }
+        }
         checkLoginValidity()
     }
 }

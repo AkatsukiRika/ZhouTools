@@ -39,6 +39,7 @@ import zhoutools.composeapp.generated.resources.time_card
 @Composable
 fun BottomBar(
     modifier: Modifier = Modifier,
+    tabs: List<Int>,
     selectIndex: Int,
     onSelect: (Int) -> Unit
 ) {
@@ -52,62 +53,42 @@ fun BottomBar(
         modifier = rootModifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(modifier = Modifier.weight(1f))
+        tabs.forEachIndexed { index, tabId ->
+            Spacer(modifier = Modifier.weight(1f))
 
-        BottomBarItem(
-            index = TabConstants.TAB_TIME_CARD,
-            selectIndex = selectIndex,
-            icon = Res.drawable.ic_time_card,
-            name = Res.string.time_card
-        ) {
-            onSelect(it)
+            BottomBarItem(
+                index = index,
+                selectIndex = selectIndex,
+                icon = getTabIcon(tabId),
+                name = getTabName(tabId)
+            ) {
+                onSelect(it)
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
+    }
+}
 
-        BottomBarItem(
-            index = TabConstants.TAB_SCHEDULE,
-            selectIndex = selectIndex,
-            icon = Res.drawable.ic_schedule,
-            name = Res.string.schedule
-        ) {
-            onSelect(it)
-        }
+private fun getTabIcon(tabId: Int): DrawableResource {
+    return when (tabId) {
+        TabConstants.TAB_TIME_CARD -> Res.drawable.ic_time_card
+        TabConstants.TAB_SCHEDULE -> Res.drawable.ic_schedule
+        TabConstants.TAB_MEMO -> Res.drawable.ic_memo
+        TabConstants.TAB_DEPOSIT -> Res.drawable.ic_deposit
+        TabConstants.TAB_SETTINGS -> Res.drawable.ic_settings
+        else -> Res.drawable.ic_time_card
+    }
+}
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        BottomBarItem(
-            index = TabConstants.TAB_MEMO,
-            selectIndex = selectIndex,
-            icon = Res.drawable.ic_memo,
-            name = Res.string.memo
-        ) {
-            onSelect(it)
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        BottomBarItem(
-            index = TabConstants.TAB_DEPOSIT,
-            selectIndex = selectIndex,
-            icon = Res.drawable.ic_deposit,
-            name = Res.string.deposit
-        ) {
-            onSelect(it)
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        BottomBarItem(
-            index = TabConstants.TAB_SETTINGS,
-            selectIndex = selectIndex,
-            icon = Res.drawable.ic_settings,
-            name = Res.string.settings
-        ) {
-            onSelect(it)
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
+private fun getTabName(tabId: Int): StringResource {
+    return when (tabId) {
+        TabConstants.TAB_TIME_CARD -> Res.string.time_card
+        TabConstants.TAB_SCHEDULE -> Res.string.schedule
+        TabConstants.TAB_MEMO -> Res.string.memo
+        TabConstants.TAB_DEPOSIT -> Res.string.deposit
+        TabConstants.TAB_SETTINGS -> Res.string.settings
+        else -> Res.string.time_card
     }
 }
 

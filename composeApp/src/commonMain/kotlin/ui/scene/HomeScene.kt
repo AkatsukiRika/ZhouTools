@@ -14,13 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.navigation.NavHostController
+import com.tangping.lib.firebase.DEFAULT_HOME_TAB_LIST
 import constant.RouteConstants
 import constant.TabConstants
 import global.AppColors
@@ -47,11 +50,52 @@ fun HomeScene(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val lastPushFailed = AppFlowStore.lastPushFailed.collectAsState(false).value
+    val cachedHomeTabList by produceState<String?>(initialValue = null) {
+        AppFlowStore.homeTabList.collect { value = it }
+    }
     var showWarningDialog by remember { mutableStateOf<Boolean?>(null) }
+
+    if (cachedHomeTabList == null) {
+        BaseImmersiveScene(
+            statusBarColorStr = "#F4F4F4",
+            navigationBarColorStr = "#FFFFFF",
+            statusBarPadding = true,
+            navigationBarPadding = false,
+            modifier = Modifier
+                .imePadding()
+                .fillMaxSize()
+                .background(AppColors.Background)
+        ) {}
+        return
+    }
+
+    val homeTabs = remember(cachedHomeTabList) {
+        TabConstants.parseHomeTabList(cachedHomeTabList ?: DEFAULT_HOME_TAB_LIST)
+    }
+    val initialPage = 0
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { homeTabs.size })
+    var selectedTabId by remember { mutableIntStateOf(homeTabs.first()) }
 
     LaunchedEffect(lastPushFailed) {
         if (lastPushFailed && showWarningDialog == null) {
             showWarningDialog = true
+        }
+    }
+
+    LaunchedEffect(homeTabs) {
+        if (selectedTabId !in homeTabs) {
+            selectedTabId = homeTabs.first()
+        }
+
+        val targetPage = homeTabs.indexOf(selectedTabId)
+        if (targetPage >= 0 && pagerState.currentPage != targetPage) {
+            pagerState.scrollToPage(targetPage)
+        }
+    }
+
+    LaunchedEffect(pagerState.currentPage, homeTabs) {
+        homeTabs.getOrNull(pagerState.currentPage)?.let {
+            selectedTabId = it
         }
     }
 
@@ -71,13 +115,14 @@ fun HomeScene(navController: NavHostController) {
             .fillMaxSize()
             .background(AppColors.Background)
     ) {
-        val pagerState = rememberPagerState(initialPage = TabConstants.TAB_SETTINGS, pageCount = { TabConstants.TAB_COUNT })
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             bottomBar = {
                 BottomBar(
+                    tabs = homeTabs,
                     selectIndex = pagerState.currentPage,
                     onSelect = {
+                        selectedTabId = homeTabs[it]
                         scope.launch {
                             pagerState.scrollToPage(page = it)
                         }
@@ -95,7 +140,7 @@ fun HomeScene(navController: NavHostController) {
                         CurrentProcessStore.screenWidthPixels.value = it.width
                     }
             ) {
-                when (it) {
+                when (homeTabs.getOrElse(it) { TabConstants.TAB_TIME_CARD }) {
                     TabConstants.TAB_TIME_CARD -> TimeCardFragment(
                         modifier = Modifier.fillMaxSize(),
                         navController

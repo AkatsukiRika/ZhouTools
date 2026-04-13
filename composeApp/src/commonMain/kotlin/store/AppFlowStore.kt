@@ -2,6 +2,7 @@ package store
 
 import FLOW_PREFERENCES_NAME
 import com.tangping.kotstore.model.KotStoreFlowModel
+import com.tangping.lib.firebase.DEFAULT_HOME_TAB_LIST
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -21,6 +22,7 @@ object AppFlowStore : KotStoreFlowModel<AppFlowStore>(storeName = FLOW_PREFERENC
     val lastPushScheduleStatus by intFlowStore(key = "last_push_schedule_status_flow", default = STATUS_NONE)
     val lastPushMemoStatus by intFlowStore(key = "last_push_memo_status_flow", default = STATUS_NONE)
     val lastPushDepositStatus by intFlowStore(key = "last_push_deposit_status_flow", default = STATUS_NONE)
+    val homeTabList by stringFlowStore(key = "home_tab_list", default = DEFAULT_HOME_TAB_LIST)
 
     private val _lastPushFailed = MutableStateFlow(false)
     val lastPushFailed: StateFlow<Boolean> = _lastPushFailed
@@ -62,10 +64,15 @@ object AppFlowStore : KotStoreFlowModel<AppFlowStore>(storeName = FLOW_PREFERENC
         }
     }
 
-    fun clearLastPushStatuses() {
+    fun setHomeTabList(newList: String) {
+        homeTabList.emitIn(scope, newList)
+    }
+
+    fun clearCache() {
         setLastPushTimeCardStatus(STATUS_NONE)
         setLastPushScheduleStatus(STATUS_NONE)
         setLastPushMemoStatus(STATUS_NONE)
         setLastPushDepositStatus(STATUS_NONE)
+        setHomeTabList(DEFAULT_HOME_TAB_LIST)
     }
 }
