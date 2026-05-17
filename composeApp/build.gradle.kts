@@ -100,9 +100,6 @@ android {
             isMinifyEnabled = false
         }
     }
-    kotlin {
-        jvmToolchain(11)
-    }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
     }
@@ -115,4 +112,3 @@ android {
         }
     }
 }
-
