@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -49,11 +50,12 @@ import zhoutools.composeapp.generated.resources.warning_upload_fail
 fun HomeScene(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val lastPushFailed = AppFlowStore.lastPushFailed.collectAsState(false).value
+    val lastPushFailed = AppFlowStore.lastPushFailed.collectAsState(initial = false).value
     val cachedHomeTabList by produceState<String?>(initialValue = null) {
         AppFlowStore.homeTabList.collect { value = it }
     }
     var showWarningDialog by remember { mutableStateOf<Boolean?>(null) }
+    var selectedTabId by rememberSaveable { mutableIntStateOf(TabConstants.TAB_TIME_CARD) }
 
     if (cachedHomeTabList == null) {
         BaseImmersiveScene(
@@ -72,9 +74,8 @@ fun HomeScene(navController: NavHostController) {
     val homeTabs = remember(cachedHomeTabList) {
         TabConstants.parseHomeTabList(cachedHomeTabList ?: DEFAULT_HOME_TAB_LIST)
     }
-    val initialPage = 0
+    val initialPage = homeTabs.indexOf(selectedTabId).takeIf { it >= 0 } ?: 0
     val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { homeTabs.size })
-    var selectedTabId by remember { mutableIntStateOf(homeTabs.first()) }
 
     LaunchedEffect(lastPushFailed) {
         if (lastPushFailed && showWarningDialog == null) {
