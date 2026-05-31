@@ -33,6 +33,7 @@ import org.jetbrains.compose.resources.stringResource
 import store.AppFlowStore
 import store.CurrentProcessStore
 import ui.dialog.WarningDialog
+import ui.fragment.AgentFragment
 import ui.fragment.DepositFragment
 import ui.fragment.MemoFragment
 import ui.fragment.ScheduleFragment
@@ -41,6 +42,7 @@ import ui.fragment.TimeCardFragment
 import ui.widget.BaseImmersiveScene
 import ui.widget.BottomBar
 import util.BackHandler
+import hideSoftwareKeyboard
 import zhoutools.composeapp.generated.resources.Res
 import zhoutools.composeapp.generated.resources.retry_upload
 import zhoutools.composeapp.generated.resources.warning_upload_fail
@@ -123,6 +125,7 @@ fun HomeScene(navController: NavHostController) {
                     tabs = homeTabs,
                     selectIndex = pagerState.currentPage,
                     onSelect = {
+                        hideSoftwareKeyboard()
                         selectedTabId = homeTabs[it]
                         scope.launch {
                             pagerState.scrollToPage(page = it)
@@ -154,6 +157,7 @@ fun HomeScene(navController: NavHostController) {
                     TabConstants.TAB_MEMO -> MemoFragment(navController)
                     TabConstants.TAB_SCHEDULE -> ScheduleFragment(navController)
                     TabConstants.TAB_DEPOSIT -> DepositFragment(navController)
+                    TabConstants.TAB_AGENT -> AgentFragment(navController)
                     else -> TimeCardFragment(
                         modifier = Modifier.fillMaxSize(),
                         navController

@@ -25,6 +25,8 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import zhoutools.composeapp.generated.resources.Res
+import zhoutools.composeapp.generated.resources.agent
+import zhoutools.composeapp.generated.resources.ic_agent
 import zhoutools.composeapp.generated.resources.deposit
 import zhoutools.composeapp.generated.resources.ic_deposit
 import zhoutools.composeapp.generated.resources.ic_memo
@@ -77,6 +79,7 @@ private fun getTabIcon(tabId: Int): DrawableResource {
         TabConstants.TAB_MEMO -> Res.drawable.ic_memo
         TabConstants.TAB_DEPOSIT -> Res.drawable.ic_deposit
         TabConstants.TAB_SETTINGS -> Res.drawable.ic_settings
+        TabConstants.TAB_AGENT -> Res.drawable.ic_agent
         else -> Res.drawable.ic_time_card
     }
 }
@@ -88,6 +91,7 @@ private fun getTabName(tabId: Int): StringResource {
         TabConstants.TAB_MEMO -> Res.string.memo
         TabConstants.TAB_DEPOSIT -> Res.string.deposit
         TabConstants.TAB_SETTINGS -> Res.string.settings
+        TabConstants.TAB_AGENT -> Res.string.agent
         else -> Res.string.time_card
     }
 }

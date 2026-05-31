@@ -8,12 +8,14 @@ object TabConstants {
     const val TAB_SETTINGS = 2
     const val TAB_MEMO = 3
     const val TAB_DEPOSIT = 4
+    const val TAB_AGENT = 5
 
     private const val KEY_TIME_CARD = "tab_time_card"
     private const val KEY_SCHEDULE = "tab_schedule"
     private const val KEY_SETTINGS = "tab_settings"
     private const val KEY_MEMO = "tab_memo"
     private const val KEY_DEPOSIT = "tab_deposit"
+    private const val KEY_AGENT = "tab_agent"
 
     val DEFAULT_HOME_TABS = listOf(
         TAB_TIME_CARD,
@@ -43,6 +45,7 @@ object TabConstants {
             KEY_SETTINGS -> TAB_SETTINGS
             KEY_MEMO -> TAB_MEMO
             KEY_DEPOSIT -> TAB_DEPOSIT
+            KEY_AGENT -> TAB_AGENT
             else -> null
         }
     }
