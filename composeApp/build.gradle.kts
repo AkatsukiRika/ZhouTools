@@ -69,6 +69,9 @@ kotlin {
             // Firebase Lib
             implementation(project(":lib-firebase"))
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
     }
 }
 

@@ -22,16 +22,15 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import constant.TabConstants
 import extension.clickableNoRipple
@@ -48,6 +47,9 @@ import zhoutools.composeapp.generated.resources.ic_send
 
 @Composable
 fun AgentFragment(navController: NavHostController) {
+    val viewModel = viewModel { AgentViewModel() }
+    val state by viewModel.uiState.collectAsState()
+
     BaseImmersiveScene(
         modifier = Modifier
             .imePadding()
@@ -68,16 +70,26 @@ fun AgentFragment(navController: NavHostController) {
             )
 
             ChatContent(
+                messages = state.messages,
                 modifier = Modifier.weight(1f)
             )
 
-            ChatInputBar()
+            ChatInputBar(
+                value = state.inputText,
+                enabled = !state.isSending,
+                onValueChange = {
+                    viewModel.dispatch(AgentAction.InputChanged(it))
+                },
+                onSend = {
+                    viewModel.dispatch(AgentAction.SendMessage)
+                }
+            )
         }
     }
 }
 
 @Composable
-private fun ChatContent(modifier: Modifier = Modifier) {
+private fun ChatContent(messages: List<AgentMessage>, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -87,20 +99,12 @@ private fun ChatContent(modifier: Modifier = Modifier) {
     ) {
         Spacer(modifier = Modifier.height(4.dp))
 
-        MessageBubble(
-            text = "Hi, I can help you organize ideas, answer questions, or draft something together.",
-            isUser = false
-        )
-
-        MessageBubble(
-            text = "Could you summarize today's priorities for me?",
-            isUser = true
-        )
-
-        MessageBubble(
-            text = "Sure. You can break today into three parts: tasks, time blocks, and items that need syncing.",
-            isUser = false
-        )
+        messages.forEach { message ->
+            MessageBubble(
+                text = message.content,
+                isUser = message.role == AgentRole.User
+            )
+        }
     }
 }
 
@@ -128,9 +132,12 @@ private fun MessageBubble(text: String, isUser: Boolean) {
 }
 
 @Composable
-private fun ChatInputBar() {
-    var text by remember { mutableStateOf("") }
-
+private fun ChatInputBar(
+    value: String,
+    enabled: Boolean,
+    onValueChange: (String) -> Unit,
+    onSend: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -146,8 +153,9 @@ private fun ChatInputBar() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(
-                value = text,
-                onValueChange = { text = it },
+                value = value,
+                onValueChange = onValueChange,
+                enabled = enabled,
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp),
@@ -166,7 +174,10 @@ private fun ChatInputBar() {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(AppColors.Theme),
+                    .background(if (enabled && value.isNotBlank()) AppColors.Theme else Color.LightGray)
+                    .clickableNoRipple {
+                        onSend()
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
