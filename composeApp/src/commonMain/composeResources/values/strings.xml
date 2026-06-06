@@ -156,4 +156,6 @@
     <!-- Agent Tab -->
     <string name="agent">Agent</string>
     <string name="agent_message_hint">Message Agent</string>
+    <string name="agent_new_chat">New Chat</string>
+    <string name="agent_model">Model</string>
 </resources>
